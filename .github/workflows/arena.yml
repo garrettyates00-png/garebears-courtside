@@ -1,0 +1,35 @@
+name: Refresh Arena
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+  push:
+    paths: ["arena.py", ".github/workflows/arena.yml", "arena/config.json"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh
+  cancel-in-progress: false
+
+jobs:
+  arena:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - name: Pull team data from ESPN
+        env:
+          YT_API_KEY: ${{ secrets.YT_API_KEY }}
+        run: python arena.py
+      - name: Commit
+        run: |
+          git config user.name "courtside-bot"
+          git config user.email "courtside-bot@users.noreply.github.com"
+          git add arena
+          git diff --cached --quiet || (git commit -m "Refresh Arena data" && git pull --rebase -q && git push)
