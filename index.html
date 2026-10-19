@@ -153,6 +153,60 @@ button.item{font:inherit;text-align:left;cursor:pointer;width:100%}
 .nr-empty{color:var(--mute);font-size:14px;padding:20px 0}
 .vplayer{width:min(960px,100%);aspect-ratio:16/9;border:0;border-radius:16px;background:#000}
 @media (max-width:860px){.nr{grid-template-columns:1fr}.lead{min-height:260px}}
+/* tabs */
+.seg{display:inline-flex;padding:3px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--line2);gap:2px}
+.seg button{font:500 13.5px var(--sans);color:var(--mute);background:transparent;border:0;border-radius:999px;padding:6px 16px;cursor:pointer;transition:background .25s,color .25s}
+.seg button[aria-selected="true"]{background:var(--hi);color:#0b0b0d}
+.view{display:grid;gap:22px}.view[hidden]{display:none}#moves{align-content:start}
+/* Arena theme: team colors tint the light and accents */
+:root{--tc:#8a8f9c;--tc2:#30333b;--tcText:color-mix(in srgb,var(--tc) 55%,#fff)}
+body[data-view="arena"] .amb i:nth-child(1){background:radial-gradient(circle,color-mix(in srgb,var(--tc) 55%,transparent),transparent 65%)}
+body[data-view="arena"] .amb i:nth-child(2){background:radial-gradient(circle,color-mix(in srgb,var(--tc2) 70%,transparent),transparent 65%)}
+body[data-view="arena"] .amb i:nth-child(3){background:radial-gradient(circle,color-mix(in srgb,var(--tc) 30%,transparent),transparent 65%)}
+body[data-view="arena"] .seg button[aria-selected="true"]{background:var(--tcText)}
+.amb i{transition:background 1.2s ease}
+.tm-top{display:grid;grid-template-columns:auto 1fr auto;gap:22px;align-items:center}
+.tlogo{width:96px;height:96px;object-fit:contain;filter:drop-shadow(0 10px 30px color-mix(in srgb,var(--tc) 60%,transparent))}
+.tname{font:900 clamp(26px,4.4vw,46px)/1 "Archivo",var(--sans);font-stretch:125%;letter-spacing:-.035em;text-transform:uppercase;margin:6px 0 0}
+.tsel{display:grid;gap:4px;justify-items:end}
+.form{display:inline-flex;gap:4px}.form i{font:600 11px var(--mono);font-style:normal;width:22px;height:22px;display:grid;place-items:center;border-radius:6px}
+.form i.w{background:rgba(158,240,196,.15);color:var(--up)}.form i.l{background:rgba(255,157,166,.14);color:var(--down)}
+.ng{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;margin:12px 0 6px}
+.ngt{display:grid;justify-items:center;gap:6px}.ngt img{width:64px;height:64px;object-fit:contain}.ngt b{font:600 18px var(--mono)}
+.wp{display:grid;grid-template-columns:110px 1fr 44px;gap:10px;align-items:center;font-size:13px;color:var(--mute)}
+.wp .meter span{background:linear-gradient(90deg,color-mix(in srgb,var(--tcText) 60%,transparent),var(--tcText))}
+.lines{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+.lines div,.tiles div,.zones div{padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.035);border:1px solid var(--line);display:grid;gap:2px;font-size:12px;min-width:0}
+.lines b,.tiles b,.zones b{font-size:17px;font-weight:500}
+.best{margin-top:14px;padding:16px;border-radius:14px;border:1px solid color-mix(in srgb,var(--tcText) 45%,transparent);background:linear-gradient(135deg,color-mix(in srgb,var(--tc) 22%,transparent),rgba(255,255,255,.02));display:grid;gap:6px}
+.bb{font:500 22px var(--sans);letter-spacing:-.02em}
+.pks{display:grid;gap:2px;margin:14px 0}
+.pk{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.res{font:600 12px var(--mono);width:24px;height:24px;border-radius:7px;display:grid;place-items:center;background:rgba(255,255,255,.07);color:var(--mute)}
+.res.w{background:rgba(158,240,196,.15);color:var(--up)}.res.l{background:rgba(255,157,166,.14);color:var(--down)}
+.gstrip{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.gchip{all:unset;box-sizing:border-box;cursor:pointer;display:grid;gap:2px;min-width:112px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.03);font-size:12px;position:relative}
+.gchip b{font:600 16px var(--sans)}.gchip .num{font-size:13px}.gchip.w .num{color:var(--up)}.gchip.l .num{color:var(--down)}
+.gchip small{position:absolute;top:8px;right:10px;font:500 9.5px var(--mono);color:var(--faint)}
+.gchip.sel{border-color:var(--tcText);background:color-mix(in srgb,var(--tc) 18%,transparent)}
+.gchip:focus-visible{outline:2px solid var(--hi)}
+table.box td,table.box th{padding:8px 8px;font-size:13.5px;white-space:nowrap}
+.court{width:100%;max-width:520px;display:block;margin:4px auto 12px;background:radial-gradient(circle at 50% 10%,color-mix(in srgb,var(--tc) 14%,transparent),transparent 70%);border-radius:14px}
+.court .mk{fill:var(--tcText);fill-opacity:.85;stroke:rgba(0,0,0,.35);stroke-width:1}
+.court .ms{stroke:rgba(255,255,255,.4);stroke-width:2;fill:none}
+svg .mk{fill:var(--tcText)}svg .ms{stroke:rgba(255,255,255,.5);stroke-width:2}
+.zones{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.lb{display:grid;gap:4px;margin-bottom:12px}
+.lbr{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:24px 42px 1fr auto;gap:12px;align-items:center;padding:8px 6px;border-radius:12px;font-size:14px}
+.lbr:hover{background:rgba(255,255,255,.04)}.lbr:focus-visible{outline:2px solid var(--hi)}
+.lbr img{width:42px;height:42px;border-radius:50%;object-fit:cover;object-position:top;background:rgba(255,255,255,.06)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.cmps{display:grid;gap:12px}.cmp{display:grid;gap:6px;font-size:13.5px}
+.duo{display:flex;gap:3px;height:6px}.duo i{border-radius:4px;display:block}.duo i:first-child{background:var(--tcText)}.duo i:last-child{background:rgba(255,255,255,.18)}
+.vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.vgrid .vcard.big{grid-column:span 2;grid-row:span 2}
+.sch{display:grid;gap:4px}.sg{display:grid;grid-template-columns:36px 1fr;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}.sg img{width:32px;height:32px;object-fit:contain}
+@media (max-width:700px){.tm-top{grid-template-columns:auto 1fr}.tsel{grid-column:1/-1;justify-items:start}.tlogo{width:64px;height:64px}.lines,.zones{grid-template-columns:repeat(2,1fr)}.vgrid .vcard.big{grid-column:auto;grid-row:auto}.wp{grid-template-columns:90px 1fr 40px}}
 /* lineup */
 .tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none}
 .tab{font:500 13px var(--sans);color:var(--mute);background:transparent;border:1px solid var(--line);border-radius:12px;padding:8px 12px;cursor:pointer;white-space:nowrap;text-align:left}
@@ -241,6 +295,7 @@ select{font:500 13.5px var(--sans);color:var(--ink);background:var(--glass2);bor
   <header class="bar">
     <i class="edge" aria-hidden="true"></i><i class="cnr l" aria-hidden="true"></i><i class="cnr r" aria-hidden="true"></i>
     <div class="mark"><h1>Courtside</h1><span class="meta"><span class="dot" id="dot"></span><span id="pulled">Loading</span></span></div>
+    <div class="seg" role="tablist" aria-label="Section"><button type="button" role="tab" data-view="fantasy" aria-selected="true">Fantasy</button><button type="button" role="tab" data-view="arena" aria-selected="false">Arena</button></div>
     <div class="btns">
       <button class="b" id="refresh" type="button" title="Reload the newest published data">Reload</button>
       <button class="b primary" id="force" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg><span>Force update</span></button>
@@ -248,6 +303,7 @@ select{font:500 13.5px var(--sans);color:var(--ink);background:var(--glass2);bor
     <div class="status" id="status" aria-live="polite" style="flex-basis:100%"></div>
   </header>
 
+  <div id="fantasyView" class="view">
   <section class="g pad hero" id="hero" tabindex="0" role="button" aria-label="Open your matchup"></section>
 
   <section>
@@ -306,6 +362,26 @@ select{font:500 13.5px var(--sans);color:var(--ink);background:var(--glass2);bor
   </section>
 
   <p class="foot">Pulled from ESPN every 30 minutes by GitHub Actions. Owner names are shortened for privacy.</p>
+  </div>
+  <div id="arenaView" class="view" hidden>
+    <section class="g pad ahero" id="aHero"></section>
+    <div class="two">
+      <section class="g pad" id="aNext"></section>
+      <section class="g pad" id="aBets"></section>
+    </div>
+    <section class="g pad" id="aGames"></section>
+    <div class="two">
+      <section class="g pad" id="aShots"></section>
+      <section class="g pad" id="aImpact"></section>
+    </div>
+    <section class="g pad" id="aTeam"></section>
+    <section class="g pad" id="aMedia"></section>
+    <div class="two">
+      <section class="g pad" id="aNews"></section>
+      <section class="g pad" id="aSched"></section>
+    </div>
+    <p class="foot">Live team data from ESPN, refreshed every 30 minutes. Lines are DraftKings via ESPN. Model picks are for fun, not financial advice. 21+.</p>
+  </div>
 </div>
 
 <script>
@@ -531,7 +607,7 @@ function renderScoring(){const sc=D.scoring||{};const order=[0,3,6,4,2,1,17,13,1
   $("#scoring").innerHTML=order.filter(k=>sc[k]!=null).map(k=>`<div><span class="mute">${STAT[k]}</span><span class="v ${sc[k]<0?"down":""}">${sc[k]>0?"+":""}${sc[k]}</span></div>`).join("")}
 function renderAll(){
   const age=D.pulled_iso?(Date.now()-Date.parse(D.pulled_iso))/60000:0;
-  $("#pulled").textContent="Updated "+D.pulled;$("#dot").classList.toggle("stale",age>75);
+  if(document.body.dataset.view!=="arena")$("#pulled").textContent="Updated "+D.pulled;$("#dot").classList.toggle("stale",age>75);
   if(!forcing)$("#status").textContent=age>75?`This data is ${age>120?Math.round(age/60)+" hours":Math.round(age)+" minutes"} old. Try Force update. If that fails, your ESPN cookies have probably expired.`:"";
   renderHero();renderCards();renderDays();renderPower();renderStrength(selTeam);renderWire();renderScoring();renderNewsroom();
 }
@@ -540,7 +616,7 @@ function renderAll(){
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1792385892";
+const BUILD="1792389182";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(checkBuild,90000);
 loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
@@ -581,4 +657,5 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
+<script src="arena.js"></script>
 </body></html>

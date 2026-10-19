@@ -332,13 +332,23 @@ def build(abbr):
     stale = not yc.get("at") or (NOW - dt.datetime.fromisoformat(yc["at"])).total_seconds() > 3 * 3600
     if YT and stale:
         try:
-            handle = {"mem": "@memgrizz"}.get(abbr, "@" + team.get("name", "").replace(" ", ""))
-            ch = get("https://www.googleapis.com/youtube/v3/channels", part="contentDetails", forHandle=handle, key=YT)
-            up = ch["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
-            pl = get("https://www.googleapis.com/youtube/v3/playlistItems", part="snippet", playlistId=up, maxResults=24, key=YT)
-            yc = {"at": NOW.isoformat(), "items": [dict(vid=i["snippet"]["resourceId"]["videoId"], title=html.unescape(i["snippet"]["title"]),
-                                                       date=i["snippet"]["publishedAt"], img=(i["snippet"].get("thumbnails", {}).get("high") or {}).get("url", ""))
-                                                  for i in pl.get("items", []) if i["snippet"]["resourceId"].get("videoId")]}
+            since = (NOW - dt.timedelta(days=45)).strftime("%Y-%m-%dT%H:%M:%SZ")
+            items, seen = [], set()
+            # newest team-tagged videos from the NBA's channel, then the newest team videos anywhere
+            for prm in (dict(channelId="UCWJ2lWNubArHWmf3FIHbfcQ", q=team.get("displayName", "")),
+                        dict(q=f'"{team.get("displayName", "")}" highlights')):
+                j = get("https://www.googleapis.com/youtube/v3/search", part="snippet", type="video", order="date", maxResults=15,
+                        publishedAfter=since, videoEmbeddable="true", relevanceLanguage="en", key=YT, **prm)
+                for i in j.get("items", []):
+                    vid = i["id"].get("videoId"); sn = i["snippet"]
+                    title = html.unescape(sn["title"])
+                    if not vid or vid in seen: continue
+                    if team.get("name", "").lower() not in (title + " " + sn.get("description", "")).lower(): continue
+                    seen.add(vid)
+                    items.append(dict(vid=vid, title=title, date=sn["publishedAt"], ch=sn.get("channelTitle", ""),
+                                      img=(sn.get("thumbnails", {}).get("high") or {}).get("url", "")))
+            items.sort(key=lambda v: v["date"], reverse=True)
+            yc = {"at": NOW.isoformat(), "items": items}
             json.dump(yc, open(ycache, "w"))
         except Exception as e:
             print("youtube:", e)
