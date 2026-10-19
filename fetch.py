@@ -250,6 +250,70 @@ def main():
 
     with ThreadPoolExecutor(max_workers=12) as ex:
         news = [x for x in ex.map(one_news, players) if x]
+
+    # ---- Newsroom: ESPN stories, highlight videos, fantasy notes, optional YouTube highlights ----
+    by_id = {p["id"]: p for p in players}
+    def rel_of(pids, tids):
+        owners = {by_id[i]["t"] for i in pids if i in by_id}
+        if MY_TEAM in owners: return "me"
+        if opp in owners: return "opp"
+        if owners: return "league"
+        my_nba = {p["tm"] for p in players if p["t"] == MY_TEAM}
+        return "myteams" if any(pro_abbr.get(t) in my_nba for t in tids) else "nba"
+
+    def art(x):
+        cats = x.get("categories") or []
+        pids = [c.get("athleteId") for c in cats if c.get("type") == "athlete" and c.get("athleteId")]
+        tids = [c.get("teamId") for c in cats if c.get("type") == "team" and c.get("teamId")]
+        img = next((i.get("url") for i in (x.get("images") or []) if i.get("url")), "")
+        return dict(kind="video" if x.get("type") == "Media" else "story", title=x.get("headline", ""), text=(x.get("description") or "")[:260],
+                    img=img, url=((x.get("links") or {}).get("web") or {}).get("href", ""), date=x.get("published") or x.get("lastModified") or "",
+                    players=[by_id[i]["n"] for i in pids if i in by_id], rel=rel_of(pids, tids), id=x.get("id"))
+
+    feed, seen_ids = [], set()
+    def add_articles(url):
+        try:
+            for x in requests.get(url, headers=HDR, timeout=20).json().get("articles", []):
+                if x.get("id") in seen_ids: continue
+                seen_ids.add(x.get("id")); feed.append(art(x))
+        except Exception:
+            pass
+    add_articles("https://site.api.espn.com/apis/site/v2/sports/basketball/nba/news?limit=100")
+    my_pro = {p_id for p_id, ab in pro_abbr.items() if ab in {p["tm"] for p in players if p["t"] in (MY_TEAM, opp)}}
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        list(ex.map(lambda t: add_articles(f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/{t}/news?limit=12"), sorted(my_pro)))
+    for n in news:  # fantasy notes (one per rostered player)
+        feed.append(dict(kind="note", title=n["n"], text=n["text"], img=f"https://a.espncdn.com/i/headshots/nba/players/full/{next((p['id'] for p in players if p['n']==n['n']), 0)}.png",
+                         url="", date=n["date"], players=[n["n"]], rel="me" if n["t"] == MY_TEAM else "opp" if n["t"] == opp else "league", inj=n["inj"]))
+
+    # YouTube highlights (needs YT_API_KEY secret). Cached for 12 hours to stay inside the free daily quota.
+    yt_key = os.environ.get("YT_API_KEY", "")
+    try:
+        cache = json.load(open("highlights.json"))
+    except Exception:
+        cache = {"at": "", "items": []}
+    fresh = cache.get("at") and (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(cache["at"])).total_seconds() < 12 * 3600
+    if yt_key and not fresh:
+        items = []
+        stars = sorted([p for p in players if p["t"] in (MY_TEAM, opp)], key=lambda p: -p["pa"])[:16]
+        since = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=14)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        for p in stars:
+            try:
+                j = requests.get("https://www.googleapis.com/youtube/v3/search", timeout=15, params=dict(
+                    key=yt_key, part="snippet", q=f"{p['n']} highlights", type="video", maxResults=1, order="relevance",
+                    channelId="UCWJ2lWNubArHWmf3FIHbfcQ", publishedAfter=since, videoEmbeddable="true")).json()
+                for v in j.get("items", []):
+                    items.append(dict(vid=v["id"]["videoId"], title=v["snippet"]["title"], date=v["snippet"]["publishedAt"],
+                                      img=v["snippet"]["thumbnails"].get("high", {}).get("url", ""), player=p["n"],
+                                      rel="me" if p["t"] == MY_TEAM else "opp"))
+            except Exception:
+                pass
+        cache = {"at": dt.datetime.now(dt.timezone.utc).isoformat(), "items": items}
+        json.dump(cache, open("highlights.json", "w"))
+    for v in cache.get("items", []):
+        feed.append(dict(kind="yt", title=v["title"], text="", img=v["img"], url=f"https://www.youtube.com/watch?v={v['vid']}", vid=v["vid"],
+                         date=v["date"], players=[v["player"]], rel=v["rel"]))
+    feed.sort(key=lambda x: x.get("date") or "", reverse=True)
     news.sort(key=lambda x: (x["t"] != MY_TEAM, not x["inj"], x["date"]), reverse=False)
 
     for p in players: p["v"] = round(value(p), 1)
@@ -267,7 +331,7 @@ def main():
     data = dict(pulled=dt.datetime.now(TZ).strftime("%b %-d, %-I:%M %p CT"), pulled_iso=dt.datetime.now(dt.timezone.utc).isoformat(), pending=pending, league=settings["name"], me=MY_TEAM, opp=opp,
                 plan=[{k: m[k] for k in ("n", "from", "to", "why")} for m in plan], plan_day=plan_day.strftime("%a %b ") + str(plan_day.day), period=cur_mp, week=[wk_start.isoformat(), wk_end.isoformat()], days=[d.isoformat() for d in days],
                 slots=slots, scoring=scoring, teams=teams, players=players, sched=sched, moves=top_moves,
-                fa=[{k: f[k] for k in ("n", "pos", "tm", "inj", "pa", "claimed")} | {"g": len(f["days"])} for f in fa[:12]], news=news)
+                fa=[{k: f[k] for k in ("n", "pos", "tm", "inj", "pa", "claimed")} | {"g": len(f["days"])} for f in fa[:12]], news=news, feed=feed[:220], yt=bool(os.environ.get("YT_API_KEY")))
     with open("data.json", "w") as fh:
         json.dump(data, fh, separators=(",", ":"))
     me = teams[MY_TEAM]

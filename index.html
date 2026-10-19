@@ -29,23 +29,29 @@ body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.5 var(--sans
 @keyframes d3{to{transform:translate(18vw,-34vh) scale(1.2)}}
 @keyframes d4{0%{transform:translate(0,0)}50%{transform:translate(-26vw,-18vh) scale(1.4)}100%{transform:translate(14vw,24vh) scale(.9)}}
 .grain{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.06;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
-.wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding-left:max(calc(var(--fi) + 22px),env(safe-area-inset-left,0px));padding-right:max(calc(var(--fi) + 22px),env(safe-area-inset-right,0px));padding-block:calc(var(--navh,84px) + var(--fi) + 22px) calc(var(--fi) + 70px);display:grid;gap:22px}
+.wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding-left:max(calc(var(--fi) + 22px),env(safe-area-inset-left,0px));padding-right:max(calc(var(--fi) + 22px),env(safe-area-inset-right,0px));padding-block:calc(var(--navh,84px) + var(--fi) + var(--fr) + 14px) calc(var(--fi) + 70px);display:grid;gap:22px}
 /* glass */
 .g{background:var(--glass);border:1px solid var(--line);border-radius:var(--r);backdrop-filter:blur(24px) saturate(140%);-webkit-backdrop-filter:blur(24px) saturate(140%);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 20px 50px -20px rgba(0,0,0,.6);min-width:0}
 .pad{padding:22px}
 /* top bar */
 /* bezel frame: a curved double line around the whole viewport; the nav is its top band */
-.frame{position:fixed;inset:calc(var(--fi) + env(safe-area-inset-top,0px)) max(var(--fi),env(safe-area-inset-right,0px)) calc(var(--fi) + env(safe-area-inset-bottom,0px)) max(var(--fi),env(safe-area-inset-left,0px));border-radius:var(--fr);border:1px solid rgba(255,255,255,.16);pointer-events:none;z-index:30;
+.frame{position:fixed;inset:calc(var(--fi) + env(safe-area-inset-top,0px)) max(var(--fi),env(safe-area-inset-right,0px)) calc(var(--fi) + env(safe-area-inset-bottom,0px)) max(var(--fi),env(safe-area-inset-left,0px));border-radius:var(--fr);border:1px solid rgba(255,255,255,.16);pointer-events:none;z-index:32;
   box-shadow:0 0 0 200px var(--bg),inset 0 1px 0 rgba(255,255,255,.1),inset 0 0 40px rgba(0,0,0,.55),inset 0 -1px 0 rgba(255,255,255,.04)}
 .frame::after{content:"";position:absolute;inset:5px;border-radius:calc(var(--fr) - 5px);border:1px solid rgba(255,255,255,.06)}
 .bar{position:fixed;z-index:31;top:calc(var(--fi) + env(safe-area-inset-top,0px));left:max(var(--fi),env(safe-area-inset-left,0px));right:max(var(--fi),env(safe-area-inset-right,0px));
-  border-radius:var(--fr) var(--fr) 22px 22px;padding:14px 22px 14px 26px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
-  background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025));backdrop-filter:blur(26px) saturate(150%);-webkit-backdrop-filter:blur(26px) saturate(150%);
-  border:1px solid rgba(255,255,255,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.14),inset 0 -1px 0 rgba(255,255,255,.05),0 14px 40px -12px rgba(0,0,0,.7)}
-.bar::after{content:"";position:absolute;left:22px;right:22px;bottom:-7px;height:14px;border-bottom:1px solid rgba(255,255,255,.1);border-radius:0 0 18px 18px;pointer-events:none}
+  border-radius:var(--fr) var(--fr) 0 0;padding:16px 26px 16px 30px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  background:linear-gradient(180deg,rgba(28,29,33,.9),rgba(18,19,22,.86));backdrop-filter:blur(26px) saturate(150%);-webkit-backdrop-filter:blur(26px) saturate(150%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 24px 40px -24px rgba(0,0,0,.8)}
+/* the header's bottom edge: a straight line that curves down into the frame's side lines */
+.bar .edge{position:absolute;left:var(--fr);right:var(--fr);bottom:0;height:1px;background:rgba(255,255,255,.16);pointer-events:none}
+.bar .cnr{position:absolute;top:calc(100% - 1px);width:var(--fr);height:var(--fr);pointer-events:none}
+.bar .cnr.l{left:0;border-top:1px solid rgba(255,255,255,.16);border-left:1px solid rgba(255,255,255,.16);border-top-left-radius:var(--fr);
+  background:radial-gradient(circle at 100% 100%,transparent calc(var(--fr) - 1px),rgba(18,19,22,.86) var(--fr));border-color:rgba(255,255,255,.16) transparent transparent rgba(255,255,255,.16)}
+.bar .cnr.r{right:0;border-top:1px solid rgba(255,255,255,.16);border-right:1px solid rgba(255,255,255,.16);border-top-right-radius:var(--fr);
+  background:radial-gradient(circle at 0% 100%,transparent calc(var(--fr) - 1px),rgba(18,19,22,.86) var(--fr))}
 .mark{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .mark h1{margin:0;font:900 30px/1 "Archivo",var(--sans);font-stretch:125%;letter-spacing:-.035em;text-transform:uppercase;background:linear-gradient(180deg,#fff 30%,#a9abb3);-webkit-background-clip:text;background-clip:text;color:transparent}
-.mark h1 em{font-style:normal;color:transparent;-webkit-text-stroke:1.2px rgba(255,255,255,.75)}
+
 .meta{font:500 12px var(--mono);color:var(--faint);letter-spacing:.02em;display:flex;align-items:center;gap:8px}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--up);box-shadow:0 0 0 0 rgba(158,240,196,.6);animation:ping 2.4s infinite}
 .dot.stale{background:var(--warn);animation:none}
@@ -112,6 +118,41 @@ h2{font:500 20px/1.2 var(--sans);letter-spacing:-.02em;margin:4px 0 0}
 .pbreak div{padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.035);border:1px solid var(--line);display:grid;gap:2px;font-size:12px}
 .pbreak b{font-size:18px;font-weight:500}
 #tdetail.swap{animation:rise .45s cubic-bezier(.2,.8,.2,1)}
+/* newsroom */
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.fchip{font:500 13px var(--sans);color:var(--mute);background:transparent;border:1px solid var(--line);border-radius:999px;padding:6px 13px;cursor:pointer}
+.fchip[aria-selected="true"]{background:var(--hi);color:#0b0b0d;border-color:transparent}
+.fchip small{font:500 11px var(--mono);opacity:.7;margin-left:4px}
+.nr{display:grid;grid-template-columns:1.35fr 1fr;gap:18px;align-items:start}
+.lead{position:relative;display:block;border-radius:16px;overflow:hidden;border:1px solid var(--line);color:inherit;text-decoration:none;min-height:340px;background:#111}
+.lead img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.85;transition:transform 1.2s cubic-bezier(.2,.8,.2,1)}
+.lead:hover img{transform:scale(1.04)}
+.lead .ov{position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(7,8,10,.92));display:flex;flex-direction:column;justify-content:flex-end;padding:22px;gap:8px}
+.lead h3{margin:0;font:600 clamp(20px,2.4vw,28px)/1.15 var(--sans);letter-spacing:-.025em;text-wrap:balance}
+.lead p{margin:0;color:#c9c9cf;font-size:14px;max-width:60ch}
+.stack{display:grid;gap:10px}
+.item{display:grid;grid-template-columns:84px 1fr;gap:12px;align-items:start;padding:10px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:inherit;text-decoration:none;transition:background .2s,border-color .2s;min-width:0}
+a.item:hover,button.item:hover{background:rgba(255,255,255,.06);border-color:var(--line2)}
+button.item{font:inherit;text-align:left;cursor:pointer;width:100%}
+.item .th{position:relative;width:84px;height:60px;border-radius:9px;overflow:hidden;background:#15161a}
+.item .th img{width:100%;height:100%;object-fit:cover}
+.item .th.hs img{object-fit:contain;object-position:bottom;background:radial-gradient(circle at 50% 120%,#2a2b31,#141518)}
+.item h4{margin:0;font:500 14.5px/1.3 var(--sans);letter-spacing:-.01em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.item p{margin:3px 0 0;font-size:13px;color:var(--mute);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.kick{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font:500 11px var(--mono);letter-spacing:.06em;color:var(--faint);text-transform:uppercase;margin-bottom:3px}
+.kick .who{color:var(--ink);background:rgba(255,255,255,.08);padding:1px 6px;border-radius:5px;letter-spacing:.02em}
+.kick .who.me{background:rgba(158,240,196,.14);color:var(--up)}.kick .who.opp{background:rgba(255,157,166,.14);color:var(--down)}
+.play{position:absolute;inset:0;display:grid;place-items:center}
+.play span{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.9);display:grid;place-items:center}
+.play span::after{content:"";border-left:9px solid #0b0b0d;border-top:6px solid transparent;border-bottom:6px solid transparent;margin-left:2px}
+.lead .play span{width:58px;height:58px}.lead .play span::after{border-left-width:16px;border-top-width:10px;border-bottom-width:10px;margin-left:4px}
+.vids{grid-column:1/-1;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(220px,1fr);gap:12px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.vcard{position:relative;display:block;border-radius:14px;overflow:hidden;border:1px solid var(--line);aspect-ratio:16/10;max-width:100%;background:#111;color:inherit;text-decoration:none;cursor:pointer;padding:0;font:inherit;text-align:left}
+.vcard img{width:100%;height:100%;object-fit:cover;opacity:.85}
+.vcard .cap{position:absolute;left:0;right:0;bottom:0;padding:10px 12px;background:linear-gradient(180deg,transparent,rgba(7,8,10,.95));font:500 13px/1.3 var(--sans)}
+.nr-empty{color:var(--mute);font-size:14px;padding:20px 0}
+.vplayer{width:min(960px,100%);aspect-ratio:16/9;border:0;border-radius:16px;background:#000}
+@media (max-width:860px){.nr{grid-template-columns:1fr}.lead{min-height:260px}}
 /* lineup */
 .tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none}
 .tab{font:500 13px var(--sans);color:var(--mute);background:transparent;border:1px solid var(--line);border-radius:12px;padding:8px 12px;cursor:pointer;white-space:nowrap;text-align:left}
@@ -198,7 +239,8 @@ select{font:500 13.5px var(--sans);color:var(--ink);background:var(--glass2);bor
 
 <div class="wrap">
   <header class="bar">
-    <div class="mark"><h1>Court<em>side</em></h1><span class="meta"><span class="dot" id="dot"></span><span id="pulled">Loading</span></span></div>
+    <i class="edge" aria-hidden="true"></i><i class="cnr l" aria-hidden="true"></i><i class="cnr r" aria-hidden="true"></i>
+    <div class="mark"><h1>Courtside</h1><span class="meta"><span class="dot" id="dot"></span><span id="pulled">Loading</span></span></div>
     <div class="btns">
       <button class="b" id="refresh" type="button" title="Reload the newest published data">Reload</button>
       <button class="b primary" id="force" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg><span>Force update</span></button>
@@ -212,6 +254,12 @@ select{font:500 13.5px var(--sans);color:var(--ink);background:var(--glass2);bor
     <div class="sec-h"><div><div class="eyebrow" id="wkLabel">This week</div><h2>Matchups</h2></div><span class="faint" style="font-size:13px">Tap any matchup for the full breakdown</span></div>
     <div class="grid" id="cards"></div>
     <div class="expand" id="cardX" aria-hidden="true"><div></div></div>
+  </section>
+
+  <section class="g pad" id="newsroom">
+    <div class="sec-h"><div><div class="eyebrow">Newsroom</div><h2>News, notes and highlights</h2></div></div>
+    <div class="filters" id="nrFilters" role="tablist"></div>
+    <div class="nr" id="nr"></div>
   </section>
 
   <section class="g pad">
@@ -233,17 +281,10 @@ select{font:500 13.5px var(--sans);color:var(--ink);background:var(--glass2);bor
     </section>
   </div>
 
-  <div class="two">
-    <section class="g pad">
-      <div class="sec-h"><div><div class="eyebrow">Waiver wire</div><h2>Moves to make</h2></div></div>
-      <ul class="notes" id="moves" style="margin:0 0 18px"></ul>
-      <div class="scroll"><table id="fa"></table></div>
-    </section>
-    <section class="g pad">
-      <div class="sec-h"><div><div class="eyebrow">Your matchup</div><h2>News and notes</h2></div></div>
-      <div class="news" id="news"></div>
-    </section>
-  </div>
+  <section class="g pad">
+    <div class="sec-h"><div><div class="eyebrow">Waiver wire</div><h2>Moves to make</h2></div></div>
+    <div class="two" style="gap:28px"><ul class="notes" id="moves" style="margin:0"></ul><div class="scroll"><table id="fa"></table></div></div>
+  </section>
 
   <section class="g pad" id="how">
     <div class="sec-h"><div><div class="eyebrow">Method</div><h2>How the numbers work</h2></div></div>
@@ -450,9 +491,40 @@ function renderWire(){
   if(!mv.length) mv.push("No free agent beats your bench for the rest of this week.");
   $("#moves").innerHTML=pend.concat(mv).map(m=>`<li>${m}</li>`).join("");
   $("#fa").innerHTML=`<thead><tr><th>Free agent</th><th>Pos</th><th class="r">G</th><th class="r">Proj/G</th></tr></thead><tbody>`+D.fa.map(f=>`<tr><td>${esc(f.n)}${injTag(f.inj)}${f.claimed?'<span class="tag t-claim">CLAIMED</span>':""}<div class="faint" style="font-size:12px">${esc(f.tm)}</div></td><td class="mute">${f.pos}</td><td class="r num mute">${f.g}</td><td class="r num">${f.pa.toFixed(1)}</td></tr>`).join("")+"</tbody>";
-  const mine=D.news.filter(x=>x.t==D.me||x.t==D.opp).sort((x,y)=>(x.t!=D.me)-(y.t!=D.me)||(!x.inj)-(!y.inj)||y.date.localeCompare(x.date)).slice(0,14);
-  $("#news").innerHTML=mine.map(x=>`<div class="it"><span class="h">${esc(x.n)}${injTag(x.inj)} <span class="faint" style="font:500 11.5px var(--mono)">${x.t==D.me?"YOURS":"OPP"} · ${x.date.slice(5)}</span></span><span class="t">${esc(x.text)}</span></div>`).join("")||'<div class="mute">No recent news.</div>';
 }
+
+/* ---- newsroom ---- */
+let nrFilter="foryou";
+const ago=iso=>{if(!iso)return"";const m=(Date.now()-Date.parse(iso))/60000;return m<60?Math.max(1,Math.round(m))+"m ago":m<1440?Math.round(m/60)+"h ago":Math.round(m/1440)+"d ago"};
+const INJ=/injur|out |ankle|knee|hamstring|groin|sprain|strain|day-to-day|questionable|doubtful|surgery|achilles|illness|sidelined/i;
+const FILTERS=[["foryou","For you",x=>["me","opp","myteams"].includes(x.rel)],["me","My team",x=>x.rel==="me"],["opp","Opponent",x=>x.rel==="opp"],["inj","Injuries",x=>(x.inj||INJ.test(x.title+" "+x.text))&&x.rel!=="nba"],["note","Fantasy notes",x=>x.kind==="note"],["vid","Highlights",x=>x.kind==="video"||x.kind==="yt"],["all","All NBA",x=>x.kind!=="note"]];
+function whoTag(x){if(!x.players||!x.players.length)return"";const p=x.players[0];return `<span class="who ${x.rel==="me"?"me":x.rel==="opp"?"opp":""}">${esc(last(p))}${x.rel==="me"?" · yours":x.rel==="opp"?" · opp":""}</span>`}
+const kindLbl={story:"Story",video:"Video",note:"Fantasy note",yt:"Highlight"};
+function itemHTML(x){
+  const isNote=x.kind==="note",isVid=x.kind==="video"||x.kind==="yt";
+  const inner=`<div class="th ${isNote?"hs":""}">${x.img?`<img loading="lazy" src="${esc(x.img)}" alt="" onerror="this.remove()">`:""}${isVid?'<div class="play"><span></span></div>':""}</div>
+    <div style="min-width:0"><div class="kick">${kindLbl[x.kind]}${whoTag(x)}${x.inj?injTag(x.inj):""}<span>${ago(x.date)}</span></div><h4>${esc(isNote?x.title:x.title)}</h4>${x.text?`<p>${esc(x.text)}</p>`:""}</div>`;
+  if(x.kind==="yt")return `<button class="item" type="button" data-vid="${esc(x.vid)}">${inner}</button>`;
+  return x.url?`<a class="item" href="${esc(x.url)}" target="_blank" rel="noopener">${inner}</a>`:`<div class="item">${inner}</div>`;
+}
+function renderNewsroom(){
+  const feed=D.feed||[];
+  $("#nrFilters").innerHTML=FILTERS.map(([k,l,f])=>{const n=feed.filter(f).length;return `<button class="fchip" role="tab" type="button" data-f="${k}" aria-selected="${k===nrFilter}">${l}<small>${n}</small></button>`}).join("");
+  const f=FILTERS.find(x=>x[0]===nrFilter)[2];let items=feed.filter(f);
+  if(nrFilter==="foryou")items.sort((a,b)=>({me:0,opp:1,myteams:2}[a.rel]-{me:0,opp:1,myteams:2}[b.rel])||(b.date||"").localeCompare(a.date||""));
+  if(!items.length){$("#nr").innerHTML=`<div class="nr-empty">${nrFilter==="vid"&&!D.yt?"No highlights yet. ESPN videos appear as they're posted. Add a YouTube key to get player highlights here.":"Nothing here yet."}</div>`;return}
+  const leadI=items.findIndex(x=>x.img&&x.kind!=="note");const lead=leadI>=0?items[leadI]:null;const rest=items.filter((_,i)=>i!==leadI);
+  const vids=rest.filter(x=>x.kind==="video"||x.kind==="yt"),others=rest.filter(x=>!(x.kind==="video"||x.kind==="yt")).slice(0,8);
+  const leadHTML=lead?`<${lead.kind==="yt"?'button type="button" data-vid="'+esc(lead.vid)+'"':'a href="'+esc(lead.url)+'" target="_blank" rel="noopener"'} class="lead" style="padding:0;font:inherit;text-align:left;cursor:pointer;width:100%"><img src="${esc(lead.img)}" alt="" onerror="this.remove()">${lead.kind==="video"||lead.kind==="yt"?'<div class="play"><span></span></div>':""}<div class="ov"><div class="kick">${kindLbl[lead.kind]}${whoTag(lead)}<span>${ago(lead.date)}</span></div><h3>${esc(lead.title)}</h3>${lead.text?`<p>${esc(lead.text)}</p>`:""}</div></${lead.kind==="yt"?"button":"a"}>`:"";
+  const vidHTML=vids.length&&nrFilter!=="vid"?`<div class="vids">${vids.slice(0,10).map(v=>v.kind==="yt"?`<button class="vcard" type="button" data-vid="${esc(v.vid)}"><img loading="lazy" src="${esc(v.img)}" alt=""><div class="play"><span></span></div><div class="cap">${esc(v.title)}</div></button>`:`<a class="vcard" href="${esc(v.url)}" target="_blank" rel="noopener"><img loading="lazy" src="${esc(v.img)}" alt="" onerror="this.remove()"><div class="play"><span></span></div><div class="cap">${esc(v.title)}</div></a>`).join("")}</div>`:"";
+  const list=nrFilter==="vid"?rest:others;
+  $("#nr").innerHTML=`${leadHTML||""}<div class="stack">${list.slice(0,nrFilter==="vid"?12:8).map(itemHTML).join("")}</div>${vidHTML}`;
+  if(!leadHTML)$("#nr").style.gridTemplateColumns="1fr";else $("#nr").style.gridTemplateColumns="";
+}
+$("#nrFilters").addEventListener("click",e=>{const b=e.target.closest("[data-f]");if(b){nrFilter=b.dataset.f;renderNewsroom()}});
+$("#nr").addEventListener("click",e=>{const b=e.target.closest("[data-vid]");if(!b)return;e.preventDefault();
+  const m=document.createElement("div");m.className="modal";m.innerHTML=`<div style="display:grid;gap:10px;width:min(960px,100%)"><button class="b" type="button" style="justify-self:end">Close ✕</button><iframe class="vplayer" src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(b.dataset.vid)}?autoplay=1&rel=0" title="Highlight" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>`;
+  document.body.appendChild(m);const close=()=>m.remove();m.querySelector(".b").onclick=close;m.addEventListener("click",ev=>{if(ev.target===m)close()});m.querySelector(".b").focus()});
 const STAT={0:"Points",3:"Assist",6:"Rebound",4:"Offensive rebound (bonus)",2:"Steal",1:"Block",17:"Three made",13:"Field goal made",14:"Field goal attempt",15:"Free throw made",16:"Free throw attempt",11:"Turnover",10:"Technical foul",37:"Double-double",38:"Triple-double",39:"Quadruple-double"};
 function renderScoring(){const sc=D.scoring||{};const order=[0,3,6,4,2,1,17,13,14,15,16,11,10,37,38,39];
   $("#scoring").innerHTML=order.filter(k=>sc[k]!=null).map(k=>`<div><span class="mute">${STAT[k]}</span><span class="v ${sc[k]<0?"down":""}">${sc[k]>0?"+":""}${sc[k]}</span></div>`).join("")}
@@ -460,14 +532,14 @@ function renderAll(){
   const age=D.pulled_iso?(Date.now()-Date.parse(D.pulled_iso))/60000:0;
   $("#pulled").textContent="Updated "+D.pulled;$("#dot").classList.toggle("stale",age>75);
   if(!forcing)$("#status").textContent=age>75?`This data is ${age>120?Math.round(age/60)+" hours":Math.round(age)+" minutes"} old. Try Force update. If that fails, your ESPN cookies have probably expired.`:"";
-  renderHero();renderCards();renderDays();renderPower();renderStrength(selTeam);renderWire();renderScoring();
+  renderHero();renderCards();renderDays();renderPower();renderStrength(selTeam);renderWire();renderScoring();renderNewsroom();
 }
 
 /* ---- data + GitHub actions ---- */
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1792385091";
+const BUILD="1792385770";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(checkBuild,90000);
 loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
