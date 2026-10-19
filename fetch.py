@@ -9,6 +9,7 @@ from zoneinfo import ZoneInfo
 import requests
 import numpy as np
 from scipy.optimize import linear_sum_assignment
+from setlineup import plan_moves
 
 LEAGUE = int(os.environ.get("LEAGUE_ID", "733085335"))
 SEASON = int(os.environ.get("SEASON", "2027"))
@@ -242,8 +243,19 @@ def main():
     news.sort(key=lambda x: (x["t"] != MY_TEAM, not x["inj"], x["date"]), reverse=False)
 
     for p in players: p["v"] = round(value(p), 1)
+    # Today's one-tap lineup plan for my team (fewest moves, locked players skipped)
+    now = dt.datetime.now(TZ); plan_day = days[0] if days else today
+    tips = {}
+    for t in pro["settings"]["proTeams"]:
+        for gs in (t.get("proGamesByScoringPeriod") or {}).values():
+            for g in gs:
+                d = dt.datetime.fromtimestamp(g["date"] / 1000, TZ)
+                if d.date() == plan_day: tips[pro_abbr[t["id"]]] = d
+    plan = plan_moves([dict(id=p["id"], n=p["n"], slot=p["slot"], el=set(p["el"]) | ({"G"} if {"PG", "SG"} & set(p["el"]) else set()) | ({"F"} if {"SF", "PF"} & set(p["el"]) else set()) | {"UTIL", "BE"},
+                            v=value(p), plays=p["tm"] in tips, locked=p["tm"] in tips and now >= tips[p["tm"]] - dt.timedelta(minutes=5))
+                       for p in players if p["t"] == MY_TEAM], slots)
     data = dict(pulled=dt.datetime.now(TZ).strftime("%b %-d, %-I:%M %p CT"), pulled_iso=dt.datetime.now(dt.timezone.utc).isoformat(), pending=pending, league=settings["name"], me=MY_TEAM, opp=opp,
-                period=cur_mp, week=[wk_start.isoformat(), wk_end.isoformat()], days=[d.isoformat() for d in days],
+                plan=[{k: m[k] for k in ("n", "from", "to", "why")} for m in plan], plan_day=plan_day.strftime("%a %b ") + str(plan_day.day), period=cur_mp, week=[wk_start.isoformat(), wk_end.isoformat()], days=[d.isoformat() for d in days],
                 slots=slots, scoring=scoring, teams=teams, players=players, sched=sched, moves=top_moves,
                 fa=[{k: f[k] for k in ("n", "pos", "tm", "inj", "pa", "claimed")} | {"g": len(f["days"])} for f in fa[:12]], news=news[:24])
     with open("data.json", "w") as fh:

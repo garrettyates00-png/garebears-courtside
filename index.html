@@ -146,6 +146,7 @@ select{font:600 14px var(--body);color:var(--ink);background:var(--panel2);borde
     <div class="tabs" id="dayTabs" role="tablist"></div>
     <div class="lineup" id="lineup"></div>
     <ul class="why" id="why"></ul>
+    <div id="lineupAct" style="margin-top:14px"></div>
   </section>
 
   <div class="grid2">
@@ -227,14 +228,57 @@ function renderDays(){
   if(day===0){
     const wrong=mine.filter(p=>p.days.includes(x.iso)&&p.av>0&&(p.slot==="BE"||p.slot==="IR")&&x.start.some(s=>s[1]===p.n));
     const idleStarters=mine.filter(p=>!p.days.includes(x.iso)&&!["BE","IR"].includes(p.slot));
-    if(wrong.length) why.push(`<b>Fix in ESPN:</b> ${wrong.map(p=>esc(p.n)).join(", ")} ${wrong.length>1?"are":"is"} on your bench but ${wrong.length>1?"play":"plays"} today. Move ${wrong.length>1?"them":"him"} into a starting slot.`);
-    else why.push(`Your ESPN lineup already starts everyone who plays on ${esc(x.day)}.`);
-    if(idleStarters.length&&wrong.length) why.push(`Open slots: ${idleStarters.map(p=>esc(last(p.n))).join(", ")} ${idleStarters.length>1?"are":"is"} starting with no game today.`);
+    if(false) why.push(`<b>Fix in ESPN:</b> ${wrong.map(p=>esc(p.n)).join(", ")} ${wrong.length>1?"are":"is"} on your bench but ${wrong.length>1?"play":"plays"} today. Move ${wrong.length>1?"them":"him"} into a starting slot.`);
+
+    if(false) why.push(`Open slots: ${idleStarters.map(p=>esc(last(p.n))).join(", ")} ${idleStarters.length>1?"are":"is"} starting with no game today.`);
   }
   why.push(x.bench.length?`Benched with a game: ${x.bench.map(esc).join(", ")}. They project lowest of the players who play today.`:`${x.start.length} of your players play and you have ${D.slots.length} slots, so nobody who plays sits.`);
   if(x.start.length<6) why.push(`<b>Light day.</b> ${D.slots.length-x.start.length} slots are open. A streamer who plays today adds points.`);
   mine.filter(p=>p.inj&&x.start.some(s=>s[1]===p.n)).forEach(p=>why.push(`${esc(p.n)} is listed ${p.inj.replace(/_/g," ").toLowerCase()}. He's in the lineup at a reduced projection; check status before tip-off.`));
   $("#why").innerHTML=why.map(w=>`<li>${w}</li>`).join("");
+  renderLineupAct();
+}
+// One-tap lineup: compare ESPN's current slots with today's best lineup, then save on confirm.
+let LOG=[];
+async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
+function planMoves(){return D.plan||[]}
+function renderLineupAct(){
+  const el=$("#lineupAct"); if(!D||day!==0){el.innerHTML="";return}
+  const pday=D.plan_day||D.teams[D.me].daily[0]?.day||"today";
+  const mv=planMoves(), last=LOG[0];
+  const lastTxt=last?`<div class="sub" style="margin-top:8px">Last lineup run: ${esc(last.at)} · ${last.status==="saved"?"saved "+last.moved.length+" move"+(last.moved.length==1?"":"s"):last.status==="ok"?"already optimal":last.status==="error"?'<span style="color:var(--lose)">'+esc(last.error)+"</span>":esc(last.status)}</div>`:"";
+  if(!mv.length){el.innerHTML=`<div class="chip" style="display:inline-block;color:var(--win)">ESPN lineup is already the best one for ${esc(pday)}.</div>`+lastTxt;return}
+  el.innerHTML=`<div style="background:var(--panel2);border:1px solid var(--hot);border-radius:12px;padding:12px 14px;display:grid;gap:8px">
+    <b style="font-family:var(--display);font-size:13px;letter-spacing:.06em;color:var(--hot)">${mv.length} MOVE${mv.length>1?"S":""} TO SAVE FOR ${esc(pday.toUpperCase())}</b>
+    <ul class="why" style="margin:0">${mv.map(m=>`<li>${esc(m.n)}: ${m.from} to ${m.to} <span class="sub">(${esc(m.why)})</span></li>`).join("")}</ul>
+    <div style="display:flex;gap:8px;flex-wrap:wrap" id="setRow"><button class="btn" id="setLineup" type="button" style="border-color:var(--win)">✅ Set lineup in ESPN</button></div>
+    <div class="sub">Only moves players between starting slots and the bench. Players whose game has started are skipped.</div></div>`+lastTxt;
+  $("#setLineup").onclick=()=>{
+    $("#setRow").innerHTML=`<span>Save ${mv.length} move${mv.length>1?"s":""} to your ESPN team?</span><button class="btn" id="setYes" type="button" style="border-color:var(--win)">Save to ESPN</button><button class="btn" id="setNo" type="button">Cancel</button>`;
+    $("#setNo").onclick=renderLineupAct; $("#setYes").onclick=runLineup;
+  };
+}
+async function runLineup(){
+  if(forcing)return; if(!getTok()&&!(await tokenDialog()))return;
+  forcing=true; const st=$("#status"); const T0=Date.now(); let phase="Saving lineup to ESPN…";
+  const tick=setInterval(()=>{st.textContent=phase+" "+Math.round((Date.now()-T0)/1000)+"s"},1000);
+  $("#setRow").innerHTML='<span class="live"><i></i> Saving to ESPN…</span>';
+  try{
+    const before=LOG[0]?LOG[0].at:""; const t0=new Date(Date.now()-60000).toISOString();
+    const r=await gh("/actions/workflows/lineup.yml/dispatches",{method:"POST",body:JSON.stringify({ref:"main",inputs:{dry_run:false}})});
+    if(r.status===401||r.status===403||r.status===404){setTok("");throw new Error("GitHub rejected the token. Tap Force update to enter a new one.")}
+    if(!r.ok) throw new Error("GitHub said "+r.status);
+    let done=false;
+    for(let i=0;i<60&&!done;i++){await new Promise(s=>setTimeout(s,6000));
+      const runs=await (await gh("/actions/runs?per_page=3&created=>="+t0)).json().catch(()=>({}));
+      const run=(runs.workflow_runs||[]).find(x=>x.name==="Set lineup");
+      if(run&&run.status==="completed"){phase="Publishing…"}
+      await loadLog(); if(LOG[0]&&LOG[0].at!==before){done=true; await load(true)}
+    }
+    const L=LOG[0]; const msg=!done?"Still publishing. Check back in a few minutes.":L.status==="saved"?`Saved ${L.moved.length} lineup move${L.moved.length==1?"":"s"} to ESPN.`:L.status==="ok"?"ESPN lineup was already optimal.":"ESPN refused the change: "+(L.error||L.status);
+    toast(msg); st.textContent=msg; if(done&&L.status==="saved") shoot($("#refresh"),"LOCKED IN");
+  }catch(err){toast(err.message);st.textContent=err.message}
+  finally{forcing=false;clearInterval(tick);renderLineupAct()}
 }
 $("#dayTabs").addEventListener("click",e=>{const b=e.target.closest("[data-i]");if(b){day=+b.dataset.i;renderDays();shoot(b)}});
 function renderPower(){
@@ -285,7 +329,7 @@ async function load(force){
     if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}
   catch(e){$("#pulled").textContent="Couldn't load data.json yet. The first refresh may still be running.";return false}
 }
-load(true);setInterval(()=>load(false),120000);
+loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
 
 // Neon court background
 const cv=$("#court"),cx=cv.getContext("2d");let W,H,dpr;
