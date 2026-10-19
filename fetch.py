@@ -310,7 +310,10 @@ def main():
                 pass
         cache = {"at": dt.datetime.now(dt.timezone.utc).isoformat(), "items": items}
         json.dump(cache, open("highlights.json", "w"))
-    for v in cache.get("items", []):
+    def names_player(v):
+        t = html.unescape(v["title"]).lower(); parts = v["player"].lower().replace(".", "").split()
+        return (parts[-1] if parts[-1] not in ("jr", "sr", "ii", "iii") else parts[-2]) in t.replace(".", "")
+    for v in [x for x in cache.get("items", []) if names_player(x)]:
         feed.append(dict(kind="yt", title=html.unescape(v["title"]), text="", img=v["img"], url=f"https://www.youtube.com/watch?v={v['vid']}", vid=v["vid"],
                          date=v["date"], players=[v["player"]], rel=v["rel"]))
     feed.sort(key=lambda x: x.get("date") or "", reverse=True)
