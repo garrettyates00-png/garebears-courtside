@@ -2,7 +2,7 @@ name: Refresh ESPN data
 
 on:
   schedule:
-    - cron: "*/30 * * * *"   # every 30 minutes (GitHub may delay scheduled runs)
+    - cron: "7,37 * * * *"   # twice an hour, off the busy :00/:30 marks (GitHub may still delay)
   workflow_dispatch:          # "Run workflow" button for an instant refresh
   push:
     paths: ["fetch.py", ".github/workflows/refresh.yml"]

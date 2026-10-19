@@ -2,7 +2,7 @@ name: Refresh Arena
 
 on:
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "19,49 * * * *"
   workflow_dispatch:
   push:
     paths: ["arena.py", ".github/workflows/arena.yml", "arena/config.json"]

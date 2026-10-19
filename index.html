@@ -608,15 +608,26 @@ function renderScoring(){const sc=D.scoring||{};const order=[0,3,6,4,2,1,17,13,1
 function renderAll(){
   const age=D.pulled_iso?(Date.now()-Date.parse(D.pulled_iso))/60000:0;
   if(document.body.dataset.view!=="arena")$("#pulled").textContent="Updated "+D.pulled;$("#dot").classList.toggle("stale",age>75);
-  if(!forcing)$("#status").textContent=age>75?`This data is ${age>120?Math.round(age/60)+" hours":Math.round(age)+" minutes"} old. Try Force update. If that fails, your ESPN cookies have probably expired.`:"";
+  if(!forcing){if(age>75)staleNote(age);else $("#status").textContent=""}
   renderHero();renderCards();renderDays();renderPower();renderStrength(selTeam);renderWire();renderScoring();renderNewsroom();
 }
 
+
+/* Stale data: check whether the last refresh actually failed before blaming the ESPN cookies (public API, no token needed). */
+let staleChecked=0;
+async function staleNote(age){
+  const t=age>120?Math.round(age/60)+" hours":Math.round(age)+" minutes";
+  $("#status").textContent=`Last ESPN pull was ${t} ago.`;
+  if(Date.now()-staleChecked<10*60000)return;staleChecked=Date.now();
+  try{const r=await (await fetch("https://api.github.com/repos/"+REPO+"/actions/workflows/refresh.yml/runs?per_page=1")).json();const run=(r.workflow_runs||[])[0];
+    if(run&&run.conclusion==="failure")$("#status").textContent=`Last ESPN pull was ${t} ago and the most recent refresh failed. Your ESPN cookies may have expired. Tap Force update to retry.`;
+    else $("#status").textContent=`Last ESPN pull was ${t} ago. GitHub sometimes runs the schedule late. Tap Force update for fresh data.`}catch(e){}
+}
 /* ---- data + GitHub actions ---- */
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1792389840";
+const BUILD="1792418871";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(checkBuild,90000);
 loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
@@ -642,7 +653,7 @@ async function dispatch(wf,inputs,label,isDone){
     for(let i=0;i<60;i++){await new Promise(s=>setTimeout(s,6000));
       const runs=await (await gh("/actions/runs?per_page=4&created=>="+t0)).json().catch(()=>({}));
       const mine=(runs.workflow_runs||[]).filter(x=>x.path&&x.path.endsWith(wf));
-      if(mine.some(x=>x.conclusion==="failure"))throw new Error("The ESPN step failed. Your ESPN cookies may have expired.");
+      if(mine.some(x=>x.conclusion==="failure"))throw new Error("The refresh failed on GitHub. If it keeps failing, your ESPN cookies may have expired.");
       if(mine.some(x=>x.status==="completed"))phase="Publishing";
       if(await isDone())return true}
     return false}
