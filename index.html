@@ -346,6 +346,25 @@ body{background:radial-gradient(130% 90% at 15% -10%,color-mix(in srgb,var(--a) 
 .wheel .core i{background:linear-gradient(135deg,var(--a),var(--a2))}
 .seg2{display:flex;gap:6px}.seg2 button{flex:1;font:500 12px var(--sans);color:var(--mute);background:rgba(255,255,255,.05);border:1px solid var(--line2);border-radius:999px;padding:6px 0;cursor:pointer}
 .seg2 button[aria-pressed="true"]{color:#0b0b0d;background:linear-gradient(135deg,var(--hi),var(--a));border-color:transparent}
+
+select{background-color:#16171b;border-color:color-mix(in srgb,var(--a) 30%,var(--line2))}
+select option{background:#16171b;color:var(--ink)}
+/* team picker: glass button + searchable popover */
+.tpick{position:relative}
+#aHero{position:relative;z-index:6}
+.tpbtn{display:inline-flex;align-items:center;gap:10px;font:500 14px var(--sans);color:var(--ink);background:color-mix(in srgb,var(--a) 10%,rgba(255,255,255,.05));border:1px solid color-mix(in srgb,var(--a) 40%,var(--line2));border-radius:999px;padding:6px 14px 6px 6px;cursor:pointer;transition:background .2s,box-shadow .2s}
+.tpbtn:hover,.tpbtn[aria-expanded="true"]{background:color-mix(in srgb,var(--a) 20%,transparent);box-shadow:0 0 18px color-mix(in srgb,var(--a) 35%,transparent)}
+.tpbtn img{width:26px;height:26px;object-fit:contain}.tpbtn svg{opacity:.6}
+.tpop{position:absolute;z-index:40;right:0;top:calc(100% + 8px);width:min(300px,calc(100vw - 48px));padding:10px;border-radius:16px;background:rgba(18,19,23,.94);border:1px solid color-mix(in srgb,var(--a) 35%,var(--line2));backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 24px 60px -20px rgba(0,0,0,.8),0 0 30px -10px color-mix(in srgb,var(--a) 50%,transparent);animation:rise .25s cubic-bezier(.2,.8,.2,1)}
+.tpop input{width:100%;font:500 14px var(--sans);color:var(--ink);background:rgba(255,255,255,.06);border:1px solid var(--line2);border-radius:10px;padding:9px 12px;outline:none}
+.tpop input:focus{border-color:var(--a);box-shadow:0 0 0 3px color-mix(in srgb,var(--a) 25%,transparent)}
+.tpop ul{list-style:none;margin:8px 0 0;padding:0;max-height:320px;overflow-y:auto;scrollbar-width:thin}
+.tpop li{display:flex;align-items:center;gap:10px;padding:7px 9px;border-radius:10px;cursor:pointer;font-size:14px;color:var(--mute)}
+.tpop li img{width:24px;height:24px;object-fit:contain}
+.tpop li.on,.tpop li:hover{background:color-mix(in srgb,var(--a) 18%,transparent);color:var(--ink)}
+.tpop li[aria-selected="true"]{color:var(--ink);font-weight:600}.tpop li[aria-selected="true"]::after{content:"✓";margin-left:auto;color:var(--a)}
+.tpop .none{padding:10px;color:var(--faint);font-size:13px}
+@media (max-width:700px){.tpop{left:0;right:auto}}
 </style></head><body>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div>
 
@@ -722,7 +741,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1792436124";
+const BUILD="1792437305";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(checkBuild,90000);
 loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);

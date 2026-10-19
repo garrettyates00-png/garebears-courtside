@@ -41,16 +41,35 @@ function renderArena(){
 }
 function aHero(){
   const t=A.team,s=A.teamstats,last5=A.schedule.filter(g=>g.final).slice(-5);
-  let teams=[t.abbr.toLowerCase()];
-  fetch("arena/config.json?t="+Date.now(),{cache:"no-store"}).then(r=>r.json()).then(c=>{teams=c.teams||teams;const nm=c.names||{};const sel=$("#aTeamSel");if(sel)sel.innerHTML=teams.map(x=>`<option value="${x}" ${x===aTeam?"selected":""}>${esc(nm[x]||x.toUpperCase())}</option>`).join("")}).catch(()=>{});
   $("#aHero").innerHTML=`<div class="tm-top">
     <img class="tlogo" src="${esc(t.logo)}" alt="${esc(t.name)} logo">
     <div style="min-width:0"><div class="eyebrow">Favorite team${t.conf?" · "+esc(t.conf):""}</div><h2 class="tname">${esc(t.name)}</h2>
       <div class="chips" style="margin-top:10px">${t.record?`<span class="pill">${esc(t.record)}${A.schedule.some(g=>g.final&&g.stype!=="Preseason")?"":" preseason"}</span>`:""}${t.seed&&A.schedule.some(g=>g.final&&g.stype!=="Preseason")?`<span class="pill">#${t.seed} in the ${esc(t.conf||"conference")}</span>`:""}<span class="pill">Net ${sign(s.net)} · ${esc(s.sample.toLowerCase())}</span>
       <span class="form">${last5.map(g=>`<i class="${g.res==="W"?"w":"l"}" title="${g.res} ${g.us}-${g.them} vs ${esc(g.opp)}">${g.res}</i>`).join("")}</span></div></div>
-    <label class="tsel"><span class="faint" style="font-size:12px">Team</span><select id="aTeamSel" aria-label="Favorite team"><option>${t.abbr}</option></select></label></div>`;
-  $("#aTeamSel").onchange=e=>{setFav(e.target.value);A=null;loadArena(true)};
+    <div class="tsel"><span class="faint" style="font-size:12px">Team</span><div class="tpick"><button type="button" class="tpbtn" id="tpBtn" aria-haspopup="listbox" aria-expanded="false"><img src="${esc(t.logo)}" alt="">${esc(t.name)}<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button></div></div></div>`;
+  $("#tpBtn").onclick=e=>{e.stopPropagation();teamPicker()};
 }
+let TCFG=null;
+async function teamPicker(){
+  const wrap=document.querySelector(".tpick"),btn=$("#tpBtn"),open=wrap.querySelector(".tpop");
+  if(open){open.remove();btn.setAttribute("aria-expanded","false");return}
+  if(!TCFG){try{TCFG=await (await fetch("arena/config.json?t="+Date.now(),{cache:"no-store"})).json()}catch(e){TCFG={teams:[aTeam],names:{}}}}
+  const nm=TCFG.names||{},lg=TCFG.logos||{},all=(TCFG.teams||[aTeam]).map(a=>({a,n:nm[a]||a.toUpperCase(),l:lg[a]||""})).sort((x,y)=>x.n.localeCompare(y.n));
+  const p=document.createElement("div");p.className="tpop";
+  p.innerHTML=`<input type="search" placeholder="Search teams" aria-label="Search teams" autocomplete="off"><ul role="listbox" aria-label="Teams"></ul>`;
+  wrap.appendChild(p);btn.setAttribute("aria-expanded","true");
+  const inp=p.querySelector("input"),ul=p.querySelector("ul");let list=all,hi=0;
+  const draw=()=>{const q=inp.value.trim().toLowerCase();list=all.filter(t=>!q||t.n.toLowerCase().includes(q)||t.a.includes(q));hi=Math.min(hi,Math.max(0,list.length-1));
+    ul.innerHTML=list.length?list.map((t,i)=>`<li role="option" data-a="${t.a}" aria-selected="${t.a===aTeam}" class="${i===hi?"on":""}">${t.l?`<img src="${esc(t.l)}" alt="" loading="lazy">`:""}${esc(t.n)}</li>`).join(""):'<div class="none">No team matches</div>';
+    const on=ul.querySelector(".on");if(on)on.scrollIntoView({block:"nearest"})};
+  const choose=a=>{p.remove();btn.setAttribute("aria-expanded","false");if(a&&a!==aTeam){setFav(a);A=null;loadArena(true)}};
+  inp.oninput=()=>{hi=0;draw()};
+  inp.onkeydown=e=>{if(e.key==="ArrowDown"){e.preventDefault();hi=Math.min(hi+1,list.length-1);draw()}else if(e.key==="ArrowUp"){e.preventDefault();hi=Math.max(hi-1,0);draw()}else if(e.key==="Enter"){e.preventDefault();list[hi]&&choose(list[hi].a)}else if(e.key==="Escape"){choose(null);btn.focus()}};
+  ul.onclick=e=>{const li=e.target.closest("li");if(li)choose(li.dataset.a)};
+  p.onclick=e=>e.stopPropagation();
+  hi=Math.max(0,all.findIndex(t=>t.a===aTeam));draw();inp.focus();
+}
+document.addEventListener("click",()=>{const p=document.querySelector(".tpop");if(p){p.remove();const b=$("#tpBtn");b&&b.setAttribute("aria-expanded","false")}});
 function aNext(){
   const n=A.next;if(!n){$("#aNext").innerHTML='<div class="eyebrow">Next game</div><h2>No game scheduled</h2>';return}
   const o=n.odds,us=A.team.abbr,usML=o?(n.home?o.home_ml:o.away_ml):null,thML=o?(n.home?o.away_ml:o.home_ml):null;
