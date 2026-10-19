@@ -122,10 +122,12 @@ def compact(j):
         x, y = c.get("x"), c.get("y")
         if x is None or y is None or not (-1 <= x <= 51 and -1 <= y <= 95): continue
         if "free throw" in (p.get("type", {}).get("text", "") + p.get("text", "")).lower(): continue
-        if y > 47: x, y = 50 - x, 94 - y
+        if y > 41.75: continue  # ESPN measures from the rim; anything past half court is a heave
         part = (p.get("participants") or [{}])[0].get("athlete", {}).get("id")
+        desc = (p.get("text", "") + " " + p.get("type", {}).get("text", "")).lower()
+        is3 = 1 if ("three point" in desc or "3-pt" in desc or "3pt" in desc) else 0
         shots.append([str(part), round(x, 1), round(y, 1), 1 if p.get("scoringPlay") else 0, p.get("scoreValue", 0),
-                      (p.get("period") or {}).get("number", 0), (p.get("team") or {}).get("id")])
+                      (p.get("period") or {}).get("number", 0), (p.get("team") or {}).get("id"), is3])
     odds = None
     for pc in j.get("pickcenter") or []:
         odds = dict(provider=(pc.get("provider") or {}).get("name", ""), details=pc.get("details", ""), spread=pc.get("spread"),
@@ -199,7 +201,7 @@ def build(abbr):
         s = sums[g["id"]]
         games.append(dict(**{k: g[k] for k in ("id", "date", "stype", "home", "opp", "opp_name", "opp_logo", "us", "them", "res")},
                           box=s["box"].get(tid, []), obox=s["box"].get(g["opp_id"], []),
-                          shots=[sh[:6] for sh in s["shots"] if sh[6] == tid], oshots=len([1 for sh in s["shots"] if sh[6] != tid]),
+                          shots=[sh[:6] + [sh[7] if len(sh) > 7 else 0] for sh in s["shots"] if sh[6] == tid], oshots=len([1 for sh in s["shots"] if sh[6] != tid]),
                           odds=s.get("odds")))
 
     nxt = None
