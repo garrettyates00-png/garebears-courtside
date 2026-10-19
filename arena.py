@@ -55,13 +55,17 @@ def standings():
                 rec[key] = {"w": st.get("wins") or 0, "l": st.get("losses") or 0, "gp": gp,
                             "diff": (diff / gp) if gp and abs(diff) > 30 else diff,  # some feeds give total, some per game
                             "seed": st.get("playoffSeed"), "pf": st.get("avgPointsFor"), "pa": st.get("avgPointsAgainst")}
+    pfs = [(r.get("cur") or {}).get("pf") or (r.get("prev") or {}).get("pf") for r in out.values()]
+    pfs = [p for p in pfs if p]
+    lg = sum(pfs) / len(pfs) if pfs else 113.0
     for tid, r in out.items():
         cur, prev = r.get("cur", {}), r.get("prev", {})
         g = cur.get("gp", 0)
         w = min(1.0, g / 20)  # trust this season more as games pile up
         r["rating"] = round(w * (cur.get("diff") or 0) + (1 - w) * 0.7 * (prev.get("diff") or 0), 2)
-        r["ppg"] = cur.get("pf") or prev.get("pf") or 113
-        r["oppg"] = cur.get("pa") or prev.get("pa") or 113
+        r["ppg"] = cur.get("pf") or prev.get("pf") or lg
+        r["oppg"] = cur.get("pa") or prev.get("pa") or lg
+    out["_lg"] = lg
     return out
 
 
@@ -118,6 +122,7 @@ def compact(j):
         x, y = c.get("x"), c.get("y")
         if x is None or y is None or not (-1 <= x <= 51 and -1 <= y <= 95): continue
         if "free throw" in (p.get("type", {}).get("text", "") + p.get("text", "")).lower(): continue
+        if y > 47: x, y = 50 - x, 94 - y
         part = (p.get("participants") or [{}])[0].get("athlete", {}).get("id")
         shots.append([str(part), round(x, 1), round(y, 1), 1 if p.get("scoringPlay") else 0, p.get("scoreValue", 0),
                       (p.get("period") or {}).get("number", 0), (p.get("team") or {}).get("id")])
@@ -138,10 +143,16 @@ def compact(j):
 
 
 # ---------- model ----------
-def predict(R, home_id, away_id):
+def predict(R, home_id, away_id, market_total=None):
     rh, ra = R.get(home_id, {}), R.get(away_id, {})
     margin = (rh.get("rating", 0) - ra.get("rating", 0)) + 2.4  # home court
-    total = (rh.get("ppg", 113) + ra.get("oppg", 113) + ra.get("ppg", 113) + rh.get("oppg", 113)) / 2
+    lg = R.get("_lg", 113.0)
+    # each side scores league average, nudged by its offense and the other side's defense (half weight: early-season noise)
+    h_pts = lg + 0.5 * ((rh.get("ppg", lg) - lg) + (ra.get("oppg", lg) - lg))
+    a_pts = lg + 0.5 * ((ra.get("ppg", lg) - lg) + (rh.get("oppg", lg) - lg))
+    total = h_pts + a_pts
+    if market_total:  # anchor to the market's sense of league scoring level, keep our matchup lean
+        total = market_total + (total - 2 * lg) * 0.6
     return dict(margin=round(margin, 1), win=round(phi(margin / 12.0), 3), total=round(total, 1))
 
 
@@ -199,7 +210,8 @@ def build(abbr):
         except Exception:
             s = {}
         hid, aid = (tid, g["opp_id"]) if g["home"] else (g["opp_id"], tid)
-        m = predict(R, hid, aid)
+        odds0 = (s or {}).get("odds") or {}
+        m = predict(R, hid, aid, num(odds0.get("ou")) or None)
         us_win = m["win"] if g["home"] else 1 - m["win"]
         us_margin = m["margin"] if g["home"] else -m["margin"]
         odds = s.get("odds")
@@ -213,7 +225,7 @@ def build(abbr):
             tot_edge = m["total"] - num(odds.get("ou")) if odds.get("ou") else 0
             pick = dict(spread=dict(side=side, line=us_line if side == "us" else -us_line, edge=round(abs(edge), 1)),
                         total=dict(side="over" if tot_edge > 0 else "under", line=odds.get("ou"), edge=round(abs(tot_edge), 1)) if odds.get("ou") else None,
-                        best="spread" if abs(edge) >= abs(tot_edge) else "total")
+                        best="spread" if abs(edge) / 12 >= abs(tot_edge) / 17 else "total")
         espn_pred = s.get("pred")
         nxt = dict(**{k: g[k] for k in ("id", "date", "stype", "home", "opp", "opp_name", "opp_logo", "tv")}, venue=s.get("venue", ""),
                    odds=odds, model=dict(win=round(us_win, 3), margin=round(us_margin, 1), total=m["total"]),
@@ -297,7 +309,14 @@ def build(abbr):
     # News, ESPN videos, YouTube team uploads
     news, vids = [], []
     try:
-        for x in get(f"{B}/teams/{abbr}/news", limit=30).get("articles", []):
+        arts = []
+        for url, prm in ((f"{B}/news", {"team": tid, "limit": 40}), (f"{B}/teams/{tid}/news", {"limit": 40})):
+            try:
+                arts = get(url, **prm).get("articles", [])
+            except Exception:
+                arts = []
+            if arts: break
+        for x in arts:
             item = dict(title=x.get("headline", ""), text=(x.get("description") or "")[:260],
                         img=next((i.get("url") for i in (x.get("images") or []) if i.get("url")), ""),
                         url=((x.get("links") or {}).get("web") or {}).get("href", ""), date=x.get("published", ""))
@@ -330,8 +349,8 @@ def build(abbr):
     data = dict(pulled=dt.datetime.now(TZ).strftime("%b %-d, %-I:%M %p CT"), pulled_iso=NOW.isoformat(),
                 team=dict(id=tid, abbr=abbr.upper(), name=team.get("displayName"), short=team.get("name"), loc=team.get("location"),
                           color="#" + (team.get("color") or "5d76a9"), alt="#" + (team.get("alternateColor") or "12173f"),
-                          logo=(team.get("logos") or [{}])[0].get("href", ""), record=cur and f"{cur.get('w', 0)}-{cur.get('l', 0)}",
-                          seed=cur.get("seed"), conf=st.get("conf"), rating=st.get("rating")),
+                          logo=(team.get("logos") or [{}])[0].get("href", ""), record=cur and f"{int(cur.get('w', 0))}-{int(cur.get('l', 0))}",
+                          seed=int(cur["seed"]) if cur.get("seed") else None, conf=st.get("conf"), rating=st.get("rating")),
                 next=nxt, schedule=sched, games=games, players=players, teamstats=tm, picks=picks[-40:], record=record,
                 news=news[:20], espn_videos=vids[:12], yt=yt[:24])
     json.dump(data, open(f"arena/{abbr}.json", "w"), separators=(",", ":"))
