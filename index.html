@@ -498,7 +498,8 @@ let nrFilter="foryou";
 const ago=iso=>{if(!iso)return"";const m=(Date.now()-Date.parse(iso))/60000;return m<60?Math.max(1,Math.round(m))+"m ago":m<1440?Math.round(m/60)+"h ago":Math.round(m/1440)+"d ago"};
 const INJ=/injur|out |ankle|knee|hamstring|groin|sprain|strain|day-to-day|questionable|doubtful|surgery|achilles|illness|sidelined/i;
 const FILTERS=[["foryou","For you",x=>["me","opp","myteams"].includes(x.rel)],["me","My team",x=>x.rel==="me"],["opp","Opponent",x=>x.rel==="opp"],["inj","Injuries",x=>(x.inj||INJ.test(x.title+" "+x.text))&&x.rel!=="nba"],["note","Fantasy notes",x=>x.kind==="note"],["vid","Highlights",x=>x.kind==="video"||x.kind==="yt"],["all","All NBA",x=>x.kind!=="note"]];
-function whoTag(x){if(!x.players||!x.players.length)return"";const p=x.players[0];return `<span class="who ${x.rel==="me"?"me":x.rel==="opp"?"opp":""}">${esc(last(p))}${x.rel==="me"?" · yours":x.rel==="opp"?" · opp":""}</span>`}
+function whoTag(x){if(!x.players||!x.players.length)return"";const want=x.rel==="me"?D.me:x.rel==="opp"?D.opp:null;const tOf=n=>(D.players.find(q=>q.n===n)||{}).t;const p=(want!=null&&x.players.find(n=>tOf(n)==want))||x.players[0];
+  if(want!=null&&tOf(p)!=want)return `<span class="who">${esc(last(p))}</span>`;return `<span class="who ${x.rel==="me"?"me":x.rel==="opp"?"opp":""}">${esc(last(p))}${x.rel==="me"?" · yours":x.rel==="opp"?" · opp":""}</span>`}
 const kindLbl={story:"Story",video:"Video",note:"Fantasy note",yt:"Highlight"};
 function itemHTML(x){
   const isNote=x.kind==="note",isVid=x.kind==="video"||x.kind==="yt";
@@ -539,7 +540,7 @@ function renderAll(){
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1792385770";
+const BUILD="1792385892";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(checkBuild,90000);
 loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
