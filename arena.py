@@ -336,7 +336,7 @@ def build(abbr):
             items, seen = [], set()
             # newest team-tagged videos from the NBA's channel, then the newest team videos anywhere
             for prm in (dict(channelId="UCWJ2lWNubArHWmf3FIHbfcQ", q=team.get("displayName", "")),
-                        dict(q=f'"{team.get("displayName", "")}" highlights')):
+                        dict(q=f'"{team.get("displayName", "")}"'), dict(q=f'{team.get("name", "")} highlights House of Highlights')):
                 j = get("https://www.googleapis.com/youtube/v3/search", part="snippet", type="video", order="date", maxResults=15,
                         publishedAfter=since, videoEmbeddable="true", relevanceLanguage="en", key=YT, **prm)
                 for i in j.get("items", []):
@@ -344,6 +344,9 @@ def build(abbr):
                     title = html.unescape(sn["title"])
                     if not vid or vid in seen: continue
                     if team.get("name", "").lower() not in (title + " " + sn.get("description", "")).lower(): continue
+                    official = {"nba", "espn", "house of highlights", "bleacher report", "nba on prime", "nba on tnt", "nba on nbc",
+                                team.get("displayName", "").lower(), team.get("name", "").lower()}
+                    if sn.get("channelTitle", "").strip().lower() not in official: continue
                     seen.add(vid)
                     items.append(dict(vid=vid, title=title, date=sn["publishedAt"], ch=sn.get("channelTitle", ""),
                                       img=(sn.get("thumbnails", {}).get("high") or {}).get("url", "")))
