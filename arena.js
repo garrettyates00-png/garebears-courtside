@@ -27,7 +27,7 @@ async function loadArena(force){
   aTeam=getFav();
   try{
     let r=await fetch(`arena/${aTeam}.json?t=${Date.now()}`,{cache:"no-store"});
-    if(!r.ok&&aTeam!=="mem"){aTeam="mem";setFav("mem");r=await fetch(`arena/mem.json?t=${Date.now()}`,{cache:"no-store"})}
+    if(!r.ok&&aTeam!=="mem"){toast&&toast(`${aTeam.toUpperCase()} is still being built. Showing Memphis for now; try again in a few minutes.`);aTeam="mem";r=await fetch(`arena/mem.json?t=${Date.now()}`,{cache:"no-store"})}
     const j=await r.json(); if(!force&&A&&j.pulled===A.pulled)return; A=j; applyTheme(); renderArena();
   }catch(e){$("#aHero").innerHTML='<div class="mute">Arena data is still being built. Check back in a minute.</div>'}
 }
@@ -42,7 +42,7 @@ function renderArena(){
 function aHero(){
   const t=A.team,s=A.teamstats,last5=A.schedule.filter(g=>g.final).slice(-5);
   let teams=[t.abbr.toLowerCase()];
-  fetch("arena/config.json?t="+Date.now(),{cache:"no-store"}).then(r=>r.json()).then(c=>{teams=c.teams||teams;const sel=$("#aTeamSel");if(sel)sel.innerHTML=teams.map(x=>`<option value="${x}" ${x===aTeam?"selected":""}>${x.toUpperCase()}</option>`).join("")}).catch(()=>{});
+  fetch("arena/config.json?t="+Date.now(),{cache:"no-store"}).then(r=>r.json()).then(c=>{teams=c.teams||teams;const nm=c.names||{};const sel=$("#aTeamSel");if(sel)sel.innerHTML=teams.map(x=>`<option value="${x}" ${x===aTeam?"selected":""}>${esc(nm[x]||x.toUpperCase())}</option>`).join("")}).catch(()=>{});
   $("#aHero").innerHTML=`<div class="tm-top">
     <img class="tlogo" src="${esc(t.logo)}" alt="${esc(t.name)} logo">
     <div style="min-width:0"><div class="eyebrow">Favorite team${t.conf?" · "+esc(t.conf):""}</div><h2 class="tname">${esc(t.name)}</h2>

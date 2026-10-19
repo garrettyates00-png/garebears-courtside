@@ -37,7 +37,13 @@ def phi(z):
 
 
 # ---------- league context: standings -> team ratings ----------
+_ST = None
+
+
 def standings():
+    global _ST
+    if _ST is not None:
+        return _ST
     out = {}
     for season in (None, NOW.year):  # current, then last season as a prior
         try:
@@ -66,6 +72,7 @@ def standings():
         r["ppg"] = cur.get("pf") or prev.get("pf") or lg
         r["oppg"] = cur.get("pa") or prev.get("pa") or lg
     out["_lg"] = lg
+    _ST = out
     return out
 
 
@@ -164,7 +171,7 @@ def ml_profit(ml, stake=100):
     return stake * (ml / 100 if ml > 0 else 100 / -ml)
 
 
-def build(abbr):
+def build(abbr, full=True):
     team = get(f"{B}/teams/{abbr}")["team"]
     tid = team["id"]
     R = standings()
@@ -331,14 +338,16 @@ def build(abbr):
         yc = json.load(open(ycache))
     except Exception:
         yc = {"at": "", "items": []}
-    stale = not yc.get("at") or (NOW - dt.datetime.fromisoformat(yc["at"])).total_seconds() > 3 * 3600
+    # favorites: 3 searches every 3h. Other teams: 1 search a day, to stay inside the YouTube quota.
+    stale = not yc.get("at") or (NOW - dt.datetime.fromisoformat(yc["at"])).total_seconds() > (3 if full else 24) * 3600
     if YT and stale:
         try:
             since = (NOW - dt.timedelta(days=45)).strftime("%Y-%m-%dT%H:%M:%SZ")
             items, seen = [], set()
             # newest team-tagged videos from the NBA's channel, then the newest team videos anywhere
-            for prm in (dict(channelId="UCWJ2lWNubArHWmf3FIHbfcQ", q=team.get("displayName", "")),
-                        dict(q=f'"{team.get("displayName", "")}"'), dict(q=f'{team.get("name", "")} highlights House of Highlights')):
+            searches = (dict(channelId="UCWJ2lWNubArHWmf3FIHbfcQ", q=team.get("displayName", "")),
+                        dict(q=f'"{team.get("displayName", "")}"'), dict(q=f'{team.get("name", "")} highlights House of Highlights'))
+            for prm in (searches if full else searches[:1]):
                 j = get("https://www.googleapis.com/youtube/v3/search", part="snippet", type="video", order="date", maxResults=15,
                         publishedAfter=since, videoEmbeddable="true", relevanceLanguage="en", key=YT, **prm)
                 for i in j.get("items", []):
@@ -368,16 +377,57 @@ def build(abbr):
                           seed=int(cur["seed"]) if cur.get("seed") else None, conf=st.get("conf"), rating=st.get("rating")),
                 next=nxt, schedule=sched, games=games, players=players, teamstats=tm, picks=picks[-40:], record=record,
                 news=news[:20], espn_videos=vids[:12], yt=yt[:24])
+    # skip rewriting when nothing but the timestamp changed (keeps the repo small with 30 teams)
+    try:
+        prev = json.load(open(f"arena/{abbr}.json"))
+        same = {k: v for k, v in prev.items() if k not in ("pulled", "pulled_iso")} == {k: v for k, v in data.items() if k not in ("pulled", "pulled_iso")}
+    except Exception:
+        same = False
+    if same:
+        print(f"arena {abbr}: unchanged"); return
     json.dump(data, open(f"arena/{abbr}.json", "w"), separators=(",", ":"))
     print(f"arena {abbr}: {len(sched)} games, {len(games)} box scores, {sum(len(g['shots']) for g in games)} shots, "
           f"{len(players)} players, next={nxt and nxt['opp']}, odds={bool(nxt and nxt.get('odds'))}, yt={len(yt)}")
 
 
+def league_teams():
+    out = []
+    for sp in get(f"{B}/teams").get("sports", []):
+        for lg in sp.get("leagues", []):
+            for t in lg.get("teams", []):
+                t = t["team"]
+                out.append(dict(abbr=t["abbreviation"].lower(), name=t.get("displayName", ""), logo=(t.get("logos") or [{}])[0].get("href", "")))
+    return sorted(out, key=lambda t: t["name"])
+
+
 if __name__ == "__main__":
+    # config: "fav" teams refresh every run with full YouTube; every other NBA team rotates
+    # (missing first, then the oldest few), so each one refreshes every couple of hours.
     try:
-        teams = json.load(open("arena/config.json")).get("teams", ["mem"])
+        cfg = json.load(open("arena/config.json"))
     except Exception:
-        teams = ["mem"]
-    json.dump({"teams": teams}, open("arena/config.json", "w"))
-    for t in teams:
-        build(t.lower())
+        cfg = {}
+    fav = [t.lower() for t in cfg.get("fav") or ["mem"]]
+    try:
+        lt = league_teams()
+    except Exception as e:
+        print("teams:", e); lt = [dict(abbr=a, name=a.upper(), logo="") for a in fav]
+    cfg = {"fav": fav, "teams": [t["abbr"] for t in lt], "names": {t["abbr"]: t["name"] for t in lt},
+           "logos": {t["abbr"]: t["logo"] for t in lt}, "rotate": int(cfg.get("rotate", 6))}
+    json.dump(cfg, open("arena/config.json", "w"), indent=1)
+
+    def age(a):
+        try:
+            return json.load(open(f"arena/{a}.json")).get("pulled_iso", "")
+        except Exception:
+            return ""
+    others = [a for a in cfg["teams"] if a not in fav]
+    missing = [a for a in others if not os.path.exists(f"arena/{a}.json")]
+    rest = sorted([a for a in others if a not in missing], key=age)[: cfg["rotate"]]
+    for t in fav:
+        build(t, True)
+    for t in missing + rest:
+        try:
+            build(t, False)
+        except Exception as e:
+            print(f"arena {t}: failed {e}")
