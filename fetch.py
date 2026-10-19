@@ -4,7 +4,7 @@ Needs two cookies from a signed-in ESPN session, passed as environment variables
   ESPN_S2  and  ESPN_SWID
 They live in GitHub Actions secrets, never in this repo.
 """
-import json, os, sys, datetime as dt
+import json, os, sys, html, datetime as dt
 from zoneinfo import ZoneInfo
 import requests
 import numpy as np
@@ -311,7 +311,7 @@ def main():
         cache = {"at": dt.datetime.now(dt.timezone.utc).isoformat(), "items": items}
         json.dump(cache, open("highlights.json", "w"))
     for v in cache.get("items", []):
-        feed.append(dict(kind="yt", title=v["title"], text="", img=v["img"], url=f"https://www.youtube.com/watch?v={v['vid']}", vid=v["vid"],
+        feed.append(dict(kind="yt", title=html.unescape(v["title"]), text="", img=v["img"], url=f"https://www.youtube.com/watch?v={v['vid']}", vid=v["vid"],
                          date=v["date"], players=[v["player"]], rel=v["rel"]))
     feed.sort(key=lambda x: x.get("date") or "", reverse=True)
     news.sort(key=lambda x: (x["t"] != MY_TEAM, not x["inj"], x["date"]), reverse=False)
