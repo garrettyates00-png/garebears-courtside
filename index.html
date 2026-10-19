@@ -103,6 +103,11 @@ select{font:600 14px var(--body);color:var(--ink);background:var(--panel2);borde
 .shot{position:fixed;width:26px;height:26px;z-index:30;pointer-events:none}
 .swish{position:fixed;z-index:31;font:700 18px var(--display);color:var(--hot);text-shadow:0 0 12px var(--hot);pointer-events:none;animation:swish 1.2s ease-out forwards}
 @keyframes swish{0%{opacity:0;transform:translateY(0) scale(.6)}20%{opacity:1;transform:translateY(-8px) scale(1.1)}100%{opacity:0;transform:translateY(-40px) scale(1)}}
+.modal{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:rgba(0,0,0,.6);padding:20px}
+.modal .box{background:var(--panel2);border:1.5px solid var(--neon);border-radius:16px;padding:18px;max-width:460px;width:100%;box-shadow:0 0 24px var(--neon);display:grid;gap:10px}
+.modal input{font:14px var(--mono);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 10px;width:100%}
+.modal ol{margin:0;padding-left:18px;font-size:13.5px;display:grid;gap:4px}
+.modal a{color:var(--ice)}
 .toast{position:fixed;left:50%;bottom:calc(30px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--panel2);border:1px solid var(--neon);border-radius:12px;padding:10px 16px;z-index:40;box-shadow:0 0 16px var(--neon);font-size:14px;max-width:calc(100% - 64px)}
 @media (max-width:560px){.wrap{padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}.sw{grid-template-columns:1fr}.scoreboard{gap:6px}}
 @media (prefers-reduced-motion:reduce){.ballicon,.slot.pop{animation:none}}
@@ -119,7 +124,10 @@ select{font:600 14px var(--body);color:var(--ink);background:var(--panel2);borde
       <svg class="ballicon" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21" fill="#ff7a1a" stroke="#1a0a00" stroke-width="2"/><path d="M3 24h42M24 3v42M9 9c8 6 8 24 0 30M39 9c-8 6-8 24 0 30" fill="none" stroke="#1a0a00" stroke-width="2"/></svg>
       <div><h1>Garebears Courtside</h1><div class="sub">The Angel Reese Invitational · ESPN · <span id="pulled"></span></div></div>
     </div>
-    <button class="btn" id="refresh" type="button">🏀 Run the play</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" id="refresh" type="button">🏀 Run the play</button>
+      <button class="btn" id="force" type="button" style="border-color:var(--hot)">⚡ Force update</button>
+    </div>
   </header>
 
   <section class="panel" id="sbPanel">
@@ -310,5 +318,47 @@ function shoot(fromEl,label="SWISH!"){
 }
 function toast(msg){const t=document.createElement("div");t.className="toast";t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),3800)}
 $("#refresh").addEventListener("click",async e=>{shoot(e.currentTarget,"BUCKETS");const changed=await load(true);toast("Pulled the latest ESPN data ("+(D?D.pulled:"none")+").")});
+
+// Force update: asks GitHub Actions to pull ESPN now, then waits for the new data to publish.
+// The GitHub token is typed in by you and stays in this browser only (localStorage).
+const REPO="garrettyates00-png/garebears-courtside", TK="courtside-gh-token";
+const getTok=()=>{try{return localStorage.getItem(TK)||""}catch(e){return ""}};
+const setTok=v=>{try{v?localStorage.setItem(TK,v):localStorage.removeItem(TK)}catch(e){}};
+function tokenDialog(){
+  const m=document.createElement("div");m.className="modal";m.innerHTML=`<div class="box" role="dialog" aria-label="Connect GitHub">
+    <h2 style="margin:0;font-family:var(--display);font-size:16px">Connect Force update</h2>
+    <ol><li>Open <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub's new fine-grained token page</a>.</li>
+    <li>Repository access: <b>Only select repositories</b>, then <b>garebears-courtside</b>.</li>
+    <li>Permissions: <b>Actions</b> set to <b>Read and write</b>. Nothing else.</li>
+    <li>Generate it, copy it, and paste it below.</li></ol>
+    <label for="tokIn" class="sub">Token (saved only in this browser)</label><input id="tokIn" type="password" autocomplete="off" placeholder="github_pat_…">
+    <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap"><button class="btn" id="tokCancel" type="button">Cancel</button><button class="btn" id="tokSave" type="button" style="border-color:var(--win)">Save and update</button></div></div>`;
+  document.body.appendChild(m);$("#tokIn").focus();
+  return new Promise(res=>{$("#tokCancel").onclick=()=>{m.remove();res(false)};$("#tokSave").onclick=()=>{const v=$("#tokIn").value.trim();if(!v)return;setTok(v);m.remove();res(true)}});
+}
+async function gh(path,opt={}){const r=await fetch("https://api.github.com/repos/"+REPO+path,{...opt,headers:{"Accept":"application/vnd.github+json","Authorization":"Bearer "+getTok(),...(opt.headers||{})}});return r}
+let forcing=false;
+$("#force").addEventListener("click",async e=>{
+  if(forcing)return; if(!getTok()&&!(await tokenDialog()))return;
+  const btn=e.currentTarget; forcing=true; shoot(btn,"FAST BREAK"); const label=btn.textContent; btn.textContent="⏳ Pulling ESPN…";
+  try{
+    const before=D?D.pulled:"";const t0=new Date(Date.now()-60000).toISOString();
+    const r=await gh("/actions/workflows/refresh.yml/dispatches",{method:"POST",body:JSON.stringify({ref:"main"})});
+    if(r.status===401||r.status===403||r.status===404){setTok("");throw new Error("GitHub rejected the token. Tap Force update to enter a new one.")}
+    if(!r.ok)throw new Error("GitHub said "+r.status);
+    toast("Refresh started on GitHub. This takes about 1 to 2 minutes.");
+    let done=false;
+    for(let i=0;i<60&&!done;i++){await new Promise(s=>setTimeout(s,6000));
+      const runs=await (await gh("/actions/runs?per_page=3&created=>="+t0)).json().catch(()=>({}));
+      const pend=(runs.workflow_runs||[]).some(x=>x.status!=="completed");
+      const fail=(runs.workflow_runs||[]).find(x=>x.name==="Refresh ESPN data"&&x.conclusion==="failure");
+      if(fail)throw new Error("The ESPN pull failed. Your ESPN cookies may have expired.");
+      btn.textContent=pend?"⏳ Pulling ESPN…":"⏳ Publishing…";
+      if(await load(false)&&D.pulled!==before){done=true}
+    }
+    toast(done?"Updated with fresh ESPN data ("+D.pulled+").":"Still publishing. The page will update by itself in a few minutes.");
+  }catch(err){toast(err.message)}
+  finally{forcing=false;btn.textContent=label}
+});
 </script>
 </body></html>
