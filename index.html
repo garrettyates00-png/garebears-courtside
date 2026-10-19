@@ -106,6 +106,12 @@ h2{font:500 20px/1.2 var(--sans);letter-spacing:-.02em;margin:4px 0 0}
 .expand.open .dsec:nth-child(2){transition-delay:.08s}.expand.open .dsec:nth-child(3){transition-delay:.16s}.expand.open .dsec:nth-child(4){transition-delay:.24s}.expand.open .dsec:nth-child(5){transition-delay:.32s}.expand.open .dsec:nth-child(n+6){transition-delay:.4s}
 .card.sel{border-color:rgba(255,255,255,.4);background:var(--glass2)}
 .hero{cursor:default}.hero .vs,.hero .summary,.hero .meter{cursor:pointer}
+.prow{cursor:pointer;transition:background .2s}.prow:hover td{background:rgba(255,255,255,.035)}
+.prow.sel td{background:rgba(255,255,255,.08)}.prow.sel td:first-child{box-shadow:inset 2px 0 0 #fff}
+.pbreak{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.pbreak div{padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.035);border:1px solid var(--line);display:grid;gap:2px;font-size:12px}
+.pbreak b{font-size:18px;font-weight:500}
+#tdetail.swap{animation:rise .45s cubic-bezier(.2,.8,.2,1)}
 /* lineup */
 .tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none}
 .tab{font:500 13px var(--sans);color:var(--mute);background:transparent;border:1px solid var(--line);border-radius:12px;padding:8px 12px;cursor:pointer;white-space:nowrap;text-align:left}
@@ -185,7 +191,7 @@ select{font:500 13.5px var(--sans);color:var(--ink);background:var(--glass2);bor
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:70;background:rgba(244,244,245,.95);color:#0b0b0d;border-radius:999px;padding:10px 18px;font:500 13.5px var(--sans);max-width:calc(100% - 40px);animation:pop .35s cubic-bezier(.2,.8,.2,1) both;box-shadow:0 10px 30px rgba(0,0,0,.4)}
 @keyframes pop{from{opacity:0;transform:translate(-50%,10px)}}
 .foot{font-size:12.5px;color:var(--faint);text-align:center}
-@media (max-width:700px){:root{--fi:7px;--fr:24px}.mark h1{font-size:23px}.bar{padding:12px 16px}.reasons,.ros,.sw{grid-template-columns:1fr}.vs{gap:8px}.mid{font-size:20px}.score{grid-template-columns:1fr}.two{grid-template-columns:1fr}}
+@media (max-width:700px){.pbreak{grid-template-columns:repeat(2,1fr)}:root{--fi:7px;--fr:24px}.mark h1{font-size:23px}.bar{padding:12px 16px}.reasons,.ros,.sw{grid-template-columns:1fr}.vs{gap:8px}.mid{font-size:20px}.score{grid-template-columns:1fr}.two{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){.expand,.expand .dsec{transition:none}.amb i,.dot,.slot,.panel,.sheet{animation:none}.card{transition:none}}
 </style></head><body>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div>
@@ -218,12 +224,12 @@ select{font:500 13.5px var(--sans);color:var(--ink);background:var(--glass2);bor
 
   <div class="two">
     <section class="g pad">
-      <div class="sec-h"><div><div class="eyebrow">Season strength</div><h2>Power rankings</h2></div></div>
+      <div class="sec-h"><div><div class="eyebrow">Season strength</div><h2>Power rankings</h2></div><span class="faint" style="font-size:13px">Tap a team for details</span></div>
       <div class="scroll"><table id="power"></table></div>
     </section>
     <section class="g pad">
-      <div class="sec-h"><div><div class="eyebrow">Category profile</div><h2>Strengths and weaknesses</h2></div><select id="teamSel" aria-label="Team"></select></div>
-      <div class="cats" id="cats"></div><div class="sw" id="sw"></div>
+      <div id="tdetail" style="display:grid;gap:18px"><div id="tdHead" style="display:grid;gap:16px"></div>
+      <div><div class="eyebrow" style="margin-bottom:10px">Category ranks</div><div class="cats" id="cats"></div><div class="sw" id="sw"></div></div></div>
     </section>
   </div>
 
@@ -402,18 +408,40 @@ function renderLineupAct(){
   $("#setLineup").onclick=()=>{$("#setRow").innerHTML=`<span style="align-self:center">Save ${mv.length} move${mv.length>1?"s":""} to ESPN?</span><button class="b primary" id="setYes" type="button">Save</button><button class="b" id="setNo" type="button">Cancel</button>`;$("#setNo").onclick=renderLineupAct;$("#setYes").onclick=runLineup};
 }
 
+let selTeam=null;
 function renderPower(){
   const rows=Object.entries(D.teams).sort((a,b)=>b[1].power-a[1].power);const mx=rows[0][1].power,mn=rows[rows.length-1][1].power;
-  $("#power").innerHTML=`<thead><tr><th></th><th>Team</th><th class="r">W-L</th><th class="r">Power</th><th></th></tr></thead><tbody>`+rows.map(([id,t],i)=>`<tr class="${id==D.me?"me":""}"><td class="rk">${i+1}</td><td><div style="font-weight:500">${esc(t.name)}</div><div class="faint" style="font-size:12.5px">${esc(t.owner)} · ${esc(t.star)}</div></td><td class="r num mute">${t.w}-${t.l}</td><td class="r num">${Math.round(t.power)}</td><td style="width:18%"><div class="bars"><i style="width:${(15+85*(t.power-mn)/((mx-mn)||1)).toFixed(0)}%"></i></div></td></tr>`).join("")+"</tbody>";
+  if(selTeam==null)selTeam=String(D.me);
+  $("#power").innerHTML=`<thead><tr><th></th><th>Team</th><th class="r">W-L</th><th class="r">Power</th><th></th></tr></thead><tbody>`+rows.map(([id,t],i)=>`<tr class="prow ${id==D.me?"me":""} ${id==selTeam?"sel":""}" data-id="${id}" tabindex="0" aria-selected="${id==selTeam}"><td class="rk">${i+1}</td><td><div style="font-weight:500">${esc(t.name)}</div><div class="faint" style="font-size:12.5px">${esc(t.owner)} · ${esc(t.star)}</div></td><td class="r num mute">${t.w}-${t.l}</td><td class="r num">${Math.round(t.power)}</td><td style="width:18%"><div class="bars"><i style="width:${(15+85*(t.power-mn)/((mx-mn)||1)).toFixed(0)}%"></i></div></td></tr>`).join("")+"</tbody>";
 }
+function pickTeam(id){selTeam=String(id);document.querySelectorAll(".prow").forEach(r=>{const on=r.dataset.id==selTeam;r.classList.toggle("sel",on);r.setAttribute("aria-selected",on)});renderStrength(selTeam);
+  if(matchMedia("(max-width:760px)").matches)$("#tdetail").scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"})}
+$("#power").addEventListener("click",e=>{const r=e.target.closest(".prow");if(r)pickTeam(r.dataset.id)});
+$("#power").addEventListener("keydown",e=>{const r=e.target.closest(".prow");if(r&&(e.key==="Enter"||e.key===" ")){e.preventDefault();pickTeam(r.dataset.id)}});
 const ADV={pts:"scoring",reb:"rebounding",ast:"playmaking",stl:"steals",blk:"blocks",tpm:"threes",to:"ball security"};
 function renderStrength(id){
-  const t=D.teams[id],n=Object.keys(D.teams).length;
+  const T=D.teams,t=T[id],ids=Object.keys(T),n=ids.length,sorted=ids.slice().sort((a,b)=>T[b].power-T[a].power),rank=sorted.indexOf(String(id))+1;
+  const avg=k=>ids.reduce((a,x)=>a+T[x][k],0)/n;
+  const ps=D.players.filter(p=>p.t==id).sort((a,b)=>b.v-a.v),top=ps.slice(0,3);
+  const lgTop=ids.map(x=>D.players.filter(p=>p.t==x).sort((a,b)=>b.v-a.v).slice(0,3).reduce((a,p)=>a+p.v,0));const myTop=top.reduce((a,p)=>a+p.v,0);
+  const topRank=lgTop.slice().sort((a,b)=>b-a).indexOf(myTop)+1;
+  const coreD=t.core-avg("core"),benchD=t.bench-avg("bench");
+  const above=sorted[rank-2],below=sorted[rank];
+  const why=[];
+  why.push(`<b>Starting 11 is ${coreD>=0?"above":"below"} average.</b> Top 11 project ${Math.round(t.core)} per game, ${Math.abs(Math.round(coreD))} ${coreD>=0?"more":"fewer"} than the league average.`);
+  why.push(`<b>Star power ranks #${topRank}.</b> ${top.map(p=>esc(p.n)+" ("+p.v.toFixed(1)+")").join(", ")}.`);
+  why.push(`<b>Bench ${benchD>=0?"is deeper than most":"is thinner than most"}.</b> ${Math.round(t.bench)} per game from players 12 and beyond (league avg ${Math.round(avg("bench"))}).`);
+  if(t.risk) why.push(`<b>${t.risk} injury tag${t.risk>1?"s":""}</b> cost ${t.risk*2} power points: ${ps.filter(p=>p.inj).map(p=>esc(p.n)).join(", ")}.`);
+  if(above) why.push(`<b>${Math.round(T[above].power-t.power)} points behind #${rank-1} ${esc(T[above].name)}</b>${below?`, ${Math.round(t.power-T[below].power)} ahead of #${rank+1} ${esc(T[below].name)}`:""}.`);
+  else why.push(`<b>Top of the league</b>, ${Math.round(t.power-T[below].power)} ahead of ${esc(T[below].name)}.`);
+  $("#tdHead").innerHTML=`<div class="row" style="align-items:flex-end"><div><div class="eyebrow">Power ranking</div><h2 style="font-size:22px">${esc(t.name)}</h2><div class="faint" style="font-size:12.5px">${esc(t.owner)} · ${t.w}-${t.l}</div></div><div style="text-align:right"><div class="num" style="font:300 54px/1 var(--sans);letter-spacing:-.04em">#${rank}</div><div class="faint num" style="font-size:12px">${Math.round(t.power)} power</div></div></div>
+    <div class="pbreak"><div><span class="faint">Top 11</span><b class="num">${Math.round(t.core)}</b></div><div><span class="faint">+ ¼ bench</span><b class="num">${(t.bench/4).toFixed(0)}</b></div><div><span class="faint">− injuries</span><b class="num">${t.risk*2}</b></div><div><span class="faint">= Power</span><b class="num">${Math.round(t.power)}</b></div></div>
+    <ul class="notes" style="margin:0">${why.map(w=>`<li>${w}</li>`).join("")}</ul>`;
   $("#cats").innerHTML=CATS.map(([k,l])=>{const r=t.rank[k],pct=(n+1-r)/n,c=r<=3?"var(--up)":r>=n-2?"var(--down)":"rgba(255,255,255,.6)";return `<div class="cat"><span class="mute">${l}</span><div class="lane"><i style="width:${(pct*100).toFixed(0)}%;background:${c}"></i></div><span class="num" style="text-align:right">#${r}</span></div>`}).join("");
   const s=CATS.filter(([k])=>t.rank[k]<=3).map(([k])=>ADV[k]),w=CATS.filter(([k])=>t.rank[k]>=n-2).map(([k])=>ADV[k]);
-  $("#sw").innerHTML=`<div><h4 class="up">STRENGTHS</h4>${s.length?s.join(", "):"Nothing top-3"}</div><div><h4 class="down">WEAKNESSES</h4>${w.length?w.join(", "):"Nothing bottom-3"}${t.risk>=3?` · ${t.risk} injury tags`:""}</div>`;
+  $("#sw").innerHTML=`<div><h4 class="up">STRENGTHS</h4>${s.length?s.join(", "):"Nothing top-3"}</div><div><h4 class="down">WEAKNESSES</h4>${w.length?w.join(", "):"Nothing bottom-3"}</div>`;
+  const box=$("#tdetail");box.classList.remove("swap");void box.offsetWidth;box.classList.add("swap");
 }
-const sel=$("#teamSel");sel.onchange=()=>renderStrength(sel.value);
 function renderWire(){
   const me=D.teams[D.me];
   const pend=(D.pending||[]).map(c=>`<b>Pending:</b> add ${esc(c.add.join(", "))}, drop ${esc(c.drop.join(", "))}${c.when?` <span class="faint">· ${esc(c.when)}</span>`:""}`);
@@ -432,15 +460,14 @@ function renderAll(){
   const age=D.pulled_iso?(Date.now()-Date.parse(D.pulled_iso))/60000:0;
   $("#pulled").textContent="Updated "+D.pulled;$("#dot").classList.toggle("stale",age>75);
   if(!forcing)$("#status").textContent=age>75?`This data is ${age>120?Math.round(age/60)+" hours":Math.round(age)+" minutes"} old. Try Force update. If that fails, your ESPN cookies have probably expired.`:"";
-  sel.innerHTML=Object.entries(D.teams).map(([id,t])=>`<option value="${id}" ${id==(sel.value||D.me)?"selected":""}>${esc(t.name)}</option>`).join("");
-  renderHero();renderCards();renderDays();renderPower();renderStrength(sel.value||D.me);renderWire();renderScoring();
+  renderHero();renderCards();renderDays();renderPower();renderStrength(selTeam);renderWire();renderScoring();
 }
 
 /* ---- data + GitHub actions ---- */
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1792384903";
+const BUILD="1792385091";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(checkBuild,90000);
 loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
