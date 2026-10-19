@@ -95,7 +95,7 @@ function courtSVG(){const L='stroke="rgba(255,255,255,.28)" stroke-width="2" fil
   <line x1="220" y1="40" x2="280" y2="40" ${L}/><circle cx="250" cy="52.5" r="7.5" ${L}/><path d="M210 52.5 A40 40 0 0 0 290 52.5" ${L}/>
   <path d="M30 1 V140 A237.5 237.5 0 0 0 470 140 V1" ${L}/><path d="M190 469 A60 60 0 0 1 310 469" ${L}/>`}
 /* ESPN shot coordinates are in feet: x across the court (0-50), y out from the rim (rim at 0). */
-function zoneOf(x,y,is3){const d=Math.hypot(x-25,y);if(is3!=null?is3:((y<8.75&&(x<3.5||x>46.5))||d>=23.25))return"three";return d<8?"paint":"mid"}
+function zoneOf(x,y,is3){const d=Math.hypot(x-25,y);if(is3||(y<8.75&&(x<3.5||x>46.5))||d>=23.25)return"three";return d<8?"paint":"mid"}
 function aShots(){
   const games=aGame==="all"?A.games:A.games.filter(g=>g.id===aGame);
   let shots=games.flatMap(g=>g.shots);
