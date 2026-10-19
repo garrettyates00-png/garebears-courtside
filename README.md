@@ -1,4 +1,4 @@
-# Garebears Courtside
+# Grindex
 
 Neon ESPN fantasy dashboard for The Angel Reese Invitational.
 

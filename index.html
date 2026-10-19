@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Courtside</title>
+<title>Grindex</title>
 <meta name="theme-color" content="#07080a">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,800;125,900&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap">
@@ -307,13 +307,52 @@ select{font:500 13.5px var(--sans);color:var(--ink);background:var(--glass2);bor
 .foot{font-size:12.5px;color:var(--faint);text-align:center}
 @media (max-width:700px){.pbreak{grid-template-columns:repeat(2,1fr)}:root{--fi:7px;--fr:24px}.mark h1{font-size:23px}.bar{padding:12px 16px}.reasons,.ros,.sw{grid-template-columns:1fr}.vs{gap:8px}.mid{font-size:20px}.score{grid-template-columns:1fr}.two{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){.expand,.expand .dsec{transition:none}.amb i,.dot,.slot,.panel,.sheet{animation:none}.card{transition:none}}
+
+/* ---- accent layer: the chosen hue runs through the frame, glass, type and data ---- */
+@property --ah{syntax:"<number>";inherits:true;initial-value:220}
+:root{--ao:40;
+  --a:hsl(var(--ah) var(--as) 64%);
+  --a2:hsl(calc(var(--ah) + var(--ao)) var(--as) 60%);
+  --hi:hsl(var(--ah) var(--as) 78%)}
+:root.flow{transition:--ah 2s linear}
+body[data-view="arena"]:not(.mycolors){--a:var(--tcText);--a2:var(--tc)}
+body{background:radial-gradient(130% 90% at 15% -10%,color-mix(in srgb,var(--a) 16%,var(--bg)),transparent 55%),radial-gradient(110% 80% at 100% 110%,color-mix(in srgb,var(--a2) 14%,var(--bg)),transparent 55%),var(--bg);background-attachment:fixed}
+.amb i:nth-child(1){background:radial-gradient(circle,color-mix(in srgb,var(--a) 60%,transparent),transparent 65%)}
+.amb i:nth-child(2){background:radial-gradient(circle,color-mix(in srgb,var(--a2) 55%,transparent),transparent 65%)}
+.amb i:nth-child(3){background:radial-gradient(circle,color-mix(in srgb,var(--a) 45%,transparent),transparent 65%)}
+.amb i:nth-child(4){background:radial-gradient(circle,color-mix(in srgb,var(--hi) 30%,transparent),transparent 65%)}
+.frame{border-color:color-mix(in srgb,var(--a) 55%,transparent);box-shadow:0 0 0 200px var(--bg),inset 0 0 0 1px color-mix(in srgb,var(--a) 10%,transparent),inset 0 0 50px color-mix(in srgb,var(--a) 16%,transparent),inset 0 0 40px rgba(0,0,0,.45),0 0 24px color-mix(in srgb,var(--a) 30%,transparent)}
+.frame::after{border-color:color-mix(in srgb,var(--a2) 30%,transparent)}
+.bar{background:linear-gradient(180deg,color-mix(in srgb,var(--a) 12%,rgba(24,25,29,.92)),rgba(18,19,22,.88))}
+.bar .edge{background:linear-gradient(90deg,color-mix(in srgb,var(--a) 55%,transparent),color-mix(in srgb,var(--a2) 55%,transparent));box-shadow:0 0 12px color-mix(in srgb,var(--a) 50%,transparent)}
+.bar .cnr.l{border-color:color-mix(in srgb,var(--a) 55%,transparent) transparent transparent color-mix(in srgb,var(--a) 55%,transparent)}
+.bar .cnr.r{border-color:color-mix(in srgb,var(--a2) 55%,transparent) color-mix(in srgb,var(--a2) 55%,transparent) transparent transparent}
+.mark h1{background:linear-gradient(100deg,#fff 10%,var(--hi) 45%,var(--a) 75%,var(--a2));-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 0 18px color-mix(in srgb,var(--a) 45%,transparent))}
+.g{border-color:color-mix(in srgb,var(--a) 22%,var(--line));background:linear-gradient(160deg,color-mix(in srgb,var(--a) 8%,transparent),transparent 45%),var(--glass);box-shadow:inset 0 1px 0 color-mix(in srgb,var(--hi) 22%,transparent),0 20px 50px -20px rgba(0,0,0,.6)}
+.card{border-color:color-mix(in srgb,var(--a) 18%,var(--line));background:linear-gradient(160deg,color-mix(in srgb,var(--a) 7%,transparent),transparent 50%),var(--glass)}
+.card:hover,.card.sel{border-color:color-mix(in srgb,var(--a) 60%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--a) 25%,transparent),0 18px 40px -18px color-mix(in srgb,var(--a) 55%,transparent)}
+.card.mine{border-color:color-mix(in srgb,var(--a) 50%,transparent)}
+.eyebrow{color:color-mix(in srgb,var(--a) 70%,var(--mute))}
+.side .big{background:linear-gradient(180deg,#fff 35%,var(--hi));-webkit-background-clip:text;background-clip:text;color:transparent}
+.meter span{background:linear-gradient(90deg,var(--a2),var(--a),var(--hi));box-shadow:0 0 14px color-mix(in srgb,var(--a) 70%,transparent)}
+.mini span{background:linear-gradient(90deg,var(--a2),var(--a))}
+.pill{border-color:color-mix(in srgb,var(--a) 40%,transparent);background:color-mix(in srgb,var(--a) 10%,transparent)}
+.b{border-color:color-mix(in srgb,var(--a) 30%,var(--line2))}
+.b:hover{background:color-mix(in srgb,var(--a) 22%,transparent)}
+.b.primary,.seg button[aria-selected="true"],.tab[aria-selected="true"],.fchip[aria-selected="true"]{background:linear-gradient(135deg,var(--hi),color-mix(in srgb,var(--a) 70%,var(--hi)));box-shadow:0 0 18px color-mix(in srgb,var(--a) 45%,transparent)}
+.prow.sel td{background:color-mix(in srgb,var(--a) 14%,transparent)}.prow.sel td:first-child{box-shadow:inset 3px 0 0 var(--a)}
+.prow:hover td{background:color-mix(in srgb,var(--a) 7%,transparent)}
+::selection{background:color-mix(in srgb,var(--a) 45%,transparent)}
+.wheel .core i{background:linear-gradient(135deg,var(--a),var(--a2))}
+.seg2{display:flex;gap:6px}.seg2 button{flex:1;font:500 12px var(--sans);color:var(--mute);background:rgba(255,255,255,.05);border:1px solid var(--line2);border-radius:999px;padding:6px 0;cursor:pointer}
+.seg2 button[aria-pressed="true"]{color:#0b0b0d;background:linear-gradient(135deg,var(--hi),var(--a));border-color:transparent}
 </style></head><body>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div>
 
 <div class="wrap">
   <header class="bar">
     <i class="edge" aria-hidden="true"></i><i class="cnr l" aria-hidden="true"></i><i class="cnr r" aria-hidden="true"></i>
-    <div class="mark"><h1>Courtside</h1><span class="meta"><span class="dot" id="dot"></span><span id="pulled">Loading</span></span></div>
+    <div class="mark"><h1>Grindex</h1><span class="meta"><span class="dot" id="dot"></span><span id="pulled">Loading</span></span></div>
     <div class="seg" role="tablist" aria-label="Section"><button type="button" role="tab" data-view="fantasy" aria-selected="true">Fantasy</button><button type="button" role="tab" data-view="arena" aria-selected="false">Arena</button></div>
     <div class="btns">
       <button class="b" id="refresh" type="button" title="Reload the newest published data">Reload</button>
@@ -646,9 +685,13 @@ async function staleNote(age){
 
 /* ---- color settings (saved in this browser) ---- */
 const CK="courtside-colors";
-const PRESETS=[["Mono",220,0],["Ice",205,65],["Mint",158,55],["Court",28,75],["Gold",44,75],["Rose",345,60],["Violet",265,55]];
-let C={h:220,s:0,g:.75,team:true};try{Object.assign(C,JSON.parse(localStorage.getItem(CK)||"{}"))}catch(e){}
-function applyColors(){const r=document.documentElement.style;r.setProperty("--ah",C.h);r.setProperty("--as",C.s+"%");r.setProperty("--glow",C.g);document.body.classList.toggle("mycolors",!C.team);try{localStorage.setItem(CK,JSON.stringify(C))}catch(e){}}
+const PRESETS=[["Mono",220,0,40],["Ice",200,80,40],["Mint",158,70,50],["Court",24,85,30],["Gold",44,85,-30],["Rose",340,75,40],["Violet",265,70,60],["Miami",190,85,140],["Sunset",330,85,60],["Aurora",150,75,120]];
+const BLENDS=[["Solo",0],["Duo",40],["Split",140],["Neon",180]];
+let C={h:220,s:0,g:.75,o:40,flow:false,team:true};try{Object.assign(C,JSON.parse(localStorage.getItem(CK)||"{}"))}catch(e){}
+let flowT=null,flowH=null;const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
+function applyColors(){const r=document.documentElement.style;r.setProperty("--ah",flowH??C.h);r.setProperty("--ao",C.o);document.documentElement.classList.toggle("flow",!!C.flow&&!RM);
+  if(C.flow&&!RM&&!flowT){flowH=C.h;flowT=setInterval(()=>{flowH=(flowH+3);r.setProperty("--ah",flowH)},2000)}if((!C.flow||RM)&&flowT){clearInterval(flowT);flowT=null;flowH=null;r.setProperty("--ah",C.h)}
+r.setProperty("--as",C.s+"%");r.setProperty("--glow",C.g);document.body.classList.toggle("mycolors",!C.team);try{localStorage.setItem(CK,JSON.stringify(C))}catch(e){}}
 applyColors();
 $("#gear").addEventListener("click",e=>{e.stopPropagation();const open=document.querySelector(".cpanel");if(open){open.remove();$("#gear").setAttribute("aria-expanded","false");return}
   const p=document.createElement("div");p.className="cpanel";p.setAttribute("role","dialog");p.setAttribute("aria-label","Colors");
@@ -656,19 +699,21 @@ $("#gear").addEventListener("click",e=>{e.stopPropagation();const open=document.
     <div class="wheel" id="wheel" role="slider" aria-label="Hue" tabindex="0" aria-valuemin="0" aria-valuemax="360"><div class="knob" id="knob"></div><div class="core"><div><i></i><span id="hueTxt"></span></div></div></div>
     <div class="crow"><label for="cSat">Color</label><input id="cSat" type="range" min="0" max="100"><span class="num" id="cSatV"></span></div>
     <div class="crow"><label for="cGlow">Glow</label><input id="cGlow" type="range" min="0" max="100"><span class="num" id="cGlowV"></span></div>
-    <div><div class="eyebrow" style="margin-bottom:8px">Presets</div><div class="presets">${PRESETS.map(([n,h,s2])=>`<button type="button" data-h="${h}" data-s="${s2}" title="${n}" aria-label="${n}" style="background:hsl(${h} ${s2*.85}% ${s2?62:85}%)"></button>`).join("")}</div></div>
+    <div><div class="eyebrow" style="margin-bottom:8px">Presets</div><div class="presets">${PRESETS.map(([n,h,s2,o])=>`<button type="button" data-h="${h}" data-s="${s2}" data-o="${o}" title="${n}" aria-label="${n}" style="background:${s2?`linear-gradient(135deg,hsl(${h} ${s2}% 62%),hsl(${h+o} ${s2}% 58%))`:"hsl(220 0% 85%)"}"></button>`).join("")}</div></div>
+    <div><div class="eyebrow" style="margin-bottom:8px">Blend</div><div class="seg2" id="cBlend">${BLENDS.map(([n,o])=>`<button type="button" data-o="${o}">${n}</button>`).join("")}</div></div>
+    <label class="tog"><input type="checkbox" id="cFlow"> Slowly shift colors</label>
     <label class="tog"><input type="checkbox" id="cTeam"> Use team colors in Arena</label>`;
   document.body.appendChild(p);$("#gear").setAttribute("aria-expanded","true");
   const W=$("#wheel"),K=$("#knob");
-  const sync=()=>{const a=(C.h-90)*Math.PI/180,R=100-17;K.style.left=(100+R*Math.cos(a))+"px";K.style.top=(100+R*Math.sin(a))+"px";K.style.background=`hsl(${C.h} 80% 60%)`;
-    W.setAttribute("aria-valuenow",Math.round(C.h));$("#hueTxt").textContent=Math.round(C.h)+"°";$("#cSat").value=C.s;$("#cSatV").textContent=C.s;$("#cGlow").value=Math.round(C.g*100);$("#cGlowV").textContent=Math.round(C.g*100);$("#cTeam").checked=C.team;
-    p.querySelectorAll(".presets button").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.h===C.h&&+b.dataset.s===C.s));applyColors()};
+  const sync=()=>{if(flowT)flowH=C.h;const a=(C.h-90)*Math.PI/180,R=100-17;K.style.left=(100+R*Math.cos(a))+"px";K.style.top=(100+R*Math.sin(a))+"px";K.style.background=`hsl(${C.h} 80% 60%)`;
+    W.setAttribute("aria-valuenow",Math.round(C.h));$("#hueTxt").textContent=Math.round(C.h)+"°";$("#cSat").value=C.s;$("#cSatV").textContent=C.s;$("#cGlow").value=Math.round(C.g*100);$("#cGlowV").textContent=Math.round(C.g*100);$("#cTeam").checked=C.team;$("#cFlow").checked=!!C.flow;p.querySelectorAll("#cBlend button").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.o===C.o));
+    p.querySelectorAll(".presets button").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.h===C.h&&+b.dataset.s===C.s&&+b.dataset.o===C.o));applyColors()};
   const pick=ev=>{const r=W.getBoundingClientRect(),x=ev.clientX-r.left-r.width/2,y=ev.clientY-r.top-r.height/2;C.h=(Math.atan2(y,x)*180/Math.PI+90+360)%360;if(C.s<20)C.s=60;sync()};
   W.addEventListener("pointerdown",ev=>{W.setPointerCapture(ev.pointerId);pick(ev);const mv=e2=>pick(e2),up=()=>{W.removeEventListener("pointermove",mv);W.removeEventListener("pointerup",up)};W.addEventListener("pointermove",mv);W.addEventListener("pointerup",up)});
   W.addEventListener("keydown",ev=>{if(ev.key==="ArrowRight"||ev.key==="ArrowUp"){C.h=(C.h+5)%360;sync()}if(ev.key==="ArrowLeft"||ev.key==="ArrowDown"){C.h=(C.h+355)%360;sync()}});
-  $("#cSat").oninput=e2=>{C.s=+e2.target.value;sync()};$("#cGlow").oninput=e2=>{C.g=+e2.target.value/100;sync()};$("#cTeam").onchange=e2=>{C.team=e2.target.checked;sync()};
-  p.querySelector(".presets").onclick=e2=>{const b=e2.target.closest("[data-h]");if(b){C.h=+b.dataset.h;C.s=+b.dataset.s;sync()}};
-  $("#cReset").onclick=()=>{C={h:220,s:0,g:.75,team:true};sync()};
+  $("#cSat").oninput=e2=>{C.s=+e2.target.value;sync()};$("#cGlow").oninput=e2=>{C.g=+e2.target.value/100;sync()};$("#cTeam").onchange=e2=>{C.team=e2.target.checked;sync()};$("#cFlow").onchange=e2=>{C.flow=e2.target.checked;sync()};$("#cBlend").onclick=e2=>{const b=e2.target.closest("[data-o]");if(b){C.o=+b.dataset.o;if(C.s<20)C.s=70;sync()}};
+  p.querySelector(".presets").onclick=e2=>{const b=e2.target.closest("[data-h]");if(b){C.h=+b.dataset.h;C.s=+b.dataset.s;C.o=+b.dataset.o;sync()}};
+  $("#cReset").onclick=()=>{C={h:220,s:0,g:.75,o:40,flow:false,team:true};sync()};
   sync();
 });
 document.addEventListener("click",e=>{const p=document.querySelector(".cpanel");if(p&&!p.contains(e.target)&&e.target.id!=="gear"){p.remove();$("#gear").setAttribute("aria-expanded","false")}});
@@ -677,7 +722,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1792426723";
+const BUILD="1792436124";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(checkBuild,90000);
 loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
