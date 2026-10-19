@@ -93,8 +93,19 @@ h2{font:500 20px/1.2 var(--sans);letter-spacing:-.02em;margin:4px 0 0}
 .row .n{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .row .p{font:500 18px var(--mono);font-variant-numeric:tabular-nums}
 .row.lose .n,.row.lose .p{color:var(--faint)}
-.cfoot{display:flex;justify-content:space-between;align-items:center;font:500 11.5px var(--mono);color:var(--faint)}
+.cfoot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px 10px;font:500 11.5px var(--mono);color:var(--faint)}
 .mini{height:3px;border-radius:9px;background:rgba(255,255,255,.08);overflow:hidden}.mini span{display:block;height:100%;background:rgba(255,255,255,.75)}
+/* inline expand: content grows in place and pushes the page down */
+.expand{display:grid;grid-template-rows:0fr;transition:grid-template-rows .7s cubic-bezier(.2,.8,.2,1)}
+.expand.open{grid-template-rows:1fr}
+.expand>div{overflow:hidden;min-height:0}
+.dwrap{display:grid;gap:24px;padding-top:6px}
+#heroX .dwrap{border-top:1px solid var(--line);padding-top:24px}
+.expand .dsec{opacity:0;transform:translateY(14px);transition:opacity .5s ease,transform .6s cubic-bezier(.2,.8,.2,1)}
+.expand.open .dsec{opacity:1;transform:none}
+.expand.open .dsec:nth-child(2){transition-delay:.08s}.expand.open .dsec:nth-child(3){transition-delay:.16s}.expand.open .dsec:nth-child(4){transition-delay:.24s}.expand.open .dsec:nth-child(5){transition-delay:.32s}.expand.open .dsec:nth-child(n+6){transition-delay:.4s}
+.card.sel{border-color:rgba(255,255,255,.4);background:var(--glass2)}
+.hero{cursor:default}.hero .vs,.hero .summary,.hero .meter{cursor:pointer}
 /* lineup */
 .tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none}
 .tab{font:500 13px var(--sans);color:var(--mute);background:transparent;border:1px solid var(--line);border-radius:12px;padding:8px 12px;cursor:pointer;white-space:nowrap;text-align:left}
@@ -175,7 +186,7 @@ select{font:500 13.5px var(--sans);color:var(--ink);background:var(--glass2);bor
 @keyframes pop{from{opacity:0;transform:translate(-50%,10px)}}
 .foot{font-size:12.5px;color:var(--faint);text-align:center}
 @media (max-width:700px){:root{--fi:7px;--fr:24px}.mark h1{font-size:23px}.bar{padding:12px 16px}.reasons,.ros,.sw{grid-template-columns:1fr}.vs{gap:8px}.mid{font-size:20px}.score{grid-template-columns:1fr}.two{grid-template-columns:1fr}}
-@media (prefers-reduced-motion:reduce){.amb i,.dot,.slot,.panel,.sheet{animation:none}.card{transition:none}}
+@media (prefers-reduced-motion:reduce){.expand,.expand .dsec{transition:none}.amb i,.dot,.slot,.panel,.sheet{animation:none}.card{transition:none}}
 </style></head><body>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div>
 
@@ -194,6 +205,7 @@ select{font:500 13.5px var(--sans);color:var(--ink);background:var(--glass2);bor
   <section>
     <div class="sec-h"><div><div class="eyebrow" id="wkLabel">This week</div><h2>Matchups</h2></div><span class="faint" style="font-size:13px">Tap any matchup for the full breakdown</span></div>
     <div class="grid" id="cards"></div>
+    <div class="expand" id="cardX" aria-hidden="true"><div></div></div>
   </section>
 
   <section class="g pad">
@@ -318,43 +330,49 @@ function renderHero(){
    <div class="vs">${side(me,"",p>=.5)}<div class="mid">vs</div>${side(op,"r",p<.5)}</div>
    <div><div class="meter"><span style="width:0%" id="heroMeter"></span></div><div class="meter-l"><span>${Math.round(p*100)}% win chance</span><span>${Math.round(100-p*100)}%</span></div></div>
    <p class="summary">${A.sum}</p>
-   <div class="chips">${me.if_claims!=null?`<span class="pill">With pending claims: ${Math.round(me.live+me.if_claims)}</span>`:""}${P(D.me).filter(x=>x.inj).map(x=>`<span class="pill">${esc(last(x.n))} ${injWord(x.inj)}</span>`).join("")}<span class="pill">Open breakdown →</span></div>`;
+   <div class="chips">${me.if_claims!=null?`<span class="pill">With pending claims: ${Math.round(me.live+me.if_claims)}</span>`:""}${P(D.me).filter(x=>x.inj).map(x=>`<span class="pill">${esc(last(x.n))} ${injWord(x.inj)}</span>`).join("")}<button class="b" type="button" id="heroToggle" aria-expanded="${heroOpen}" aria-controls="heroX">${heroOpen?"Hide breakdown ↑":"Open breakdown ↓"}</button></div>
+   <div class="expand ${heroOpen?"open":""}" id="heroX" aria-hidden="${!heroOpen}"><div>${heroOpen?`<div class="dwrap">${detailHTML(D.me,D.opp,false)}</div>`:""}</div></div>`;
   requestAnimationFrame(()=>{$("#heroMeter").style.width=(p*100).toFixed(1)+"%"});
   document.querySelectorAll("#hero .big").forEach(el=>countUp(el,+el.dataset.to));
 }
-function renderCards(){
+function renderCards(){setTimeout(()=>{if(openCard){const [h,a]=openCard.split("-");openCard=null;toggleCard(+h,+a)}},0);
   const T=D.teams;
   $("#cards").innerHTML=matchups().map(([h,a])=>{const A=analyze(h,a);const ph=A.pA;const mine=h==D.me||a==D.me;
     const r=(id,win)=>`<div class="row ${win?"":"lose"}"><span class="n">${esc(T[id].name)}</span><span class="p">${Math.round(T[id].proj)}</span></div>`;
     return `<button class="card ${mine?"mine":""}" type="button" data-h="${h}" data-a="${a}">${r(h,ph>=.5)}${r(a,ph<.5)}<div class="mini"><span style="width:${(ph*100).toFixed(0)}%"></span></div><div class="cfoot"><span>${A.label}</span><span>${Math.round(Math.max(ph,1-ph)*100)}% · by ${Math.round(Math.abs(A.margin))}</span></div></button>`}).join("");
 }
-function openMatch(h,a){
+function detailHTML(h,a,withHead){
   const T=D.teams,A=analyze(h,a),newsBy=Object.fromEntries(D.news.map(n=>[n.n,n]));
-  const side=(id,win)=>`<div class="side ${id==a?"r":""}"><div class="tn">${esc(T[id].name)}</div><div class="ow">${esc(T[id].owner)} · ${T[id].w}-${T[id].l} · power #${Object.values(T).sort((x,y)=>y.power-x.power).indexOf(T[id])+1}</div><div class="big num ${win?"":"faint"}" style="font-size:clamp(40px,7vw,72px)">${Math.round(T[id].proj)}</div><div class="sub">${T[id].live.toFixed(0)} scored · ${T[id].starts} starts left</div></div>`;
+  const pr=id=>Object.values(T).sort((x,y)=>y.power-x.power).indexOf(T[id])+1;
+  const side=(id,win)=>`<div class="side ${id==a?"r":""}"><div class="tn">${esc(T[id].name)}</div><div class="ow">${esc(T[id].owner)} · ${T[id].w}-${T[id].l} · power #${pr(id)}</div><div class="big num ${win?"":"faint"}" style="font-size:clamp(40px,7vw,72px)">${Math.round(T[id].proj)}</div><div class="sub">${T[id].live.toFixed(0)} scored · ${T[id].starts} starts left</div></div>`;
   const reasons=id=>`<div class="col"><div class="rbox"><h4 class="up">How ${esc(T[id].name)} wins</h4><ul>${A.why[id].w.map(x=>`<li>${x}</li>`).join("")}</ul></div><div class="rbox"><h4 class="down">How they lose</h4><ul>${A.why[id].l.map(x=>`<li>${x}</li>`).join("")}</ul></div></div>`;
-  const roster=id=>{const ps=P(id).slice().sort((x,y)=>y.wk-x.wk||y.v-x.v);const five=ps.slice(0,5),rot=ps.slice(5).filter(p=>p.st>0),bench=ps.slice(5).filter(p=>!p.st);
-    const pl=p=>{const nw=newsBy[p.n];return `<div class="pl" tabindex="0"><span class="nm">${esc(p.n)}${injTag(p.inj)}</span><span class="pt">${p.wk?Math.round(p.wk):"–"}</span><span class="ln">${esc(p.tm)} · ${p.el.join("/")} · ${p.st} G · ${p.v.toFixed(1)}/g${nw?" · news ▾":""}</span>${nw?`<span class="nw">${esc(nw.text)} <span class="faint">${nw.date.slice(5)}</span></span>`:""}</div>`};
+  const roster=id=>{const ps=P(id).slice().sort((x,y)=>(y.wk||0)-(x.wk||0)||y.v-x.v);const five=ps.slice(0,5),rot=ps.slice(5).filter(p=>p.st>0),bench=ps.slice(5).filter(p=>!p.st);
+    const pl=p=>{const nw=newsBy[p.n];return `<div class="pl" tabindex="0"><span class="nm">${esc(p.n)}${injTag(p.inj)}</span><span class="pt">${p.wk?Math.round(p.wk):"–"}</span><span class="ln">${esc(p.tm)} · ${p.el.join("/")} · ${p.st||0} G · ${p.v.toFixed(1)}/g${nw?" · news ▾":""}</span>${nw?`<span class="nw">${esc(nw.text)} <span class="faint">${nw.date.slice(5)}</span></span>`:""}</div>`};
     return `<div><div class="eyebrow" style="margin-bottom:4px">${esc(T[id].name)}</div><div class="plist"><div class="grp">Starting five · proj pts</div>${five.map(pl).join("")}${rot.length?`<div class="grp">Rotation</div>${rot.map(pl).join("")}`:""}${bench.length?`<div class="grp">Bench · no starts</div>${bench.map(pl).join("")}`:""}</div></div>`};
-  const daily=`<div class="scroll"><table><thead><tr><th>Day</th><th class="r">${esc(last(T[h].name))}</th><th class="r">${esc(last(T[a].name))}</th></tr></thead><tbody>${T[h].daily.map((d,i)=>{const e=T[a].daily[i];return `<tr><td>${esc(d.day)}</td><td class="r num">${Math.round(d.pts)} <span class="faint">· ${d.start.length}</span></td><td class="r num">${Math.round(e.pts)} <span class="faint">· ${e.start.length}</span></td></tr>`}).join("")}</tbody></table></div>`;
-  const m=document.createElement("div");m.className="sheet";m.innerHTML=`<div class="panel" role="dialog" aria-modal="true" aria-label="Matchup breakdown">
-    <button class="x" type="button" aria-label="Close">×</button>
-    <div class="row"><span class="eyebrow">Matchup ${D.period}</span><span class="pill">${A.label} · ${Math.round(Math.max(A.pA,1-A.pA)*100)}%</span></div>
+  const daily=`<div class="scroll"><table><thead><tr><th>Day</th><th class="r">${esc(T[h].name)}</th><th class="r">${esc(T[a].name)}</th></tr></thead><tbody>${T[h].daily.map((d,i)=>{const e=T[a].daily[i]||{pts:0,start:[]};return `<tr><td>${esc(d.day)}</td><td class="r num">${Math.round(d.pts)} <span class="faint">· ${d.start.length}</span></td><td class="r num">${Math.round(e.pts)} <span class="faint">· ${e.start.length}</span></td></tr>`}).join("")}</tbody></table></div>`;
+  const flip=Math.abs(A.margin)<60?"Expect it to come down to the last day.":Math.abs(A.margin)<140?"One hot or cold night could flip it.":"It would take an upset week to flip.";
+  return `${withHead?`<div class="row"><span class="eyebrow">Matchup ${D.period}</span><span class="pill">${A.label} · ${Math.round(Math.max(A.pA,1-A.pA)*100)}%</span></div>
     <div class="vs">${side(h,A.pA>=.5)}<div class="mid">vs</div>${side(a,A.pA<.5)}</div>
-    <div><div class="meter"><span style="width:${(A.pA*100).toFixed(1)}%"></span></div><div class="meter-l"><span>${Math.round(A.pA*100)}%</span><span>${Math.round(100-A.pA*100)}%</span></div></div>
-    <div><div class="eyebrow" style="margin-bottom:8px">Summary</div><p class="summary">${A.sum} ${Math.abs(A.margin)<60?"Expect it to come down to the last day.":Math.abs(A.margin)<140?"One hot or cold night could flip it.":"It would take an upset week to flip."}</p></div>
-    <div class="reasons">${reasons(h)}${reasons(a)}</div>
-    <div><div class="eyebrow" style="margin-bottom:8px">Projected points by day <span class="faint">· starts</span></div>${daily}</div>
-    <div class="ros">${roster(h)}${roster(a)}</div>
-    <p class="faint" style="font-size:12.5px;margin:0">Tap a player to read his latest news. Starting five are the five highest projected point totals this week.</p></div>`;
-  document.body.appendChild(m);document.body.style.overflow="hidden";
-  const close=()=>{m.remove();document.body.style.overflow=""};
-  m.querySelector(".x").onclick=close;m.addEventListener("click",e=>{if(e.target===m)close();const pl=e.target.closest(".pl");if(pl)pl.classList.toggle("open")});
-  m.addEventListener("keydown",e=>{if(e.key==="Escape")close();if(e.key==="Enter"&&e.target.classList.contains("pl"))e.target.classList.toggle("open")});
-  m.querySelector(".x").focus();
+    <div><div class="meter"><span style="width:${(A.pA*100).toFixed(1)}%"></span></div><div class="meter-l"><span>${Math.round(A.pA*100)}%</span><span>${Math.round(100-A.pA*100)}%</span></div></div>`:""}
+    <div class="dsec"><div class="eyebrow" style="margin-bottom:8px">How close</div><p class="summary">${withHead?A.sum+" ":`<em>${A.label}.</em> Projected margin ${Math.round(Math.abs(A.margin))} points. `}${flip}</p></div>
+    <div class="dsec reasons">${reasons(h)}${reasons(a)}</div>
+    <div class="dsec"><div class="eyebrow" style="margin-bottom:8px">Projected points by day <span class="faint">· starts</span></div>${daily}</div>
+    <div class="dsec ros">${roster(h)}${roster(a)}</div>
+    <p class="faint dsec" style="font-size:12.5px;margin:0">Tap a player for his latest news. Starting five are the five highest projected totals this week.</p>`;
 }
-$("#cards").addEventListener("click",e=>{const c=e.target.closest(".card");if(c)openMatch(+c.dataset.h,+c.dataset.a)});
-$("#hero").addEventListener("click",()=>D&&D.opp&&openMatch(D.me,D.opp));
-$("#hero").addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&D&&D.opp){e.preventDefault();openMatch(D.me,D.opp)}});
+let heroOpen=false,openCard=null;
+function setExpand(el,open){el.classList.toggle("open",open);el.setAttribute("aria-hidden",open?"false":"true")}
+function toggleHero(){if(!D||!D.opp)return;heroOpen=!heroOpen;const ex=$("#heroX");if(heroOpen)ex.firstElementChild.innerHTML=`<div class="dwrap">${detailHTML(D.me,D.opp,false)}</div>`;setExpand(ex,heroOpen);
+  const t=$("#heroToggle");if(t){t.innerHTML=heroOpen?"Hide breakdown ↑":"Open breakdown ↓";t.setAttribute("aria-expanded",heroOpen)}}
+function toggleCard(h,a){const key=h+"-"+a,ex=$("#cardX");document.querySelectorAll(".card").forEach(c=>c.classList.toggle("sel",openCard!==key&&c.dataset.h==h&&c.dataset.a==a));
+  if(openCard===key){openCard=null;setExpand(ex,false);return}
+  const wasOpen=!!openCard;openCard=key;ex.firstElementChild.innerHTML=`<div class="g pad dwrap" style="margin-top:14px">${detailHTML(h,a,true).replace('<span class="pill">','<span style="display:flex;gap:8px;align-items:center"><button class="b" type="button" id="cardClose">Close ↑</button><span class="pill">').replace(/(<span class="pill">[^<]*<\/span>)<\/div>/,"$1</span></div>")}</div>`;
+  setExpand(ex,true);$("#cardClose").onclick=()=>toggleCard(h,a);if(!wasOpen)setTimeout(()=>ex.scrollIntoView({behavior:reduce?"auto":"smooth",block:"nearest"}),250)}
+document.addEventListener("click",e=>{const pl=e.target.closest(".pl");if(pl)pl.classList.toggle("open")});
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.classList&&e.target.classList.contains("pl"))e.target.classList.toggle("open")});
+$("#cards").addEventListener("click",e=>{const c=e.target.closest(".card");if(c)toggleCard(+c.dataset.h,+c.dataset.a)});
+$("#hero").addEventListener("click",e=>{if(e.target.closest("#heroX"))return;toggleHero()});
+$("#hero").addEventListener("keydown",e=>{if(e.target.closest("#heroX"))return;if(e.key==="Enter"||e.key===" "){e.preventDefault();toggleHero()}});
 
 function renderDays(){
   const d=D.teams[D.me].daily;if(!d.length){$("#slots").innerHTML='<div class="mute">No games left this week.</div>';$("#dayTabs").innerHTML="";$("#why").innerHTML="";$("#lineupAct").innerHTML="";return}
@@ -422,6 +440,9 @@ function renderAll(){
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
+const BUILD="1792384903";
+async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
+setInterval(checkBuild,90000);
 loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
 function toast(m){const t=document.createElement("div");t.className="toast";t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),4000)}
 $("#refresh").onclick=async()=>{await loadLog();await load(true);toast("Showing the newest published data · "+D.pulled)};
