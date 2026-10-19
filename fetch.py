@@ -135,13 +135,17 @@ def main():
         out = sorted([(slots[j], cands[i]["n"]) for i, j in zip(r, c) if M[i, j] > 0], key=lambda x: (slots.index(x[0]), x[1]))
         return sum(M[i, j] for i, j in zip(r, c) if M[i, j] > 0), out
 
-    def week_plan(roster):
+    def week_plan(roster, contrib=None):
         tot, daily, starts = 0.0, [], 0
         for d in days:
             ds = d.isoformat()
             cands = [p for p in roster if ds in p["days"] and p["av"] > 0]
             sc, lu = best(cands)
             st = {n for _, n in lu}
+            if contrib is not None:
+                for p in cands:
+                    if p["n"] in st:
+                        c = contrib.setdefault(p["n"], [0.0, 0]); c[0] += value(p); c[1] += 1
             daily.append(dict(day=d.strftime("%a %b ") + str(d.day), iso=ds, pts=round(sc, 1), start=lu,
                               bench=[p["n"] for p in cands if p["n"] not in st]))
             tot += sc; starts += len(lu)
@@ -160,7 +164,10 @@ def main():
     keys = ["pts", "reb", "ast", "stl", "blk", "to", "tpm"]
     for tid, t in teams.items():
         roster = sorted([p for p in players if p["t"] == tid], key=lambda p: -value(p))
-        rest, daily, starts = week_plan(roster)
+        contrib = {}
+        rest, daily, starts = week_plan(roster, contrib)
+        for p in roster:
+            p["wk"] = round(contrib.get(p["n"], [0, 0])[0], 1); p["st"] = contrib.get(p["n"], [0, 0])[1]
         top, bench = roster[:len(slots)], roster[len(slots):]
         t.update(live=live.get(tid, 0.0), rest=rest, proj=round(live.get(tid, 0.0) + rest, 1), daily=daily, starts=starts,
                  core=round(sum(value(p) for p in top), 1), bench=round(sum(value(p) for p in bench), 1),
@@ -228,18 +235,21 @@ def main():
     # Latest news for my team and this week's opponent (public ESPN feed)
     my_m = next((m for m in sched if m[0] == cur_mp and MY_TEAM in m[1:]), None)
     opp = (my_m[2] if my_m[1] == MY_TEAM else my_m[1]) if my_m else None
-    news = []
-    for p in players:
-        if p["t"] not in (MY_TEAM, opp): continue
+    from concurrent.futures import ThreadPoolExecutor
+
+    def one_news(p):
         try:
             j = requests.get("https://site.api.espn.com/apis/fantasy/v2/games/fba/news/players",
                              params={"limit": 1, "playerId": p["id"]}, headers=HDR, timeout=15).json()
             f = (j.get("feed") or [None])[0]
             if f and (f.get("description") or f.get("headline")):
-                news.append(dict(n=p["n"], t=p["t"], inj=p["inj"], date=(f.get("published") or "")[:10],
-                                 text=(f.get("description") or f.get("headline"))[:220]))
+                return dict(n=p["n"], t=p["t"], inj=p["inj"], date=(f.get("published") or "")[:10],
+                            text=(f.get("description") or f.get("headline"))[:240])
         except Exception:
-            pass
+            return None
+
+    with ThreadPoolExecutor(max_workers=12) as ex:
+        news = [x for x in ex.map(one_news, players) if x]
     news.sort(key=lambda x: (x["t"] != MY_TEAM, not x["inj"], x["date"]), reverse=False)
 
     for p in players: p["v"] = round(value(p), 1)
@@ -257,7 +267,7 @@ def main():
     data = dict(pulled=dt.datetime.now(TZ).strftime("%b %-d, %-I:%M %p CT"), pulled_iso=dt.datetime.now(dt.timezone.utc).isoformat(), pending=pending, league=settings["name"], me=MY_TEAM, opp=opp,
                 plan=[{k: m[k] for k in ("n", "from", "to", "why")} for m in plan], plan_day=plan_day.strftime("%a %b ") + str(plan_day.day), period=cur_mp, week=[wk_start.isoformat(), wk_end.isoformat()], days=[d.isoformat() for d in days],
                 slots=slots, scoring=scoring, teams=teams, players=players, sched=sched, moves=top_moves,
-                fa=[{k: f[k] for k in ("n", "pos", "tm", "inj", "pa", "claimed")} | {"g": len(f["days"])} for f in fa[:12]], news=news[:24])
+                fa=[{k: f[k] for k in ("n", "pos", "tm", "inj", "pa", "claimed")} | {"g": len(f["days"])} for f in fa[:12]], news=news)
     with open("data.json", "w") as fh:
         json.dump(data, fh, separators=(",", ":"))
     me = teams[MY_TEAM]
