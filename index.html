@@ -9,7 +9,7 @@
 :root{
   --fi:12px; --fr:30px; /* frame inset and corner radius */
   --bg:#07080a; --ink:#f4f4f5; --mute:#a1a1aa; --faint:#63636e; --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.14);
-  --glass:rgba(255,255,255,.045); --glass2:rgba(255,255,255,.075); --hi:rgba(255,255,255,.9);
+  --glass:rgba(255,255,255,.045); --glass2:rgba(255,255,255,.075); --ah:220; --as:0%; --glow:.75; --hi:hsl(var(--ah) calc(var(--as) * .85) 90%);
   --up:#9ef0c4; --down:#ff9da6; --warn:#f3d58e;
   --sans:"Geist",ui-sans-serif,system-ui,-apple-system,sans-serif; --mono:"Geist Mono",ui-monospace,SFMono-Regular,monospace; --serif:"Instrument Serif",Georgia,serif;
   --r:20px; color-scheme:dark;
@@ -19,11 +19,11 @@ html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.5 var(--sans);letter-spacing:-.005em;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 /* ambient light */
 .amb{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-.amb i{position:absolute;border-radius:50%;filter:blur(90px);opacity:.75;will-change:transform}
-.amb i:nth-child(1){width:52vmax;height:52vmax;left:-12vmax;top:-18vmax;background:radial-gradient(circle,rgba(255,255,255,.22),transparent 65%);animation:d1 38s ease-in-out infinite alternate}
-.amb i:nth-child(2){width:46vmax;height:46vmax;right:-14vmax;top:12vh;background:radial-gradient(circle,rgba(190,196,210,.2),transparent 65%);animation:d2 46s ease-in-out infinite alternate}
-.amb i:nth-child(3){width:40vmax;height:40vmax;left:22vw;bottom:-22vmax;background:radial-gradient(circle,rgba(150,150,160,.22),transparent 65%);animation:d3 52s ease-in-out infinite alternate}
-.amb i:nth-child(4){width:24vmax;height:24vmax;left:48vw;top:30vh;background:radial-gradient(circle,rgba(255,255,255,.12),transparent 65%);animation:d4 30s ease-in-out infinite alternate}
+.amb i{position:absolute;border-radius:50%;filter:blur(90px);opacity:var(--glow);will-change:transform}
+.amb i:nth-child(1){width:52vmax;height:52vmax;left:-12vmax;top:-18vmax;background:radial-gradient(circle,hsl(var(--ah) var(--as) 92% / .24),transparent 65%);animation:d1 38s ease-in-out infinite alternate}
+.amb i:nth-child(2){width:46vmax;height:46vmax;right:-14vmax;top:12vh;background:radial-gradient(circle,hsl(calc(var(--ah) + 28) var(--as) 76% / .22),transparent 65%);animation:d2 46s ease-in-out infinite alternate}
+.amb i:nth-child(3){width:40vmax;height:40vmax;left:22vw;bottom:-22vmax;background:radial-gradient(circle,hsl(calc(var(--ah) - 24) var(--as) 60% / .24),transparent 65%);animation:d3 52s ease-in-out infinite alternate}
+.amb i:nth-child(4){width:24vmax;height:24vmax;left:48vw;top:30vh;background:radial-gradient(circle,hsl(var(--ah) var(--as) 96% / .14),transparent 65%);animation:d4 30s ease-in-out infinite alternate}
 @keyframes d1{to{transform:translate(28vw,22vh) scale(1.15)}}
 @keyframes d2{to{transform:translate(-30vw,30vh) scale(.85)}}
 @keyframes d3{to{transform:translate(18vw,-34vh) scale(1.2)}}
@@ -84,7 +84,7 @@ h2{font:500 20px/1.2 var(--sans);letter-spacing:-.02em;margin:4px 0 0}
 .side .sub{font:500 12px var(--mono);color:var(--faint);margin-top:6px}
 .mid{font:italic 400 28px var(--serif);color:var(--faint);padding-bottom:22px}
 .meter{position:relative;height:6px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
-.meter span{position:absolute;inset:0 auto 0 0;border-radius:999px;background:linear-gradient(90deg,rgba(255,255,255,.55),#fff);transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
+.meter span{position:absolute;inset:0 auto 0 0;border-radius:999px;background:linear-gradient(90deg,color-mix(in srgb,var(--hi) 55%,transparent),var(--hi));transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
 .meter-l{display:flex;justify-content:space-between;font:500 12px var(--mono);color:var(--mute);margin-top:8px}
 .summary{font:400 clamp(17px,2vw,20px)/1.45 var(--sans);letter-spacing:-.01em;color:var(--ink);max-width:68ch;margin:0}
 .summary em{font:italic 400 1.15em var(--serif)}
@@ -160,10 +160,10 @@ button.item{font:inherit;text-align:left;cursor:pointer;width:100%}
 .view{display:grid;gap:22px}.view[hidden]{display:none}#moves{align-content:start}
 /* Arena theme: team colors tint the light and accents */
 :root{--tc:#8a8f9c;--tc2:#30333b;--tcText:color-mix(in srgb,var(--tc) 55%,#fff)}
-body[data-view="arena"] .amb i:nth-child(1){background:radial-gradient(circle,color-mix(in srgb,var(--tc) 55%,transparent),transparent 65%)}
-body[data-view="arena"] .amb i:nth-child(2){background:radial-gradient(circle,color-mix(in srgb,var(--tc2) 70%,transparent),transparent 65%)}
-body[data-view="arena"] .amb i:nth-child(3){background:radial-gradient(circle,color-mix(in srgb,var(--tc) 30%,transparent),transparent 65%)}
-body[data-view="arena"] .seg button[aria-selected="true"]{background:var(--tcText)}
+body[data-view="arena"]:not(.mycolors) .amb i:nth-child(1){background:radial-gradient(circle,color-mix(in srgb,var(--tc) 55%,transparent),transparent 65%)}
+body[data-view="arena"]:not(.mycolors) .amb i:nth-child(2){background:radial-gradient(circle,color-mix(in srgb,var(--tc2) 70%,transparent),transparent 65%)}
+body[data-view="arena"]:not(.mycolors) .amb i:nth-child(3){background:radial-gradient(circle,color-mix(in srgb,var(--tc) 30%,transparent),transparent 65%)}
+body[data-view="arena"]:not(.mycolors) .seg button[aria-selected="true"]{background:var(--tcText)}
 .amb i{transition:background 1.2s ease}
 .tm-top{display:grid;grid-template-columns:auto 1fr auto;gap:22px;align-items:center}
 .tlogo{width:96px;height:96px;object-fit:contain;filter:drop-shadow(0 10px 30px color-mix(in srgb,var(--tc) 60%,transparent))}
@@ -207,6 +207,25 @@ svg .mk{fill:var(--tcText)}svg .ms{stroke:rgba(255,255,255,.5);stroke-width:2}
 .vgrid .vcard.big{grid-column:span 2;grid-row:span 2}
 .sch{display:grid;gap:4px}.sg{display:grid;grid-template-columns:36px 1fr;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}.sg img{width:32px;height:32px;object-fit:contain}
 @media (max-width:700px){.tm-top{grid-template-columns:auto 1fr}.tsel{grid-column:1/-1;justify-items:start}.tlogo{width:64px;height:64px}.lines,.zones{grid-template-columns:repeat(2,1fr)}.vgrid .vcard.big{grid-column:auto;grid-row:auto}.wp{grid-template-columns:90px 1fr 40px}}
+/* color settings */
+.gear{width:38px;height:38px;padding:0;justify-content:center}
+.gear svg{transition:transform .5s cubic-bezier(.2,.8,.2,1)}.gear[aria-expanded="true"] svg{transform:rotate(90deg)}
+.cpanel{position:fixed;z-index:45;top:calc(var(--fi) + var(--navh,84px) + 10px + env(safe-area-inset-top,0px));right:max(calc(var(--fi) + 14px),env(safe-area-inset-right,0px));width:min(320px,calc(100vw - 40px));
+  padding:18px;border-radius:20px;background:rgba(18,19,22,.86);backdrop-filter:blur(30px) saturate(150%);-webkit-backdrop-filter:blur(30px) saturate(150%);border:1px solid var(--line2);box-shadow:0 30px 60px -20px rgba(0,0,0,.8);display:grid;gap:14px;animation:pop2 .3s cubic-bezier(.2,.8,.2,1) both}
+@keyframes pop2{from{opacity:0;transform:translateY(-6px) scale(.98)}}
+.wheel{position:relative;width:200px;height:200px;margin:0 auto;border-radius:50%;touch-action:none;cursor:crosshair;
+  background:radial-gradient(circle,#18191c 0 34%,transparent 35%),conic-gradient(from 0deg,hsl(0 80% 60%),hsl(60 80% 60%),hsl(120 80% 60%),hsl(180 80% 60%),hsl(240 80% 60%),hsl(300 80% 60%),hsl(360 80% 60%));
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.wheel .knob{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,.6);pointer-events:none}
+.wheel .core{position:absolute;inset:36%;border-radius:50%;display:grid;place-items:center;font:500 11px var(--mono);color:var(--mute);text-align:center}
+.wheel .core i{display:block;width:34px;height:34px;border-radius:50%;margin:0 auto 4px;background:var(--hi);box-shadow:0 0 20px hsl(var(--ah) var(--as) 70% / .6)}
+.crow{display:grid;grid-template-columns:72px 1fr 36px;gap:10px;align-items:center;font-size:13px;color:var(--mute)}
+.crow input[type=range]{width:100%;accent-color:var(--hi)}
+.presets{display:flex;gap:6px;flex-wrap:wrap}
+.presets button{width:28px;height:28px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0}
+.presets button[aria-pressed="true"]{border-color:#fff}
+.tog{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--mute);cursor:pointer}
+.tog input{accent-color:var(--hi);width:16px;height:16px}
 /* lineup */
 .tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none}
 .tab{font:500 13px var(--sans);color:var(--mute);background:transparent;border:1px solid var(--line);border-radius:12px;padding:8px 12px;cursor:pointer;white-space:nowrap;text-align:left}
@@ -298,6 +317,7 @@ select{font:500 13.5px var(--sans);color:var(--ink);background:var(--glass2);bor
     <div class="seg" role="tablist" aria-label="Section"><button type="button" role="tab" data-view="fantasy" aria-selected="true">Fantasy</button><button type="button" role="tab" data-view="arena" aria-selected="false">Arena</button></div>
     <div class="btns">
       <button class="b" id="refresh" type="button" title="Reload the newest published data">Reload</button>
+      <button class="b gear" id="gear" type="button" aria-label="Colors" aria-expanded="false" title="Colors"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="13.5" cy="6.5" r="1.5"/><circle cx="17.5" cy="10.5" r="1.5"/><circle cx="8.5" cy="7.5" r="1.5"/><circle cx="6.5" cy="12.5" r="1.5"/><path d="M12 2a10 10 0 1 0 0 20c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h2.3A5.7 5.7 0 0 0 22 11.6C22 6.3 17.5 2 12 2z"/></svg></button>
       <button class="b primary" id="force" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg><span>Force update</span></button>
     </div>
     <div class="status" id="status" aria-live="polite" style="flex-basis:100%"></div>
@@ -623,11 +643,41 @@ async function staleNote(age){
     if(run&&run.conclusion==="failure")$("#status").textContent=`Last ESPN pull was ${t} ago and the most recent refresh failed. Your ESPN cookies may have expired. Tap Force update to retry.`;
     else $("#status").textContent=`Last ESPN pull was ${t} ago. GitHub sometimes runs the schedule late. Tap Force update for fresh data.`}catch(e){}
 }
+
+/* ---- color settings (saved in this browser) ---- */
+const CK="courtside-colors";
+const PRESETS=[["Mono",220,0],["Ice",205,65],["Mint",158,55],["Court",28,75],["Gold",44,75],["Rose",345,60],["Violet",265,55]];
+let C={h:220,s:0,g:.75,team:true};try{Object.assign(C,JSON.parse(localStorage.getItem(CK)||"{}"))}catch(e){}
+function applyColors(){const r=document.documentElement.style;r.setProperty("--ah",C.h);r.setProperty("--as",C.s+"%");r.setProperty("--glow",C.g);document.body.classList.toggle("mycolors",!C.team);try{localStorage.setItem(CK,JSON.stringify(C))}catch(e){}}
+applyColors();
+$("#gear").addEventListener("click",e=>{e.stopPropagation();const open=document.querySelector(".cpanel");if(open){open.remove();$("#gear").setAttribute("aria-expanded","false");return}
+  const p=document.createElement("div");p.className="cpanel";p.setAttribute("role","dialog");p.setAttribute("aria-label","Colors");
+  p.innerHTML=`<div class="row"><div><div class="eyebrow">Appearance</div><h2 style="font-size:17px;margin:2px 0 0">Colors</h2></div><button class="b" type="button" id="cReset" style="padding:5px 12px;font-size:12.5px">Reset</button></div>
+    <div class="wheel" id="wheel" role="slider" aria-label="Hue" tabindex="0" aria-valuemin="0" aria-valuemax="360"><div class="knob" id="knob"></div><div class="core"><div><i></i><span id="hueTxt"></span></div></div></div>
+    <div class="crow"><label for="cSat">Color</label><input id="cSat" type="range" min="0" max="100"><span class="num" id="cSatV"></span></div>
+    <div class="crow"><label for="cGlow">Glow</label><input id="cGlow" type="range" min="0" max="100"><span class="num" id="cGlowV"></span></div>
+    <div><div class="eyebrow" style="margin-bottom:8px">Presets</div><div class="presets">${PRESETS.map(([n,h,s2])=>`<button type="button" data-h="${h}" data-s="${s2}" title="${n}" aria-label="${n}" style="background:hsl(${h} ${s2*.85}% ${s2?62:85}%)"></button>`).join("")}</div></div>
+    <label class="tog"><input type="checkbox" id="cTeam"> Use team colors in Arena</label>`;
+  document.body.appendChild(p);$("#gear").setAttribute("aria-expanded","true");
+  const W=$("#wheel"),K=$("#knob");
+  const sync=()=>{const a=(C.h-90)*Math.PI/180,R=100-17;K.style.left=(100+R*Math.cos(a))+"px";K.style.top=(100+R*Math.sin(a))+"px";K.style.background=`hsl(${C.h} 80% 60%)`;
+    W.setAttribute("aria-valuenow",Math.round(C.h));$("#hueTxt").textContent=Math.round(C.h)+"°";$("#cSat").value=C.s;$("#cSatV").textContent=C.s;$("#cGlow").value=Math.round(C.g*100);$("#cGlowV").textContent=Math.round(C.g*100);$("#cTeam").checked=C.team;
+    p.querySelectorAll(".presets button").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.h===C.h&&+b.dataset.s===C.s));applyColors()};
+  const pick=ev=>{const r=W.getBoundingClientRect(),x=ev.clientX-r.left-r.width/2,y=ev.clientY-r.top-r.height/2;C.h=(Math.atan2(y,x)*180/Math.PI+90+360)%360;if(C.s<20)C.s=60;sync()};
+  W.addEventListener("pointerdown",ev=>{W.setPointerCapture(ev.pointerId);pick(ev);const mv=e2=>pick(e2),up=()=>{W.removeEventListener("pointermove",mv);W.removeEventListener("pointerup",up)};W.addEventListener("pointermove",mv);W.addEventListener("pointerup",up)});
+  W.addEventListener("keydown",ev=>{if(ev.key==="ArrowRight"||ev.key==="ArrowUp"){C.h=(C.h+5)%360;sync()}if(ev.key==="ArrowLeft"||ev.key==="ArrowDown"){C.h=(C.h+355)%360;sync()}});
+  $("#cSat").oninput=e2=>{C.s=+e2.target.value;sync()};$("#cGlow").oninput=e2=>{C.g=+e2.target.value/100;sync()};$("#cTeam").onchange=e2=>{C.team=e2.target.checked;sync()};
+  p.querySelector(".presets").onclick=e2=>{const b=e2.target.closest("[data-h]");if(b){C.h=+b.dataset.h;C.s=+b.dataset.s;sync()}};
+  $("#cReset").onclick=()=>{C={h:220,s:0,g:.75,team:true};sync()};
+  sync();
+});
+document.addEventListener("click",e=>{const p=document.querySelector(".cpanel");if(p&&!p.contains(e.target)&&e.target.id!=="gear"){p.remove();$("#gear").setAttribute("aria-expanded","false")}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.querySelector(".cpanel");if(p){p.remove();$("#gear").setAttribute("aria-expanded","false");$("#gear").focus()}}});
 /* ---- data + GitHub actions ---- */
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1792418871";
+const BUILD="1792426723";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(checkBuild,90000);
 loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
@@ -636,19 +686,24 @@ $("#refresh").onclick=async()=>{await loadLog();await load(true);toast("Showing 
 const REPO="garrettyates00-png/garebears-courtside",TK="courtside-gh-token";
 const getTok=()=>{try{return localStorage.getItem(TK)||""}catch(e){return ""}};
 const setTok=v=>{try{v?localStorage.setItem(TK,v):localStorage.removeItem(TK)}catch(e){}};
-function tokenDialog(){const m=document.createElement("div");m.className="modal";m.innerHTML=`<div class="box" role="dialog" aria-label="Connect GitHub"><h2 style="margin:0">Connect GitHub</h2>
-  <ol><li>Open <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub's new fine-grained token page</a>.</li><li>Repository access: only <b>garebears-courtside</b>.</li><li>Permissions: <b>Actions</b> set to <b>Read and write</b>.</li><li>Generate, copy, and paste it here.</li></ol>
-  <label for="tokIn" class="faint" style="font-size:12.5px">Token · saved only in this browser</label><input id="tokIn" type="password" autocomplete="off" placeholder="github_pat_…">
-  <div class="btns" style="justify-content:flex-end"><button class="b" id="tokCancel" type="button">Cancel</button><button class="b primary" id="tokSave" type="button">Save</button></div></div>`;
-  document.body.appendChild(m);$("#tokIn").focus();return new Promise(res=>{$("#tokCancel").onclick=()=>{m.remove();res(false)};$("#tokSave").onclick=()=>{const v=$("#tokIn").value.trim();if(!v)return;setTok(v);m.remove();res(true)}})}
+function tokenDialog(wf){wf=wf||"refresh.yml";const m=document.createElement("div");m.className="modal";m.innerHTML=`<div class="box" role="dialog" aria-label="Force update"><h2 style="margin:0">Force update</h2>
+  <p class="mute" style="margin:0;font-size:14px">This browser isn't connected to GitHub yet. Pick one:</p>
+  <a class="b primary" style="justify-content:center;text-decoration:none" href="https://github.com/${REPO}/actions/workflows/${wf}" target="_blank" rel="noopener" id="tokGo">Open GitHub and tap “Run workflow”</a>
+  <p class="faint" style="margin:-4px 0 0;font-size:12.5px">No setup. On that page tap <b>Run workflow</b>, then the green <b>Run workflow</b> button. The page here updates itself in about 2 minutes.</p>
+  <details style="font-size:13.5px"><summary style="cursor:pointer;color:var(--ink)">Or make it one tap from now on (one-time setup on this device)</summary>
+  <ol style="margin-top:10px"><li>Open <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">GitHub's new fine-grained token page</a>.</li><li>Repository access: only <b>garebears-courtside</b>. Expiration: 1 year.</li><li>Permissions: <b>Actions</b> set to <b>Read and write</b>.</li><li>Generate, copy, and paste it here.</li></ol>
+  <label for="tokIn" class="faint" style="font-size:12.5px">Token · saved only in this browser</label><input id="tokIn" type="password" autocomplete="off" placeholder="github_pat_…" style="margin-top:4px">
+  <div class="btns" style="justify-content:flex-end;margin-top:10px"><button class="b primary" id="tokSave" type="button">Save and update</button></div></details>
+  <div class="btns" style="justify-content:flex-end"><button class="b" id="tokCancel" type="button">Close</button></div></div>`;
+  document.body.appendChild(m);$("#tokGo").focus();return new Promise(res=>{$("#tokGo").onclick=()=>{setTimeout(()=>{m.remove();res(false);toast("Run it on GitHub. This page will pick up the new data on its own.")},300)};$("#tokCancel").onclick=()=>{m.remove();res(false)};$("#tokSave").onclick=()=>{const v=$("#tokIn").value.trim();if(!v)return;setTok(v);m.remove();res(true)}})}
 const gh=(path,opt={})=>fetch("https://api.github.com/repos/"+REPO+path,{...opt,headers:{"Accept":"application/vnd.github+json","Authorization":"Bearer "+getTok(),...(opt.headers||{})}});
 async function dispatch(wf,inputs,label,isDone){
-  if(forcing)return null;if(!getTok()&&!(await tokenDialog()))return null;
+  if(forcing)return null;if(!getTok()&&!(await tokenDialog(wf)))return null;
   forcing=true;const btn=$("#force"),st=$("#status"),T0=Date.now();let phase=label;btn.classList.add("busy");
   const tick=setInterval(()=>{st.textContent=phase+" · "+Math.round((Date.now()-T0)/1000)+"s"},1000);st.textContent=phase;
   try{const t0=new Date(Date.now()-60000).toISOString();
     const r=await gh(`/actions/workflows/${wf}/dispatches`,{method:"POST",body:JSON.stringify({ref:"main",...(inputs?{inputs}:{})})});
-    if([401,403,404].includes(r.status)){setTok("");throw new Error("GitHub rejected the token. Tap again to enter a new one.")}
+    if([401,403,404].includes(r.status)){setTok("");throw new Error("GitHub rejected the saved token (it may have expired or lack Actions access). Tap Force update again for the no-setup option.")}
     if(!r.ok)throw new Error("GitHub said "+r.status);
     for(let i=0;i<60;i++){await new Promise(s=>setTimeout(s,6000));
       const runs=await (await gh("/actions/runs?per_page=4&created=>="+t0)).json().catch(()=>({}));
