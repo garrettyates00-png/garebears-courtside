@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Garebears Courtside</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: arena at night. Animated neon court on a fixed canvas, a double neon frame on every edge, content in a centered stack of glass panels. */
+:root{
+  --bg:#05060c; --panel:rgba(12,14,28,.78); --panel2:rgba(20,24,46,.85); --ink:#eef1ff; --muted:#8d93b8; --line:rgba(140,150,255,.16);
+  --hot:#ff7a1a; --win:#39ffb0; --lose:#ff4d6d; --warn:#ffd23f; --ice:#38e8ff;
+  --h:200; /* animated neon hue, set by script */
+  --neon:hsl(var(--h) 100% 60%); --neon2:hsl(calc(var(--h) + 120) 100% 62%);
+  --display:"Bungee","Impact",system-ui,sans-serif; --body:"Chakra Petch",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;overflow-x:hidden}
+#court{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.frame{position:fixed;inset:calc(6px + env(safe-area-inset-top,0px)) max(6px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(6px,env(safe-area-inset-left,0px));border:2px solid var(--neon);border-radius:26px;pointer-events:none;z-index:20;
+  box-shadow:0 0 8px var(--neon),0 0 22px var(--neon),inset 0 0 8px var(--neon)}
+.frame::after{content:"";position:absolute;inset:7px;border:2px solid var(--neon2);border-radius:19px;box-shadow:0 0 8px var(--neon2),0 0 18px var(--neon2),inset 0 0 6px var(--neon2);opacity:.85}
+.wrap{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding-left:max(28px,env(safe-area-inset-left,0px));padding-right:max(28px,env(safe-area-inset-right,0px));padding-block:34px 60px;display:grid;gap:18px}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.ballicon{width:42px;height:42px;flex:none;animation:dribble 1.1s cubic-bezier(.5,0,.5,1) infinite}
+@keyframes dribble{0%,100%{transform:translateY(0) scaleY(1)}45%{transform:translateY(-10px)}92%{transform:translateY(2px) scaleY(.9)}}
+h1{font-family:var(--display);font-size:clamp(22px,4vw,34px);margin:0;letter-spacing:.02em;text-shadow:0 0 12px var(--neon)}
+.sub{color:var(--muted);font-size:13px}
+.btn{font:600 14px var(--body);color:var(--ink);background:var(--panel2);border:1.5px solid var(--neon);border-radius:999px;padding:9px 16px;cursor:pointer;box-shadow:0 0 10px color-mix(in srgb,var(--neon) 40%,transparent);display:inline-flex;gap:8px;align-items:center}
+.btn:hover{background:color-mix(in srgb,var(--neon) 18%,var(--panel2))}
+.btn:focus-visible,.tab:focus-visible,select:focus-visible{outline:2px solid var(--warn);outline-offset:2px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);min-width:0}
+.panel h2{font-family:var(--display);font-size:16px;letter-spacing:.06em;margin:0 0 12px;display:flex;align-items:center;gap:10px;color:var(--ink)}
+.panel h2 .dot{width:10px;height:10px;border-radius:50%;background:var(--hot);box-shadow:0 0 10px var(--hot)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+/* Scoreboard */
+.scoreboard{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px;text-align:center}
+.sb-team .nm{font-family:var(--display);font-size:clamp(15px,2.4vw,20px)}
+.sb-team .ow{color:var(--muted);font-size:12.5px}
+.sb-pts{font-family:var(--mono);font-weight:700;font-size:clamp(34px,7vw,58px);line-height:1;margin-top:6px}
+.sb-team.me .sb-pts{color:var(--win);text-shadow:0 0 14px var(--win)}
+.sb-team.opp .sb-pts{color:var(--lose);text-shadow:0 0 14px var(--lose)}
+.vs{font-family:var(--display);color:var(--hot);font-size:20px;text-shadow:0 0 10px var(--hot)}
+.probbar{height:12px;border-radius:999px;background:color-mix(in srgb,var(--lose) 60%,#000);overflow:hidden;margin-top:14px;position:relative}
+.probbar span{display:block;height:100%;background:linear-gradient(90deg,var(--win),var(--ice));box-shadow:0 0 12px var(--win);transition:width 1.4s cubic-bezier(.2,.8,.2,1)}
+.probtxt{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);margin-top:6px}
+.facts{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.chip{border:1px solid var(--line);background:var(--panel2);border-radius:999px;padding:4px 11px;font-size:12.5px;color:var(--muted)}
+.chip b{color:var(--ink)}
+/* Tabs */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.tab{font:600 13px var(--body);color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:10px;padding:6px 11px;cursor:pointer}
+.tab[aria-selected="true"]{color:var(--bg);background:var(--neon);border-color:var(--neon);box-shadow:0 0 12px var(--neon)}
+.tab small{display:block;font-size:10.5px;opacity:.8}
+/* Lineup court */
+.lineup{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.slot{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:9px 11px;min-width:0;position:relative;overflow:hidden}
+.slot .s{font:700 11px var(--mono);color:var(--neon);letter-spacing:.08em}
+.slot .p{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slot .m{font-size:12px;color:var(--muted)}
+.slot.empty{border-style:dashed;opacity:.55}
+.slot.empty .p{color:var(--muted)}
+.slot.pop{animation:pop .5s ease-out both}
+@keyframes pop{from{transform:translateY(8px) scale(.96);opacity:0}to{transform:none;opacity:1}}
+.tag{display:inline-block;font:700 10px var(--mono);letter-spacing:.06em;padding:1px 6px;border-radius:4px;margin-left:5px;vertical-align:1px}
+.t-dtd{background:color-mix(in srgb,var(--warn) 22%,transparent);color:var(--warn)}
+.t-out{background:color-mix(in srgb,var(--lose) 25%,transparent);color:var(--lose)}
+.why{margin:12px 0 0;padding-left:18px;color:var(--ink);font-size:14px;display:grid;gap:5px}
+.why b{color:var(--warn)}
+/* Tables */
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th{font:600 11px var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+.tbl td{padding:8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl td.r,.tbl th.r{text-align:right}
+.tbl tr.me td{background:color-mix(in srgb,var(--win) 10%,transparent)}
+.scroll{overflow-x:auto}
+.rk{font:700 18px var(--display);color:var(--hot);width:2.2ch}
+.bar{height:6px;border-radius:4px;background:var(--line);overflow:hidden;min-width:60px}
+.bar i{display:block;height:100%;background:var(--neon);box-shadow:0 0 8px var(--neon)}
+.mu{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.mu:last-child{border-bottom:0}
+.mu .a{text-align:right}
+.mu .w{color:var(--win);font-weight:700}
+.mu .sc{font-family:var(--mono);font-size:12.5px;color:var(--muted);text-align:center;white-space:nowrap}
+/* Strengths */
+.cats{display:grid;gap:7px}
+.cat{display:grid;grid-template-columns:72px 1fr 44px;gap:10px;align-items:center;font-size:13.5px}
+.cat .lane{height:10px;border-radius:6px;background:var(--line);position:relative;overflow:hidden}
+.cat .lane i{position:absolute;inset:0 auto 0 0;border-radius:6px}
+.sw{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.sw div{background:var(--panel2);border-radius:12px;padding:10px 12px;font-size:13.5px}
+.sw h3{margin:0 0 4px;font:700 12px var(--mono);letter-spacing:.1em}
+.sw .g h3{color:var(--win)} .sw .b h3{color:var(--lose)}
+select{font:600 14px var(--body);color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:7px 10px}
+.news{display:grid;gap:8px}
+.news div{display:grid;grid-template-columns:auto 1fr;gap:10px;font-size:14px;align-items:start}
+.news .who{font-weight:700;white-space:nowrap}
+.foot{color:var(--muted);font-size:12.5px;text-align:center;max-width:70ch;margin:0 auto}
+/* Animations */
+.shot{position:fixed;width:26px;height:26px;z-index:30;pointer-events:none}
+.swish{position:fixed;z-index:31;font:700 18px var(--display);color:var(--hot);text-shadow:0 0 12px var(--hot);pointer-events:none;animation:swish 1.2s ease-out forwards}
+@keyframes swish{0%{opacity:0;transform:translateY(0) scale(.6)}20%{opacity:1;transform:translateY(-8px) scale(1.1)}100%{opacity:0;transform:translateY(-40px) scale(1)}}
+.toast{position:fixed;left:50%;bottom:calc(30px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--panel2);border:1px solid var(--neon);border-radius:12px;padding:10px 16px;z-index:40;box-shadow:0 0 16px var(--neon);font-size:14px;max-width:calc(100% - 64px)}
+@media (max-width:560px){.wrap{padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}.sw{grid-template-columns:1fr}.scoreboard{gap:6px}}
+@media (prefers-reduced-motion:reduce){.ballicon,.slot.pop{animation:none}}
+.live{display:inline-flex;align-items:center;gap:6px;color:var(--win)}.live i{width:8px;height:8px;border-radius:50%;background:var(--win);box-shadow:0 0 8px var(--win);animation:blink 1.6s infinite}@keyframes blink{50%{opacity:.25}}
+.err{border-color:var(--lose)}
+</style></head><body>
+
+<canvas id="court" aria-hidden="true"></canvas>
+<div class="frame" aria-hidden="true"></div>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <svg class="ballicon" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21" fill="#ff7a1a" stroke="#1a0a00" stroke-width="2"/><path d="M3 24h42M24 3v42M9 9c8 6 8 24 0 30M39 9c-8 6-8 24 0 30" fill="none" stroke="#1a0a00" stroke-width="2"/></svg>
+      <div><h1>Garebears Courtside</h1><div class="sub">The Angel Reese Invitational · ESPN · <span id="pulled"></span></div></div>
+    </div>
+    <button class="btn" id="refresh" type="button">🏀 Run the play</button>
+  </header>
+
+  <section class="panel" id="sbPanel">
+    <h2><span class="dot"></span><span id="mHead">This week's matchup</span></h2>
+    <div class="scoreboard" id="scoreboard"></div>
+    <div class="probbar"><span id="prob" style="width:50%"></span></div>
+    <div class="probtxt"><span id="probL"></span><span id="probR"></span></div>
+    <div class="facts" id="facts"></div>
+  </section>
+
+  <section class="panel">
+    <h2><span class="dot"></span>Best lineup by day</h2>
+    <div class="tabs" id="dayTabs" role="tablist"></div>
+    <div class="lineup" id="lineup"></div>
+    <ul class="why" id="why"></ul>
+  </section>
+
+  <div class="grid2">
+    <section class="panel">
+      <h2><span class="dot"></span>Power board</h2>
+      <div class="scroll"><table class="tbl" id="power"></table></div>
+      <p class="sub" style="margin:10px 0 0">Power = projected per-game points of each team's top 11, plus a quarter of their bench, minus 2 for each injury tag.</p>
+    </section>
+    <section class="panel">
+      <h2><span class="dot"></span>League scoreboard</h2>
+      <div id="matchups"></div>
+      <p class="sub" style="margin:10px 0 0">Live points so far plus each team's best legal lineup for the rest of the week, using ESPN projections under your league's scoring.</p>
+    </section>
+  </div>
+
+  <section class="panel">
+    <h2 style="justify-content:space-between;flex-wrap:wrap"><span style="display:flex;gap:10px;align-items:center"><span class="dot"></span>Strengths and weaknesses</span>
+      <select id="teamSel" aria-label="Team"></select></h2>
+    <div class="cats" id="cats"></div>
+    <div class="sw" id="sw"></div>
+  </section>
+
+  <div class="grid2">
+    <section class="panel">
+      <h2><span class="dot"></span>News and notes</h2>
+      <div class="news" id="news"></div>
+    </section>
+    <section class="panel">
+      <h2><span class="dot"></span>Moves to make</h2>
+      <ul class="why" id="moves" style="margin-top:0"></ul>
+      <h2 style="margin-top:16px"><span class="dot"></span>Top free agents</h2>
+      <div class="scroll"><table class="tbl" id="fa"></table></div>
+    </section>
+  </div>
+
+  <p class="foot">GitHub Actions pulls your league from ESPN every 30 minutes and this page reloads the numbers on its own. Run the play re-checks for the newest pull.</p>
+</div>
+
+<script>
+let D=null, day=0;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const last=n=>n.split(" ").slice(-1)[0];
+const injTag=i=>!i?"":/OUT|SUSP|RESERVE/.test(i)?'<span class="tag t-out">OUT</span>':'<span class="tag t-dtd">DTD</span>';
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+function erf(x){const t=1/(1+.3275911*Math.abs(x));const y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-.284496736)*t+.254829592)*t*Math.exp(-x*x);return x>=0?y:-y}
+function sd(tid){return Math.sqrt(D.players.filter(p=>p.t==tid).reduce((a,p)=>a+p.days.length*Math.pow(.35*p.v,2),0))||1}
+function winProb(a,b){const T=D.teams;const z=(T[a].proj-T[b].proj)/Math.sqrt(sd(a)**2+sd(b)**2);return .5*(1+erf(z/Math.SQRT2))}
+function countUp(el,to){if(reduce){el.textContent=to.toFixed(0);return}const t0=performance.now();const f=t=>{const k=Math.min(1,(t-t0)/1400);el.textContent=(to*(1-Math.pow(1-k,3))).toFixed(0);if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)}
+const fmtD=iso=>{const d=new Date(iso+"T12:00:00");return d.toLocaleDateString("en-US",{month:"short",day:"numeric"})};
+
+function renderScore(){
+  const T=D.teams, me=T[D.me], op=T[D.opp];
+  $("#mHead").textContent=`Matchup ${D.period} · ${fmtD(D.week[0])} to ${fmtD(D.week[1])}`;
+  if(!op){$("#scoreboard").innerHTML='<div class="sub">No matchup this week.</div>';return}
+  const wp=winProb(D.me,D.opp);
+  const side=(t,cls)=>`<div class="sb-team ${cls}"><div class="nm">${esc(t.name)}</div><div class="ow">${esc(t.owner)} · ${t.w}-${t.l}</div><div class="sb-pts num" data-to="${t.proj}">0</div><div class="ow">Live <span class="num">${t.live.toFixed(0)}</span> + ${t.rest.toFixed(0)} to come</div></div>`;
+  $("#scoreboard").innerHTML=side(me,"me")+'<div class="vs">VS</div>'+side(op,"opp");
+  requestAnimationFrame(()=>{$("#prob").style.width=(wp*100).toFixed(0)+"%"});
+  $("#probL").textContent=`Win chance ${(wp*100).toFixed(0)}%`;
+  const mg=me.proj-op.proj;$("#probR").textContent=`Projected margin ${mg>=0?"+":""}${mg.toFixed(0)}`;
+  const hurt=D.players.filter(p=>p.t==D.me&&p.inj).map(p=>last(p.n)+" ("+p.inj.replace(/_/g," ").toLowerCase()+")");
+  $("#facts").innerHTML=[["Your starts left",me.starts],["Their starts left",op.starts],["Watch",hurt.join(", ")||"Nobody hurt"]].map(([k,v])=>`<span class="chip">${k}: <b>${esc(v)}</b></span>`).join("");
+  document.querySelectorAll(".sb-pts").forEach(el=>countUp(el,+el.dataset.to));
+}
+function renderDays(){
+  const me=D.teams[D.me], d=me.daily; if(!d.length){$("#lineup").innerHTML='<div class="sub">No games left this week.</div>';$("#dayTabs").innerHTML="";$("#why").innerHTML="";return}
+  if(day>=d.length)day=0;
+  $("#dayTabs").innerHTML=d.map((x,i)=>`<button class="tab" role="tab" type="button" aria-selected="${i===day}" data-i="${i}">${i===0&&x.iso===D.days[0]&&new Date().toISOString().slice(0,10)<=x.iso?"":""}${esc(x.day)}<small>${x.start.length} play · ${x.pts.toFixed(0)} pts</small></button>`).join("");
+  const x=d[day], byName=Object.fromEntries(D.players.map(p=>[p.n,p]));
+  const pool={};x.start.forEach(([s,n])=>{(pool[s]=pool[s]||[]).push(n)});
+  const cells=D.slots.map((s,i)=>{const n=(pool[s]||[]).shift();
+    if(!n)return `<div class="slot empty"><div class="s">${s}</div><div class="p">Open: no game</div><div class="m">Stream a free agent here</div></div>`;
+    const p=byName[n];const moved=p.slot!==s&&!(p.slot==="UTIL"&&s==="UTIL");
+    return `<div class="slot pop" style="animation-delay:${i*40}ms"><div class="s">${s}</div><div class="p">${esc(n)}${injTag(p.inj)}</div><div class="m">${p.tm} · <span class="num">${p.v.toFixed(1)}</span> proj</div></div>`});
+  $("#lineup").innerHTML=cells.join("");
+  const mine=D.players.filter(p=>p.t==D.me);
+  const why=[];
+  if(day===0){
+    const wrong=mine.filter(p=>p.days.includes(x.iso)&&p.av>0&&(p.slot==="BE"||p.slot==="IR")&&x.start.some(s=>s[1]===p.n));
+    const idleStarters=mine.filter(p=>!p.days.includes(x.iso)&&!["BE","IR"].includes(p.slot));
+    if(wrong.length) why.push(`<b>Fix in ESPN:</b> ${wrong.map(p=>esc(p.n)).join(", ")} ${wrong.length>1?"are":"is"} on your bench but ${wrong.length>1?"play":"plays"} today. Move ${wrong.length>1?"them":"him"} into a starting slot.`);
+    else why.push(`Your ESPN lineup already starts everyone who plays on ${esc(x.day)}.`);
+    if(idleStarters.length&&wrong.length) why.push(`Open slots: ${idleStarters.map(p=>esc(last(p.n))).join(", ")} ${idleStarters.length>1?"are":"is"} starting with no game today.`);
+  }
+  why.push(x.bench.length?`Benched with a game: ${x.bench.map(esc).join(", ")}. They project lowest of the players who play today.`:`${x.start.length} of your players play and you have ${D.slots.length} slots, so nobody who plays sits.`);
+  if(x.start.length<6) why.push(`<b>Light day.</b> ${D.slots.length-x.start.length} slots are open. A streamer who plays today adds points.`);
+  mine.filter(p=>p.inj&&x.start.some(s=>s[1]===p.n)).forEach(p=>why.push(`${esc(p.n)} is listed ${p.inj.replace(/_/g," ").toLowerCase()}. He's in the lineup at a reduced projection; check status before tip-off.`));
+  $("#why").innerHTML=why.map(w=>`<li>${w}</li>`).join("");
+}
+$("#dayTabs").addEventListener("click",e=>{const b=e.target.closest("[data-i]");if(b){day=+b.dataset.i;renderDays();shoot(b)}});
+function renderPower(){
+  const rows=Object.entries(D.teams).sort((a,b)=>b[1].power-a[1].power);const mx=rows[0][1].power,mn=rows[rows.length-1][1].power||0;
+  $("#power").innerHTML=`<thead><tr><th>#</th><th>Team</th><th>Best player</th><th class="r">W-L</th><th class="r">Power</th><th></th></tr></thead><tbody>`+
+   rows.map(([id,t],i)=>`<tr class="${id==D.me?"me":""}"><td class="rk">${i+1}</td><td><b>${esc(t.name)}</b><div class="sub">${esc(t.owner)}</div></td><td class="sub">${esc(t.star)}</td><td class="r num">${t.w}-${t.l}</td><td class="r num">${t.power.toFixed(0)}</td><td style="width:18%"><div class="bar"><i style="width:${(20+80*(t.power-mn)/((mx-mn)||1)).toFixed(0)}%"></i></div></td></tr>`).join("")+"</tbody>";
+}
+function renderMatchups(){
+  const T=D.teams;
+  $("#matchups").innerHTML=D.sched.filter(m=>m[0]==D.period&&m[2]).map(([w,h,a])=>{const hw=T[h].proj>=T[a].proj;const mine=h==D.me||a==D.me;
+    return `<div class="mu" ${mine?'style="background:color-mix(in srgb,var(--win) 8%,transparent);border-radius:10px;padding-inline:8px"':""}><div class="a ${hw?"w":""}">${esc(T[h].name)}</div><div class="sc">${T[h].live.toFixed(0)}–${T[a].live.toFixed(0)} now<br>${T[h].proj.toFixed(0)}–${T[a].proj.toFixed(0)} proj</div><div class="${!hw?"w":""}">${esc(T[a].name)}</div></div>`}).join("");
+}
+const CATS=[["pts","Points"],["reb","Rebounds"],["ast","Assists"],["stl","Steals"],["blk","Blocks"],["tpm","Threes"],["to","Turnovers"]];
+const ADV={pts:"scoring volume",reb:"rebounding and double-doubles",ast:"playmaking (assists are worth 2)",stl:"steals (worth 4)",blk:"blocks (worth 4)",tpm:"three-point volume",to:"ball security (turnovers cost 2)"};
+function renderStrength(id){
+  const t=D.teams[id], n=Object.keys(D.teams).length;
+  $("#cats").innerHTML=CATS.map(([k,l])=>{const r=t.rank[k];const pct=(n+1-r)/n;const col=r<=3?"var(--win)":r>=n-2?"var(--lose)":"var(--neon)";
+    return `<div class="cat"><span>${l}</span><div class="lane"><i style="width:${(pct*100).toFixed(0)}%;background:${col};box-shadow:0 0 8px ${col}"></i></div><span class="num" style="text-align:right">#${r}</span></div>`}).join("");
+  const s=CATS.filter(([k])=>t.rank[k]<=3).map(([k])=>ADV[k]);const w=CATS.filter(([k])=>t.rank[k]>=n-2).map(([k])=>ADV[k]);
+  const benches=Object.values(D.teams).map(x=>x.bench).sort((a,b)=>b-a);
+  $("#sw").innerHTML=`<div class="g"><h3>STRENGTHS</h3>${s.length?s.join(", "):"No top-3 category."}${t.bench>=benches[2]?" Deep bench.":""}</div><div class="b"><h3>WEAKNESSES</h3>${w.length?w.join(", "):"No bottom-3 category."}${t.bench<=benches[n-3]?" Thin bench.":""}${t.risk>=3?" "+t.risk+" injury tags.":""}</div>`;
+}
+const sel=$("#teamSel");sel.onchange=()=>renderStrength(sel.value);
+function renderNews(){
+  $("#news").innerHTML=D.news.length?D.news.map(x=>`<div><span class="who">${esc(last(x.n))}${injTag(x.inj)}</span><span>${esc(x.text)} <span class="sub">(${x.t==D.me?"yours":"opponent"}, ${x.date.slice(5)})</span></span></div>`).join(""):'<div class="sub">No recent news.</div>';
+  const mv=D.moves.map(m=>`<b>Add ${esc(m.add)} (${m.addtm}), drop ${esc(m.drop)}.</b> ${esc(last(m.add))} has ${m.games} game${m.games==1?"":"s"} left this week that land in open slots, ${esc(last(m.drop))} has ${m.dropgames}. About +${m.gain.toFixed(0)} points this week.`);
+  if(!mv.length) mv.push("No free agent beats your bench for the rest of this week.");
+  const me=D.teams[D.me];const weak=CATS.filter(([k])=>me.rank[k]>=Object.keys(D.teams).length-2).map(([,l])=>l.toLowerCase());
+  if(weak.length) mv.push(`You rank near the bottom in ${weak.join(" and ")}. Target that in trades.`);
+  mv.push("Skip Draymond Green and Dillon Brooks on waivers. Technicals cost 5 here.");
+  $("#moves").innerHTML=mv.map(m=>`<li>${m}</li>`).join("");
+  $("#fa").innerHTML=`<thead><tr><th>Player</th><th>Pos</th><th>Team</th><th class="r">G left</th><th class="r">Proj/G</th></tr></thead><tbody>`+
+    D.fa.map(f=>`<tr><td>${esc(f.n)}${injTag(f.inj)}</td><td>${f.pos}</td><td>${f.tm}</td><td class="r num">${f.g}</td><td class="r num">${f.pa.toFixed(1)}</td></tr>`).join("")+"</tbody>";
+}
+function renderAll(){
+  $("#pulled").textContent="Updated "+D.pulled;
+  sel.innerHTML=Object.entries(D.teams).map(([id,t])=>`<option value="${id}" ${id==(sel.value||D.me)?"selected":""}>${esc(t.name)}</option>`).join("");
+  renderScore();renderDays();renderPower();renderMatchups();renderStrength(sel.value||D.me);renderNews();
+}
+let lastPull="";
+async function load(force){
+  try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw new Error(r.status);const j=await r.json();
+    if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}
+  catch(e){$("#pulled").textContent="Couldn't load data.json yet. The first refresh may still be running.";return false}
+}
+load(true);setInterval(()=>load(false),120000);
+
+// Neon court background
+const cv=$("#court"),cx=cv.getContext("2d");let W,H,dpr;
+function size(){dpr=Math.min(2,devicePixelRatio||1);W=cv.width=innerWidth*dpr;H=cv.height=innerHeight*dpr;}
+addEventListener("resize",size);size();
+function court(t){
+  cx.clearRect(0,0,W,H);
+  const h=reduce?200:(200+t*0.012)%360; document.documentElement.style.setProperty("--h",h.toFixed(0));
+  const pulse=reduce?1:0.75+0.25*Math.sin(t*0.0015);
+  const cw=Math.min(W*0.92,H*1.7), ch=cw/1.88, x0=(W-cw)/2, y0=(H-ch)/2;
+  cx.lineWidth=2.2*dpr; cx.shadowBlur=18*dpr;
+  const stroke=(hh,a)=>{cx.strokeStyle=`hsla(${hh},100%,60%,${a*pulse})`;cx.shadowColor=`hsla(${hh},100%,60%,${a})`};
+  stroke(h,.32); cx.strokeRect(x0,y0,cw,ch);
+  cx.beginPath();cx.moveTo(W/2,y0);cx.lineTo(W/2,y0+ch);cx.stroke();
+  cx.beginPath();cx.arc(W/2,H/2,ch*0.12,0,Math.PI*2);cx.stroke();
+  stroke(h+120,.28);cx.beginPath();cx.arc(W/2,H/2,ch*0.04,0,Math.PI*2);cx.stroke();
+  for(const side of [0,1]){
+    const sx=side?x0+cw:x0, dir=side?-1:1;
+    stroke(h+60*(side?1:-1),.3);
+    const kw=cw*0.2, kh=ch*0.32;cx.strokeRect(side?sx-kw:sx,H/2-kh/2,kw,kh);
+    cx.beginPath();cx.arc(sx+dir*kw,H/2,kh/2,-Math.PI/2,Math.PI/2,side===1);cx.stroke();
+    cx.beginPath();cx.moveTo(sx,y0+ch*0.06);cx.lineTo(sx+dir*cw*0.15,y0+ch*0.06);
+    cx.arc(sx+dir*cw*0.055,H/2,ch*0.44,side?-Math.PI*0.5-1.17+Math.PI:-1.17,side?Math.PI*0.5+1.17:1.17,side===1);cx.stroke();
+    stroke(25,.5);cx.beginPath();cx.arc(sx+dir*cw*0.055,H/2,ch*0.022,0,Math.PI*2);cx.stroke();
+  }
+  if(!reduce){const bx=W/2+Math.sin(t*0.0004)*cw*0.38, by=H/2+Math.sin(t*0.0011)*ch*0.3;
+    const g=cx.createRadialGradient(bx,by,0,bx,by,ch*0.08);g.addColorStop(0,"rgba(255,122,26,.35)");g.addColorStop(1,"rgba(255,122,26,0)");cx.shadowBlur=0;cx.fillStyle=g;cx.fillRect(bx-ch*.1,by-ch*.1,ch*.2,ch*.2);}
+  if(!reduce)requestAnimationFrame(court);
+}
+requestAnimationFrame(court);
+const BALL='<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="21" fill="#ff7a1a" stroke="#1a0a00" stroke-width="2"/><path d="M3 24h42M24 3v42M9 9c8 6 8 24 0 30M39 9c-8 6-8 24 0 30" fill="none" stroke="#1a0a00" stroke-width="2"/></svg>';
+function shoot(fromEl,label="SWISH!"){
+  if(reduce)return;const r=fromEl.getBoundingClientRect();const tx=innerWidth/2,ty=90;const b=document.createElement("div");b.className="shot";b.innerHTML=BALL;document.body.appendChild(b);
+  const sx=r.left+r.width/2,sy=r.top,t0=performance.now(),dur=650;
+  const f=t=>{const k=Math.min(1,(t-t0)/dur);const x=sx+(tx-sx)*k,y=sy+(ty-sy)*k-Math.sin(k*Math.PI)*160;b.style.transform=`translate(${x-13}px,${y-13}px) rotate(${k*540}deg)`;
+    if(k<1)requestAnimationFrame(f);else{b.remove();const s=document.createElement("div");s.className="swish";s.textContent=label;s.style.left=(tx-40)+"px";s.style.top=(ty-10)+"px";document.body.appendChild(s);setTimeout(()=>s.remove(),1300)}};
+  requestAnimationFrame(f);
+}
+function toast(msg){const t=document.createElement("div");t.className="toast";t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),3800)}
+$("#refresh").addEventListener("click",async e=>{shoot(e.currentTarget,"BUCKETS");const changed=await load(true);toast("Pulled the latest ESPN data ("+(D?D.pulled:"none")+").")});
+</script>
+</body></html>
