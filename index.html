@@ -260,17 +260,22 @@ function renderStrength(id){
 const sel=$("#teamSel");sel.onchange=()=>renderStrength(sel.value);
 function renderNews(){
   $("#news").innerHTML=D.news.length?D.news.map(x=>`<div><span class="who">${esc(last(x.n))}${injTag(x.inj)}</span><span>${esc(x.text)} <span class="sub">(${x.t==D.me?"yours":"opponent"}, ${x.date.slice(5)})</span></span></div>`).join(""):'<div class="sub">No recent news.</div>';
+  const pend=(D.pending||[]).map(c=>`<b>Pending ${c.type==="WAIVER"?"waiver claim":"move"}:</b> add ${esc(c.add.join(", "))}, drop ${esc(c.drop.join(", "))}${c.when?" (processes "+esc(c.when)+")":""}.`);
+  if(pend.length&&D.teams[D.me].if_claims!=null) pend.push(`If your claims go through, your week projects to <b>${(D.teams[D.me].live+D.teams[D.me].if_claims).toFixed(0)}</b> instead of ${D.teams[D.me].proj.toFixed(0)}.`);
   const mv=D.moves.map(m=>`<b>Add ${esc(m.add)} (${m.addtm}), drop ${esc(m.drop)}.</b> ${esc(last(m.add))} has ${m.games} game${m.games==1?"":"s"} left this week that land in open slots, ${esc(last(m.drop))} has ${m.dropgames}. About +${m.gain.toFixed(0)} points this week.`);
   if(!mv.length) mv.push("No free agent beats your bench for the rest of this week.");
   const me=D.teams[D.me];const weak=CATS.filter(([k])=>me.rank[k]>=Object.keys(D.teams).length-2).map(([,l])=>l.toLowerCase());
   if(weak.length) mv.push(`You rank near the bottom in ${weak.join(" and ")}. Target that in trades.`);
   mv.push("Skip Draymond Green and Dillon Brooks on waivers. Technicals cost 5 here.");
-  $("#moves").innerHTML=mv.map(m=>`<li>${m}</li>`).join("");
+  $("#moves").innerHTML=pend.concat(mv).map(m=>`<li>${m}</li>`).join("");
   $("#fa").innerHTML=`<thead><tr><th>Player</th><th>Pos</th><th>Team</th><th class="r">G left</th><th class="r">Proj/G</th></tr></thead><tbody>`+
-    D.fa.map(f=>`<tr><td>${esc(f.n)}${injTag(f.inj)}</td><td>${f.pos}</td><td>${f.tm}</td><td class="r num">${f.g}</td><td class="r num">${f.pa.toFixed(1)}</td></tr>`).join("")+"</tbody>";
+    D.fa.map(f=>`<tr><td>${esc(f.n)}${injTag(f.inj)}${f.claimed?'<span class="tag t-dtd" style="color:var(--win);background:color-mix(in srgb,var(--win) 20%,transparent)">CLAIMED</span>':""}</td><td>${f.pos}</td><td>${f.tm}</td><td class="r num">${f.g}</td><td class="r num">${f.pa.toFixed(1)}</td></tr>`).join("")+"</tbody>";
 }
 function renderAll(){
   $("#pulled").textContent="Updated "+D.pulled;
+  const age=D.pulled_iso?(Date.now()-Date.parse(D.pulled_iso))/60000:0;
+  if(age>75&&!forcing) $("#status").textContent=`Heads up: this data is ${age>120?Math.round(age/60)+" hours":Math.round(age)+" minutes"} old. Automatic pulls may be failing; try Force update. If that fails too, your ESPN cookies have probably expired.`;
+  else if(!forcing) $("#status").textContent="";
   sel.innerHTML=Object.entries(D.teams).map(([id,t])=>`<option value="${id}" ${id==(sel.value||D.me)?"selected":""}>${esc(t.name)}</option>`).join("");
   renderScore();renderDays();renderPower();renderMatchups();renderStrength(sel.value||D.me);renderNews();
 }

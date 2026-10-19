@@ -47,7 +47,7 @@ def short_name(first, last):
 
 
 def main():
-    lg = get(LG, [("view", v) for v in ["mSettings", "mTeam", "mRoster", "mMatchupScore", "mSchedule", "mStatus"]])
+    lg = get(LG, [("view", v) for v in ["mSettings", "mTeam", "mRoster", "mMatchupScore", "mSchedule", "mStatus", "mPendingTransactions"]])
     pro = get(BASE, {"view": "proTeamSchedules_wl"})
     settings = lg["settings"]
     scoring = {s["statId"]: s["points"] for s in settings["scoringSettings"]["scoringItems"]}
@@ -170,7 +170,16 @@ def main():
         order = sorted(teams.values(), key=lambda t: t["cat"][k] if k != "to" else -t["cat"][k], reverse=True)
         for i, t in enumerate(order): t.setdefault("rank", {})[k] = i + 1
 
-    # Free agents with projections and remaining games this week
+    # Pending waiver claims / adds for my team
+    pending, claim_add, claim_drop = [], set(), set()
+    for tx in lg.get("pendingTransactions", []) or []:
+        if tx.get("teamId") != MY_TEAM or tx.get("status") != "PENDING": continue
+        adds = [i["playerId"] for i in tx.get("items", []) if i["type"] == "ADD"]
+        drops = [i["playerId"] for i in tx.get("items", []) if i["type"] == "DROP"]
+        pending.append(dict(type=tx.get("type"), add=adds, drop=drops,
+                            when=dt.datetime.fromtimestamp(tx["processDate"] / 1000, TZ).strftime("%a %b %-d, %-I:%M %p") if tx.get("processDate") else ""))
+        claim_add.update(adds); claim_drop.update(drops)
+
     filt = {"players": {"filterStatus": {"value": ["FREEAGENT", "WAIVERS"]}, "limit": 60,
                         "sortAppliedStatTotal": {"sortAsc": False, "sortPriority": 1, "value": f"10{SEASON}"}}}
     fa_raw = get(LG, {"view": "kona_player_info"}, {"x-fantasy-filter": json.dumps(filt)})
@@ -178,7 +187,7 @@ def main():
     for x in fa_raw.get("players", []):
         p = x["player"]; pj = next((s for s in p.get("stats", []) if s["id"] == f"10{SEASON}"), {})
         inj = p.get("injuryStatus", "ACTIVE"); gd = games.get(p["proTeamId"], set())
-        fa.append(dict(n=p["fullName"], pos=POS.get(p["defaultPositionId"], ""), tm=pro_abbr.get(p["proTeamId"], "FA"),
+        fa.append(dict(id=p["id"], claimed=p["id"] in claim_add, n=p["fullName"], pos=POS.get(p["defaultPositionId"], ""), tm=pro_abbr.get(p["proTeamId"], "FA"),
                        inj="" if inj == "ACTIVE" else inj, av=AVAIL.get(inj, 1.0), pa=round(pj.get("appliedAverage", 0) or 0, 1),
                        el=[SLOT[s] for s in p.get("eligibleSlots", []) if s in (0, 1, 2, 3, 4)],
                        days=[d.isoformat() for d in days if d in gd], cg=0, ca=None))
@@ -189,9 +198,9 @@ def main():
     moves = []
     TECH = {"Draymond Green", "Dillon Brooks"}
     for f in fa[:40]:
-        if f["n"] in TECH or f["av"] < 0.85 or not f["days"]: continue
+        if f["n"] in TECH or f["av"] < 0.85 or not f["days"] or f["claimed"]: continue
         for d in mine:
-            if d["inj"] == "OUT": continue
+            if d["inj"] == "OUT" or d["id"] in claim_drop: continue
             trial = [p for p in mine if p is not d] + [f]
             gain = week_plan(trial)[0] - base
             if gain > 3:
@@ -206,6 +215,14 @@ def main():
         if m["add"] in seen or m["drop"] in {x["drop"] for x in top_moves}: continue
         seen.add(m["add"]); top_moves.append(m)
         if len(top_moves) == 3: break
+
+    fa_by_id = {f["id"]: f for f in fa}
+    if pending:
+        after = [p for p in mine if p["id"] not in claim_drop] + [fa_by_id[i] for i in claim_add if i in fa_by_id]
+        teams[MY_TEAM]["if_claims"] = week_plan(after)[0]
+        for c in pending:
+            c["add"] = [fa_by_id[i]["n"] if i in fa_by_id else str(i) for i in c["add"]]
+            c["drop"] = [next((p["n"] for p in mine if p["id"] == i), str(i)) for i in c["drop"]]
 
     # Latest news for my team and this week's opponent (public ESPN feed)
     my_m = next((m for m in sched if m[0] == cur_mp and MY_TEAM in m[1:]), None)
@@ -225,10 +242,10 @@ def main():
     news.sort(key=lambda x: (x["t"] != MY_TEAM, not x["inj"], x["date"]), reverse=False)
 
     for p in players: p["v"] = round(value(p), 1)
-    data = dict(pulled=dt.datetime.now(TZ).strftime("%b %-d, %-I:%M %p CT"), league=settings["name"], me=MY_TEAM, opp=opp,
+    data = dict(pulled=dt.datetime.now(TZ).strftime("%b %-d, %-I:%M %p CT"), pulled_iso=dt.datetime.now(dt.timezone.utc).isoformat(), pending=pending, league=settings["name"], me=MY_TEAM, opp=opp,
                 period=cur_mp, week=[wk_start.isoformat(), wk_end.isoformat()], days=[d.isoformat() for d in days],
                 slots=slots, scoring=scoring, teams=teams, players=players, sched=sched, moves=top_moves,
-                fa=[{k: f[k] for k in ("n", "pos", "tm", "inj", "pa")} | {"g": len(f["days"])} for f in fa[:12]], news=news[:24])
+                fa=[{k: f[k] for k in ("n", "pos", "tm", "inj", "pa", "claimed")} | {"g": len(f["days"])} for f in fa[:12]], news=news[:24])
     with open("data.json", "w") as fh:
         json.dump(data, fh, separators=(",", ":"))
     me = teams[MY_TEAM]
