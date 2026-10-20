@@ -410,7 +410,11 @@ select option{background:#16171b;color:var(--ink)}
 .sfil input:focus{border-color:var(--a);box-shadow:0 0 0 3px color-mix(in srgb,var(--a) 25%,transparent)}
 
 /* phones: Safari's bottom bar sits over the layout viewport, so run the frame past the screen edge instead of stopping above the bar */
-@media (max-width:700px){.frame{bottom:auto;height:calc(100lvh + 160px)}.wrap{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 90px)}
+@media (max-width:700px){.frame{bottom:auto;height:calc(100lvh + 160px)}
+  /* the ambient light and tint also have to run under the bar, or a hard seam shows where the layout viewport ends */
+  .amb,.grain{bottom:auto;height:calc(100lvh + 160px)}
+  body{background:var(--bg)}
+  .amb{background:radial-gradient(130% 90% at 15% -10%,color-mix(in srgb,var(--a) 16%,var(--bg)),transparent 55%),radial-gradient(110% 80% at 100% 110%,color-mix(in srgb,var(--a2) 14%,var(--bg)),transparent 55%),var(--bg)}.wrap{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 90px)}
   .asub{justify-self:stretch}.asub button{flex:1}.sgames{grid-template-columns:1fr 1fr}.lgm{padding:12px}.lgm .tr b{font-size:17px}.sfil input{min-width:0;flex:1 1 100%}}
 @media (max-width:420px){.sgames{grid-template-columns:1fr}}
 </style></head><body>
@@ -798,7 +802,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1792527472";
+const BUILD="1792528578";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(checkBuild,90000);
 loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
