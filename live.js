@@ -144,7 +144,10 @@ function dayPlayers(t,iso){
     for(const id of bd.start)if(!rows.some(r=>r.n===name(id)))rows.push({n:name(id),slot:"–",proj:bd.pp[id],act:null,st:"dropped"});
   }else if(iso===today){
     const pp={...(bd.pp||{}),...((cur||{}).pp||{})};
-    rows=P(t).filter(p=>pp[p.id]!=null).map(p=>{const g=gameOf(p),r=LV.rows[p.id];return {n:p.n,slot:p.slot,proj:pp[p.id],act:g&&g.state!=="pre"&&r&&!r.dnp?r.fp:g&&g.state==="post"?0:null,st:g?(g.state==="in"?g.detail:g.state==="post"?"Final":g.detail):""}});
+    const srv=Object.fromEntries((((D.act||{})[iso]||{})[t]||{pl:[]}).pl.map(x=>[x[0],x[3]]));
+    rows=P(t).filter(p=>pp[p.id]!=null).map(p=>{const g=gameOf(p),r=LV.rows[p.id];
+      const act=LV.ok?(g&&g.state!=="pre"&&r&&!r.dnp?r.fp:g&&g.state==="post"?0:null):(srv[p.id]??null);
+      return {n:p.n,slot:p.slot,proj:pp[p.id],act,st:g?(g.state==="in"?g.detail:g.state==="post"?"Final":g.detail):LV.ok?"":"as of last update"}});
   }else{
     const byName=Object.fromEntries(P(t).map(p=>[p.n,p]));const src=cur||{start:[],bench:[],pp:{}};
     rows=src.start.map(([s,n])=>({n,slot:s,proj:(byName[n]&&src.pp[byName[n].id])||(byName[n]&&byName[n].v)||0,act:null,st:""})).concat((src.bench||[]).map(n=>({n,slot:"BE",proj:(byName[n]&&src.pp[byName[n].id])||0,act:null,st:""})));
