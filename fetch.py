@@ -337,8 +337,43 @@ def main():
                 fa=[{k: f[k] for k in ("n", "pos", "tm", "inj", "pa", "claimed")} | {"g": len(f["days"])} for f in fa[:12]], news=news, feed=feed[:220], yt=bool(os.environ.get("YT_API_KEY")))
     with open("data.json", "w") as fh:
         json.dump(data, fh, separators=(",", ":"))
+    try:
+        season_file(pro_abbr, teams)
+    except Exception as e:
+        print("season.json skipped:", e)
     me = teams[MY_TEAM]
     print(f"OK {me['name']} live {me['live']} proj {me['proj']} vs {teams[opp]['name'] if opp else '-'}; moves {len(top_moves)}")
+
+
+def season_file(pro_abbr, teams):
+    """season.json: this season's per-game averages for every NBA player with 1+ game, with fantasy owner."""
+    filt = {"players": {"limit": 450, "sortAppliedStatTotal": {"sortAsc": False, "sortPriority": 1, "value": f"00{SEASON}"}}}
+    raw = get(LG, {"view": "kona_player_info"}, {"x-fantasy-filter": json.dumps(filt)})
+    out = []
+    for x in raw.get("players", []):
+        p = x["player"]
+        cur = next((st for st in p.get("stats", []) if st.get("id") == f"00{SEASON}"), None)
+        if not cur or not cur.get("appliedAverage"):
+            continue
+        a, tot = cur.get("averageStats") or {}, cur.get("stats") or {}
+        g = lambda d, k: float(d.get(str(k), d.get(k, 0)) or 0)
+        gp = round(cur["appliedTotal"] / cur["appliedAverage"]) if cur["appliedAverage"] else int(g(tot, 42))
+        if gp < 1:
+            continue
+        fga, fta = g(tot, 14), g(tot, 16)
+        out.append(dict(id=p["id"], n=p["fullName"], tm=pro_abbr.get(p["proTeamId"], "FA"), pos=POS.get(p.get("defaultPositionId"), ""),
+                        o=x.get("onTeamId") or 0, gp=gp, min=round(g(a, 40), 1), pts=round(g(a, 0), 1), reb=round(g(a, 6), 1),
+                        oreb=round(g(a, 4), 1), ast=round(g(a, 3), 1), stl=round(g(a, 2), 1), blk=round(g(a, 1), 1),
+                        tpm=round(g(a, 17), 1), to=round(g(a, 11), 1),
+                        fg=round(g(tot, 13) / fga * 100, 1) if fga else None, ft=round(g(tot, 15) / fta * 100, 1) if fta else None,
+                        fp=round(cur["appliedAverage"], 1), fpt=round(cur["appliedTotal"], 1),
+                        inj="" if p.get("injuryStatus", "ACTIVE") == "ACTIVE" else p.get("injuryStatus")))
+    out.sort(key=lambda r: -r["fp"])
+    data = dict(pulled=dt.datetime.now(TZ).strftime("%b %-d, %-I:%M %p CT"), season=SEASON,
+                teams={k: v["name"] for k, v in teams.items()}, players=out)
+    with open("season.json", "w") as fh:
+        json.dump(data, fh, separators=(",", ":"))
+    print(f"season.json: {len(out)} players with games")
 
 
 if __name__ == "__main__":

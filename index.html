@@ -365,6 +365,54 @@ select option{background:#16171b;color:var(--ink)}
 .tpop li[aria-selected="true"]{color:var(--ink);font-weight:600}.tpop li[aria-selected="true"]::after{content:"✓";margin-left:auto;color:var(--a)}
 .tpop .none{padding:10px;color:var(--faint);font-size:13px}
 @media (max-width:700px){.tpop{left:0;right:auto}}
+
+/* Arena sub-tabs + Season */
+.pane{display:grid;gap:22px;min-width:0}.pane[hidden]{display:none}
+.asub{justify-self:start;display:flex;gap:4px;padding:4px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid color-mix(in srgb,var(--a) 30%,var(--line2));backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.asub button{font:500 14px var(--sans);color:var(--mute);background:none;border:0;border-radius:999px;padding:8px 20px;cursor:pointer}
+.asub button[aria-selected="true"]{color:#0b0b0d;background:linear-gradient(135deg,var(--hi),color-mix(in srgb,var(--a) 70%,var(--hi)));box-shadow:0 0 18px color-mix(in srgb,var(--a) 40%,transparent)}
+.sday{display:flex;gap:6px;flex-wrap:wrap}
+.sgames{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.lgm{all:unset;box-sizing:border-box;cursor:pointer;display:grid;gap:8px;padding:14px;border-radius:14px;background:linear-gradient(160deg,color-mix(in srgb,var(--a) 7%,transparent),transparent 50%),var(--glass);border:1px solid color-mix(in srgb,var(--a) 18%,var(--line));transition:border-color .2s,box-shadow .2s,transform .2s}
+.lgm:hover,.lgm.sel{border-color:color-mix(in srgb,var(--a) 60%,transparent);box-shadow:0 14px 34px -16px color-mix(in srgb,var(--a) 55%,transparent);transform:translateY(-2px)}
+.lgm:focus-visible{outline:2px solid var(--hi);outline-offset:2px}
+.lgm .tr{display:grid;grid-template-columns:24px 1fr auto;gap:8px;align-items:center}
+.lgm .tr img{width:24px;height:24px;object-fit:contain}
+.lgm .tr b{font:500 20px var(--mono);font-variant-numeric:tabular-nums}
+.lgm .tr.lose{color:var(--faint)}
+.lgm .st{display:flex;justify-content:space-between;font:500 11.5px var(--mono);color:var(--faint)}
+.lgm .st .live{color:var(--down);display:inline-flex;align-items:center;gap:6px}.lgm .st .live::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--down);animation:ping 1.6s infinite}
+.lgm .own{font:500 11px var(--mono);color:color-mix(in srgb,var(--a) 75%,var(--ink))}
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+.tbl th{font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--faint);text-align:right;padding:8px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl th.sort{cursor:pointer}.tbl th.sort:hover,.tbl th.on{color:var(--ink)}.tbl th.on::after{content:" ↓"}
+.tbl td{padding:8px;border-bottom:1px solid rgba(255,255,255,.05);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tbl td.fp{font-weight:600;color:var(--hi)}
+.tbl tr.mine td{background:color-mix(in srgb,var(--a) 12%,transparent)}.tbl tr.mine td:first-child{box-shadow:inset 3px 0 0 var(--a)}
+.tbl tr.opp td{background:color-mix(in srgb,var(--down) 7%,transparent)}
+.tbl .nm{display:flex;flex-direction:column;line-height:1.25}.tbl .nm small{color:var(--faint);font:500 11px var(--mono)}
+.otag{display:inline-block;font:500 11px var(--mono);padding:2px 8px;border-radius:999px;border:1px solid var(--line2);color:var(--mute);max-width:150px;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
+.otag.me{border-color:color-mix(in srgb,var(--a) 60%,transparent);color:var(--ink);background:color-mix(in srgb,var(--a) 18%,transparent)}
+.otag.op{border-color:color-mix(in srgb,var(--down) 50%,transparent);color:var(--down)}
+.otag.fa{color:var(--up);border-color:color-mix(in srgb,var(--up) 35%,transparent)}
+.tscroll{overflow-x:auto;scrollbar-width:thin;margin:0 -6px;padding:0 6px}
+.bx{margin-top:16px;display:grid;gap:18px}
+.bx h3{font:500 15px var(--sans);margin:0 0 6px;display:flex;align-items:center;gap:8px}.bx h3 img{width:22px;height:22px}
+.mrow{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+.mp{padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid var(--line);display:grid;gap:4px}
+.mp .t{display:flex;justify-content:space-between;gap:8px;align-items:baseline}.mp .t b{font:600 20px var(--mono);color:var(--hi)}
+.mp .l{font:500 11.5px var(--mono);color:var(--faint)}
+.mp.live{border-color:color-mix(in srgb,var(--a) 50%,transparent)}
+.stot{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.sfil{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.sfil input{font:500 14px var(--sans);color:var(--ink);background:rgba(255,255,255,.06);border:1px solid var(--line2);border-radius:999px;padding:8px 14px;min-width:200px;outline:none}
+.sfil input:focus{border-color:var(--a);box-shadow:0 0 0 3px color-mix(in srgb,var(--a) 25%,transparent)}
+
+/* phones: Safari's bottom bar sits over the layout viewport, so run the frame past the screen edge instead of stopping above the bar */
+@media (max-width:700px){.frame{bottom:auto;height:calc(100lvh + 160px)}.wrap{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 90px)}
+  .asub{justify-self:stretch}.asub button{flex:1}.sgames{grid-template-columns:1fr 1fr}.lgm{padding:12px}.lgm .tr b{font-size:17px}.sfil input{min-width:0;flex:1 1 100%}}
+@media (max-width:420px){.sgames{grid-template-columns:1fr}}
 </style></head><body>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div>
 
@@ -442,6 +490,14 @@ select option{background:#16171b;color:var(--ink)}
   <p class="foot">Pulled from ESPN every 30 minutes by GitHub Actions. Owner names are shortened for privacy.</p>
   </div>
   <div id="arenaView" class="view" hidden>
+    <div class="asub" role="tablist" aria-label="Arena sections"><button type="button" role="tab" data-sub="team" aria-selected="true">Team</button><button type="button" role="tab" data-sub="season" aria-selected="false">Season</button></div>
+    <div id="aSeasonPane" class="pane" hidden>
+      <section class="g pad" id="sMine"></section>
+      <section class="g pad" id="sBoard"></section>
+      <section class="g pad" id="sAvg"></section>
+      <p class="foot">Scores and box scores live from ESPN. Fantasy points use the Angel Reese Invitational scoring (technical fouls aren't in box scores, so they show up only in season totals). Owners and season averages refresh every 30 minutes.</p>
+    </div>
+    <div id="aTeamPane" class="pane">
     <section class="g pad ahero" id="aHero"></section>
     <div class="two">
       <section class="g pad" id="aNext"></section>
@@ -459,6 +515,7 @@ select option{background:#16171b;color:var(--ink)}
       <section class="g pad" id="aSched"></section>
     </div>
     <p class="foot">Live team data from ESPN, refreshed every 30 minutes. Lines are DraftKings via ESPN. Model picks are for fun, not financial advice. 21+.</p>
+    </div>
   </div>
 </div>
 
@@ -741,7 +798,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1792437305";
+const BUILD="1792527472";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(checkBuild,90000);
 loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
@@ -788,4 +845,5 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   renderLineupAct()}
 </script>
 <script src="arena.js"></script>
+<script src="season.js"></script>
 </body></html>

@@ -390,6 +390,60 @@ def build(abbr, full=True):
           f"{len(players)} players, next={nxt and nxt['opp']}, odds={bool(nxt and nxt.get('odds'))}, yt={len(yt)}")
 
 
+# ---------- league scoreboard fallback for the Season tab (the page normally reads ESPN live) ----------
+def _ma(v):
+    try:
+        m, a = str(v).split("-"); return int(m), int(a)
+    except Exception:
+        return 0, 0
+
+
+def scoreboard_file():
+    days = {}
+    for off in (-1, 0, 1):
+        d = (dt.datetime.now(TZ) + dt.timedelta(days=off)).strftime("%Y%m%d")
+        try:
+            j = get(f"{B}/scoreboard", dates=d, limit=30)
+        except Exception as e:
+            print("scoreboard:", e); continue
+        games, box = [], {}
+        for e in j.get("events", []):
+            c = e["competitions"][0]; ty = (e.get("status") or c.get("status") or {}).get("type", {})
+            def side(h):
+                x = next((y for y in c["competitors"] if y.get("homeAway") == h), {}); t = x.get("team", {})
+                return dict(abbr=t.get("abbreviation"), name=t.get("displayName"), short=t.get("shortDisplayName") or t.get("name"),
+                            logo=t.get("logo") or ((t.get("logos") or [{}])[0].get("href", "")),
+                            score=int(num(x.get("score"))) if x.get("score") not in (None, "") else None,
+                            rec=((x.get("records") or [{}])[0].get("summary", "")))
+            g = dict(id=e["id"], date=e["date"], state=ty.get("state", "pre"), detail=ty.get("shortDetail") or ty.get("detail", ""), home=side("home"), away=side("away"))
+            games.append(g)
+            if g["state"] == "pre":
+                continue
+            try:
+                sj = get(f"{B}/summary", event=e["id"])
+            except Exception:
+                continue
+            rows = []
+            for tp in (sj.get("boxscore") or {}).get("players", []):
+                tm = (tp.get("team") or {}).get("abbreviation", "")
+                for st in tp.get("statistics", []):
+                    L = [str(x).upper() for x in (st.get("labels") or st.get("names") or [])]
+                    for a in st.get("athletes", []):
+                        s = a.get("stats") or []
+                        gv = lambda k: s[L.index(k)] if k in L and L.index(k) < len(s) else None
+                        if a.get("didNotPlay") or not s:
+                            rows.append(dict(id=int(a["athlete"]["id"]), n=a["athlete"]["displayName"], tm=tm, dnp=True)); continue
+                        fgm, fga = _ma(gv("FG")); tpm, tpa = _ma(gv("3PT")); ftm, fta = _ma(gv("FT"))
+                        rows.append(dict(id=int(a["athlete"]["id"]), n=a["athlete"]["displayName"], tm=tm, starter=bool(a.get("starter")),
+                                         min=int(num(gv("MIN"))), pts=int(num(gv("PTS"))), reb=int(num(gv("REB"))), oreb=int(num(gv("OREB"))),
+                                         ast=int(num(gv("AST"))), stl=int(num(gv("STL"))), blk=int(num(gv("BLK"))), to=int(num(gv("TO"))),
+                                         pf=int(num(gv("PF"))), pm=gv("+/-") or "", fgm=fgm, fga=fga, tpm=tpm, tpa=tpa, ftm=ftm, fta=fta))
+            box[e["id"]] = rows
+        days[d] = dict(games=games, box=box)
+    json.dump(dict(pulled=dt.datetime.now(TZ).strftime("%b %-d, %-I:%M %p CT"), days=days), open("arena/scoreboard.json", "w"), separators=(",", ":"))
+    print("scoreboard:", {k: len(v["games"]) for k, v in days.items()})
+
+
 def league_teams():
     out = []
     for sp in get(f"{B}/teams").get("sports", []):
@@ -424,6 +478,10 @@ if __name__ == "__main__":
     others = [a for a in cfg["teams"] if a not in fav]
     missing = [a for a in others if not os.path.exists(f"arena/{a}.json")]
     rest = sorted([a for a in others if a not in missing], key=age)[: cfg["rotate"]]
+    try:
+        scoreboard_file()
+    except Exception as e:
+        print("scoreboard failed:", e)
     for t in fav:
         build(t, True)
     for t in missing + rest:
