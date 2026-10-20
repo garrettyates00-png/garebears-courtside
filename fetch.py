@@ -214,7 +214,7 @@ def main():
             snap[tid] = dict(proj=tot, days={x["iso"]: dict(pts=x["pts"], start=[nm[n] for _, n in x["start"]], pp=x["pp"]) for x in dl})
         wb = {str(cur_mp): dict(at=now_ct.isoformat(), teams=snap)}  # keep only the current matchup
         json.dump(wb, open("weekbase.json", "w"), separators=(",", ":"))
-    base = wb[str(cur_mp)]
+    wk_base = wb[str(cur_mp)]
 
     # What actually happened each day so far (ESPN's official fantasy points, lineup slot that day)
     act = {}
@@ -401,7 +401,7 @@ def main():
                        for p in players if p["t"] == MY_TEAM], slots)
     data = dict(pulled=dt.datetime.now(TZ).strftime("%b %-d, %-I:%M %p CT"), pulled_iso=dt.datetime.now(dt.timezone.utc).isoformat(), pending=pending, league=settings["name"], me=MY_TEAM, opp=opp,
                 plan=[{k: m[k] for k in ("n", "from", "to", "why")} for m in plan], plan_day=plan_day.strftime("%a %b ") + str(plan_day.day), period=cur_mp, week=[wk_start.isoformat(), wk_end.isoformat()], days=[d.isoformat() for d in days],
-                slots=slots, scoring=scoring, teams=teams, base=base, act=act, all_days=[d.isoformat() for d in all_days], players=players, sched=sched, moves=top_moves,
+                slots=slots, scoring=scoring, teams=teams, base=wk_base, act=act, all_days=[d.isoformat() for d in all_days], players=players, sched=sched, moves=top_moves,
                 fa=[{k: f[k] for k in ("n", "pos", "tm", "inj", "pa", "claimed")} | {"g": len(f["days"])} for f in fa[:12]], news=news, feed=feed[:220], yt=bool(os.environ.get("YT_API_KEY")))
     with open("data.json", "w") as fh:
         json.dump(data, fh, separators=(",", ":"))
