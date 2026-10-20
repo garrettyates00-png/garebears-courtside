@@ -76,12 +76,21 @@ def main():
                 ds.add(dt.datetime.fromtimestamp(g["date"] / 1000, TZ).date())
         games[t["id"]] = ds
 
+    now_ct = dt.datetime.now(TZ)
+    tip_at = {}  # pro abbrev -> today's tip-off
+    for t in pro["settings"]["proTeams"]:
+        for gs in (t.get("proGamesByScoringPeriod") or {}).values():
+            for g in gs:
+                d = dt.datetime.fromtimestamp(g["date"] / 1000, TZ)
+                if d.date() == now_ct.date(): tip_at[t["abbrev"].upper()] = d
+
     cur_mp = lg["status"]["currentMatchupPeriod"]
     weeks = settings["scheduleSettings"]["matchupPeriods"][str(cur_mp)]
     wk_start, wk_end = week_range(weeks[0])[0], week_range(weeks[-1])[1]
     today = dt.datetime.now(TZ).date()
     first_day = max(today, wk_start)
     days = [first_day + dt.timedelta(days=i) for i in range((wk_end - first_day).days + 1)]
+    all_days = [wk_start + dt.timedelta(days=i) for i in range((wk_end - wk_start).days + 1)]
     nxt_start, nxt_end = week_range(weeks[-1] + 1)
 
     players = []
@@ -125,29 +134,46 @@ def main():
         if s == "F": return "SF" in e or "PF" in e
         return s in e
 
-    def best(cands):
-        if not cands: return 0.0, []
-        M = np.full((len(cands), len(slots)), -1e6)
+    def best(cands, sl=None):
+        sl = slots if sl is None else sl
+        if not cands or not sl: return 0.0, []
+        M = np.full((len(cands), len(sl)), -1e6)
         for i, p in enumerate(cands):
-            for j, s in enumerate(slots):
+            for j, s in enumerate(sl):
                 if fits(p, s): M[i, j] = value(p)
         r, c = linear_sum_assignment(-M)
-        out = sorted([(slots[j], cands[i]["n"]) for i, j in zip(r, c) if M[i, j] > 0], key=lambda x: (slots.index(x[0]), x[1]))
+        out = sorted([(sl[j], cands[i]["n"]) for i, j in zip(r, c) if M[i, j] > 0], key=lambda x: (slots.index(x[0]), x[1]))
         return sum(M[i, j] for i, j in zip(r, c) if M[i, j] > 0), out
 
-    def week_plan(roster, contrib=None):
+    def locked(p):
+        t0 = tip_at.get(p["tm"])
+        return t0 is not None and now_ct >= t0 - dt.timedelta(minutes=5)
+
+    def week_plan(roster, contrib=None, dlist=None, live_today=True):
+        """Best lineup per day. For today (live_today), players whose game has tipped are already in the live
+        score, so they are left out of 'to come' and their lineup slots are taken."""
         tot, daily, starts = 0.0, [], 0
-        for d in days:
+        for d in (days if dlist is None else dlist):
             ds = d.isoformat()
             cands = [p for p in roster if ds in p["days"] and p["av"] > 0]
-            sc, lu = best(cands)
+            sl = slots
+            gone = []
+            if live_today and d == today:
+                gone = [p for p in cands if locked(p)]
+                sl = list(slots)
+                for p in gone:
+                    if p.get("slot") in sl: sl.remove(p["slot"])
+                cands = [p for p in cands if not locked(p)]
+            sc, lu = best(cands, sl)
             st = {n for _, n in lu}
             if contrib is not None:
                 for p in cands:
                     if p["n"] in st:
                         c = contrib.setdefault(p["n"], [0.0, 0]); c[0] += value(p); c[1] += 1
             daily.append(dict(day=d.strftime("%a %b ") + str(d.day), iso=ds, pts=round(sc, 1), start=lu,
-                              bench=[p["n"] for p in cands if p["n"] not in st]))
+                              bench=[p["n"] for p in cands if p["n"] not in st],
+                              pp={p["id"]: round(value(p), 1) for p in cands + gone},
+                              locked=[p["id"] for p in gone if p.get("slot", "BE") not in ("BE", "IR")]))
             tot += sc; starts += len(lu)
         return round(tot, 1), daily, starts
 
@@ -174,6 +200,48 @@ def main():
                  risk=sum(1 for p in roster if p["inj"]), star=roster[0]["n"] if roster else "",
                  cat={k: round(sum(p[k] for p in top), 1) for k in keys})
         t["power"] = round(t["core"] + 0.25 * t["bench"] - 2 * t["risk"], 1)
+    # Start-of-week baseline: the projection as it stood before the matchup began. Saved once per matchup.
+    try:
+        wb = json.load(open("weekbase.json"))
+    except Exception:
+        wb = {}
+    if str(cur_mp) not in wb:
+        snap = {}
+        for tid in teams:
+            roster = [p for p in players if p["t"] == tid]
+            tot, dl, _ = week_plan(roster, dlist=all_days, live_today=False)
+            nm = {p["n"]: p["id"] for p in roster}
+            snap[tid] = dict(proj=tot, days={x["iso"]: dict(pts=x["pts"], start=[nm[n] for _, n in x["start"]], pp=x["pp"]) for x in dl})
+        wb = {str(cur_mp): dict(at=now_ct.isoformat(), teams=snap)}  # keep only the current matchup
+        json.dump(wb, open("weekbase.json", "w"), separators=(",", ":"))
+    base = wb[str(cur_mp)]
+
+    # What actually happened each day so far (ESPN's official fantasy points, lineup slot that day)
+    act = {}
+    def day_actual(d):
+        sp = (d - WEEK1_START).days + 1
+        j = get(LG, [("view", "mRoster"), ("scoringPeriodId", sp)])
+        out = {}
+        for t in j.get("teams", []):
+            pl, tot = [], 0.0
+            for e in t["roster"]["entries"]:
+                p = e["playerPoolEntry"]["player"]
+                st = next((x for x in p.get("stats", []) if x.get("scoringPeriodId") == sp and x.get("statSourceId") == 0), None)
+                if not st: continue
+                fp = round(st.get("appliedTotal", 0) or 0, 1)
+                slot = SLOT.get(e["lineupSlotId"], "BE")
+                pl.append([p["id"], p["fullName"], slot, fp])
+                if slot not in ("BE", "IR"): tot += fp
+            out[t["id"]] = dict(tot=round(tot, 1), pl=pl)
+        return d.isoformat(), out
+    try:
+        from concurrent.futures import ThreadPoolExecutor as _TP
+        with _TP(max_workers=4) as ex:
+            for iso, out in ex.map(day_actual, [d for d in all_days if d <= today]):
+                act[iso] = out
+    except Exception as e:
+        print("daily actuals skipped:", e)
+
     for k in keys:
         order = sorted(teams.values(), key=lambda t: t["cat"][k] if k != "to" else -t["cat"][k], reverse=True)
         for i, t in enumerate(order): t.setdefault("rank", {})[k] = i + 1
@@ -333,7 +401,7 @@ def main():
                        for p in players if p["t"] == MY_TEAM], slots)
     data = dict(pulled=dt.datetime.now(TZ).strftime("%b %-d, %-I:%M %p CT"), pulled_iso=dt.datetime.now(dt.timezone.utc).isoformat(), pending=pending, league=settings["name"], me=MY_TEAM, opp=opp,
                 plan=[{k: m[k] for k in ("n", "from", "to", "why")} for m in plan], plan_day=plan_day.strftime("%a %b ") + str(plan_day.day), period=cur_mp, week=[wk_start.isoformat(), wk_end.isoformat()], days=[d.isoformat() for d in days],
-                slots=slots, scoring=scoring, teams=teams, players=players, sched=sched, moves=top_moves,
+                slots=slots, scoring=scoring, teams=teams, base=base, act=act, all_days=[d.isoformat() for d in all_days], players=players, sched=sched, moves=top_moves,
                 fa=[{k: f[k] for k in ("n", "pos", "tm", "inj", "pa", "claimed")} | {"g": len(f["days"])} for f in fa[:12]], news=news, feed=feed[:220], yt=bool(os.environ.get("YT_API_KEY")))
     with open("data.json", "w") as fh:
         json.dump(data, fh, separators=(",", ":"))

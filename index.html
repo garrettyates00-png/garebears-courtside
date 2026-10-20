@@ -417,6 +417,28 @@ select option{background:#16171b;color:var(--ink)}
   .amb{background:radial-gradient(130% 90% at 15% -10%,color-mix(in srgb,var(--a) 16%,var(--bg)),transparent 55%),radial-gradient(110% 80% at 100% 110%,color-mix(in srgb,var(--a2) 14%,var(--bg)),transparent 55%),var(--bg)}.wrap{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 90px)}
   .asub{justify-self:stretch}.asub button{flex:1}.sgames{grid-template-columns:1fr 1fr}.lgm{padding:12px}.lgm .tr b{font-size:17px}.sfil input{min-width:0;flex:1 1 100%}}
 @media (max-width:420px){.sgames{grid-template-columns:1fr}}
+
+/* live matchup */
+#liveBox:empty{display:none}
+#liveBox{display:grid;gap:16px}
+.lvstrip{display:flex;flex-wrap:wrap;gap:8px 22px;align-items:center;padding:12px 16px;border-radius:14px;background:color-mix(in srgb,var(--a) 10%,rgba(255,255,255,.03));border:1px solid color-mix(in srgb,var(--a) 30%,var(--line));font:500 13px var(--mono);color:var(--mute)}
+.lvstrip b{color:var(--ink);font-size:15px}
+.lvdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--faint);margin-right:8px;vertical-align:middle}.lvdot.on{background:var(--down);animation:ping 1.6s infinite}
+.lvnotes{display:grid;grid-template-columns:1.4fr 1fr;gap:18px}
+.lvnotes ul{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.lvnotes li{font-size:14px;line-height:1.45;color:var(--mute);padding-left:12px;border-left:2px solid color-mix(in srgb,var(--a) 45%,transparent)}
+.lvnotes li b{color:var(--ink);font-weight:600}
+.lvform{display:flex;flex-wrap:wrap;gap:14px 28px}.lvform .eyebrow{margin-bottom:6px}.lvform .pill{margin:0 4px 4px 0}
+.dayt{width:100%;border-collapse:collapse;font-size:14px}.dayt th{font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--faint);text-align:left;padding:8px;border-bottom:1px solid var(--line)}
+.dayt td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.05)}.dayt .r{text-align:right}
+.drow{cursor:pointer;transition:background .15s}.drow:hover td,.drow.open td{background:color-mix(in srgb,var(--a) 9%,transparent)}.drow:focus-visible{outline:2px solid var(--hi)}
+.drow.today td:first-child{box-shadow:inset 3px 0 0 var(--a)}
+.drow td:first-child::before{content:"▸";display:inline-block;width:14px;color:var(--faint);transition:transform .2s}.drow.open td:first-child::before{transform:rotate(90deg)}
+.dsub td{padding:6px 0 16px;background:rgba(255,255,255,.015)}
+.dsplit{display:grid;grid-template-columns:1fr 1fr;gap:16px;overflow-x:auto}
+.dtbl{font-size:13px}.dtbl td,.dtbl th{padding:6px}.dtbl tr.bn td{opacity:.5}.dtbl tr.tt td{font-weight:600;border-top:1px solid var(--line2)}
+.dtbl .up{color:var(--up)}.dtbl .down{color:var(--down)}
+@media (max-width:700px){.lvnotes,.dsplit{grid-template-columns:1fr}}
 </style></head><body>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div>
 
@@ -587,15 +609,18 @@ function renderHero(){
   $("#wkLabel").textContent=`Matchup ${D.period} · ${fmtD(D.week[0])} to ${fmtD(D.week[1])}`;
   if(!op){$("#hero").innerHTML='<div class="mute">No matchup this week.</div>';return}
   const A=analyze(D.me,D.opp),p=A.pA;
-  const side=(t,cls,win)=>`<div class="side ${cls}"><div class="tn">${esc(t.name)}</div><div class="ow">${esc(t.owner)} · ${t.w}-${t.l}</div><div class="big num ${win?"":"faint"}" data-to="${t.proj}">0</div><div class="sub">${t.live.toFixed(0)} scored · ${t.rest.toFixed(0)} to come · ${t.starts} starts</div></div>`;
+  const LIVE=typeof isLiveWeek==="function"&&isLiveWeek(),num=t=>LIVE?liveScore(+Object.keys(T).find(k=>T[k]===t)):t.proj;
+  const side=(t,cls,win)=>`<div class="side ${cls}"><div class="tn">${esc(t.name)}</div><div class="ow">${esc(t.owner)} · ${t.w}-${t.l}${LIVE?' · <span class="up">live</span>':""}</div><div class="big num ${win?"":"faint"}" data-to="${num(t)}">0</div><div class="sub">${t.live.toFixed(0)} scored · ${t.rest.toFixed(0)} to come · ${t.starts} starts</div></div>`;
   $("#hero").innerHTML=`<div class="row"><span class="eyebrow">Your matchup</span><span class="pill">${A.label}</span></div>
    <div class="vs">${side(me,"",p>=.5)}<div class="mid">vs</div>${side(op,"r",p<.5)}</div>
    <div><div class="meter"><span style="width:0%" id="heroMeter"></span></div><div class="meter-l"><span>${Math.round(p*100)}% win chance</span><span>${Math.round(100-p*100)}%</span></div></div>
+   <div id="liveBox"></div>
    <p class="summary">${A.sum}</p>
    <div class="chips">${me.if_claims!=null?`<span class="pill">With pending claims: ${Math.round(me.live+me.if_claims)}</span>`:""}${P(D.me).filter(x=>x.inj).map(x=>`<span class="pill">${esc(last(x.n))} ${injWord(x.inj)}</span>`).join("")}<button class="b" type="button" id="heroToggle" aria-expanded="${heroOpen}" aria-controls="heroX">${heroOpen?"Hide breakdown ↑":"Open breakdown ↓"}</button></div>
    <div class="expand ${heroOpen?"open":""}" id="heroX" aria-hidden="${!heroOpen}"><div>${heroOpen?`<div class="dwrap">${detailHTML(D.me,D.opp,false)}</div>`:""}</div></div>`;
   requestAnimationFrame(()=>{$("#heroMeter").style.width=(p*100).toFixed(1)+"%"});
   document.querySelectorAll("#hero .big").forEach(el=>countUp(el,+el.dataset.to));
+  if(LIVE)setTimeout(()=>renderLive(),1300);
 }
 function renderCards(){setTimeout(()=>{if(openCard){const [h,a]=openCard.split("-");openCard=null;toggleCard(+h,+a)}},0);
   const T=D.teams;
@@ -618,7 +643,7 @@ function detailHTML(h,a,withHead){
     <div><div class="meter"><span style="width:${(A.pA*100).toFixed(1)}%"></span></div><div class="meter-l"><span>${Math.round(A.pA*100)}%</span><span>${Math.round(100-A.pA*100)}%</span></div></div>`:""}
     <div class="dsec"><div class="eyebrow" style="margin-bottom:8px">How close</div><p class="summary">${withHead?A.sum+" ":`<em>${A.label}.</em> Projected margin ${Math.round(Math.abs(A.margin))} points. `}${flip}</p></div>
     <div class="dsec reasons">${reasons(h)}${reasons(a)}</div>
-    <div class="dsec"><div class="eyebrow" style="margin-bottom:8px">Projected points by day <span class="faint">· starts</span></div>${daily}</div>
+    <div class="dsec"><div class="eyebrow" style="margin-bottom:8px">Points by day</div>${typeof dayTable==="function"&&D.all_days?dayTable(h,a):daily}</div>
     <div class="dsec ros">${roster(h)}${roster(a)}</div>
     <p class="faint dsec" style="font-size:12.5px;margin:0">Tap a player for his latest news. Starting five are the five highest projected totals this week.</p>`;
 }
@@ -633,7 +658,7 @@ function toggleCard(h,a){const key=h+"-"+a,ex=$("#cardX");document.querySelector
 document.addEventListener("click",e=>{const pl=e.target.closest(".pl");if(pl)pl.classList.toggle("open")});
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.classList&&e.target.classList.contains("pl"))e.target.classList.toggle("open")});
 $("#cards").addEventListener("click",e=>{const c=e.target.closest(".card");if(c)toggleCard(+c.dataset.h,+c.dataset.a)});
-$("#hero").addEventListener("click",e=>{if(e.target.closest("#heroX"))return;toggleHero()});
+$("#hero").addEventListener("click",e=>{if(e.target.closest("#heroX")||e.target.closest("#liveBox"))return;toggleHero()});
 $("#hero").addEventListener("keydown",e=>{if(e.target.closest("#heroX"))return;if(e.key==="Enter"||e.key===" "){e.preventDefault();toggleHero()}});
 
 function renderDays(){
@@ -802,7 +827,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1792528578";
+const BUILD="1792529045";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(checkBuild,90000);
 loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
@@ -850,4 +875,5 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
 </script>
 <script src="arena.js"></script>
 <script src="season.js"></script>
+<script src="live.js"></script>
 </body></html>
