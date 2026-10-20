@@ -415,7 +415,8 @@ def scoreboard_file():
                             logo=t.get("logo") or ((t.get("logos") or [{}])[0].get("href", "")),
                             score=int(num(x.get("score"))) if x.get("score") not in (None, "") else None,
                             rec=((x.get("records") or [{}])[0].get("summary", "")))
-            g = dict(id=e["id"], date=e["date"], state=ty.get("state", "pre"), detail=ty.get("shortDetail") or ty.get("detail", ""), home=side("home"), away=side("away"))
+            tvn = [n for b in c.get("broadcasts", []) for n in (b.get("names") or [])] + [(b.get("media") or {}).get("shortName") for b in c.get("geoBroadcasts", []) if (b.get("media") or {}).get("shortName")]
+            g = dict(id=e["id"], date=e["date"], state=ty.get("state", "pre"), detail=ty.get("shortDetail") or ty.get("detail", ""), home=side("home"), away=side("away"), tv=", ".join(dict.fromkeys(tvn)))
             games.append(g)
             if g["state"] == "pre":
                 continue

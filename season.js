@@ -58,7 +58,7 @@ function normBox(j){
 function normGame(e){
   const c=e.competitions[0],st=e.status||c.status||{},ty=st.type||{};
   const side=h=>{const x=c.competitors.find(y=>y.homeAway===h)||{};const t=x.team||{};return {abbr:t.abbreviation,name:t.displayName,short:t.shortDisplayName||t.name,logo:t.logo||(t.logos&&t.logos[0]&&t.logos[0].href)||"",score:x.score!=null&&x.score!==""?+x.score:null,rec:(x.records&&x.records[0]&&x.records[0].summary)||""}};
-  return {id:e.id,date:e.date,state:ty.state||"pre",detail:ty.shortDetail||ty.detail||"",home:side("home"),away:side("away"),tv:((c.broadcasts||[])[0]||{}).names?.join(", ")||""};
+  return {id:e.id,date:e.date,state:ty.state||"pre",detail:ty.shortDetail||ty.detail||"",home:side("home"),away:side("away"),tv:[...new Set((c.broadcasts||[]).flatMap(b=>b.names||[]).concat((c.geoBroadcasts||[]).map(b=>b.media&&b.media.shortName).filter(Boolean)))].join(", ")};
 }
 function dayStr(off){const d=new Date(Date.now()+off*864e5);const c=new Date(d.toLocaleString("en-US",{timeZone:"America/Chicago"}));return `${c.getFullYear()}${String(c.getMonth()+1).padStart(2,"0")}${String(c.getDate()).padStart(2,"0")}`}
 
@@ -118,9 +118,9 @@ function sBoard(){
   $("#sBoard").innerHTML=`<div class="sec-h"><div><div class="eyebrow">NBA · ${SB.src==="live"?"live from ESPN":SB.src==="cache"?"updated "+esc(SB.at||""):"unavailable"}</div><h2>Scoreboard</h2></div>
     <div class="sday">${DAYS.map(([o,l])=>`<button type="button" class="fchip" data-off="${o}" aria-selected="${o===SBday}">${l}</button>`).join("")}</div></div>
     ${g.length?`<div class="sgames">${g.map(x=>{const hs=x.home.score,as=x.away.score,done=x.state==="post";
-      const row=(t,sc,lose)=>`<div class="tr ${lose?"lose":""}"><img src="${esc(t.logo)}" alt="" loading="lazy"><span>${esc(t.short||t.abbr)} <small class="faint">${esc(t.rec)}</small></span><b>${sc??""}</b></div>`;
+      const row=(t,sc,lose)=>`<div class="tr ${lose?"lose":""}"><img src="${esc(t.logo)}" alt="" loading="lazy"><span>${esc(t.short||t.abbr)} <small class="faint">${esc(t.rec)}</small></span><b>${x.state==="pre"?"":sc??""}</b></div>`;
       return `<button type="button" class="lgm ${SBopen===x.id?"sel":""}" data-g="${x.id}" aria-expanded="${SBopen===x.id}">${row(x.away,as,done&&as<hs)}${row(x.home,hs,done&&hs<as)}
-        <div class="st">${x.state==="in"?`<span class="live">${esc(x.detail)}</span>`:`<span>${esc(x.state==="pre"?x.detail.replace(/ - /," · "):x.detail)}</span>`}${gameOwners(x,O)}</div></button>`}).join("")}</div>`
+        <div class="st">${x.state==="in"?`<span class="live">${esc(x.detail)}</span>`:`<span>${esc(x.state==="pre"?x.detail.replace(/ - /," · "):x.detail)}${x.tv&&x.state!=="post"?" · "+esc(x.tv.split(", ")[0]):""}</span>`}${gameOwners(x,O)}</div></button>`}).join("")}</div>`
       :`<div class="mute">No NBA games ${SBday===0?"today":SBday<0?"yesterday":"tomorrow"}.</div>`}
     <div id="sBox"></div>`;
   $("#sBoard").querySelector(".sday").onclick=e=>{const b=e.target.closest("[data-off]");if(b){SBday=+b.dataset.off;SBopen=null;SB=null;$("#sBoard").innerHTML='<div class="mute">Loading…</div>';loadSeason()}};
@@ -128,16 +128,28 @@ function sBoard(){
   sBox();
 }
 const BXCOLS=[["min","MIN"],["pts","PTS"],["reb","REB"],["ast","AST"],["stl","STL"],["blk","BLK"],["tpm","3PM"],["to","TO"]];
+/* Where to watch. YouTube TV and the network apps can't play inside another site (DRM), so these open the app. */
+function watchLinks(g){
+  const tv=(g.tv||"").toUpperCase(),L=[];
+  const yt=["ESPN","ESPN2","ABC","NBC","NBA TV","NBATV","TNT","TRUTV"].some(n=>tv.includes(n));
+  if(yt)L.push(["YouTube TV","https://tv.youtube.com/"]);
+  if(/ESPN|ABC/.test(tv))L.push(["ESPN app","https://www.espn.com/watch/"]);
+  if(/PEACOCK|NBC/.test(tv))L.push(["Peacock","https://www.peacocktv.com/sports/nba"]);
+  if(/PRIME|AMAZON/.test(tv))L.push(["Prime Video","https://www.amazon.com/gp/video/storefront"]);
+  if(!yt&&!/PEACOCK|PRIME|AMAZON/.test(tv))L.push(["NBA League Pass","https://www.nba.com/watch/league-pass-stream"]);
+  L.push(["ESPN game page",`https://www.espn.com/nba/game/_/gameId/${g.id}`]);
+  return `<div class="watch"><span class="faint">${tv?"On "+esc(g.tv):"Where to watch"}</span>${L.map(([n,u])=>`<a class="b" href="${u}" target="_blank" rel="noopener">${n} ↗</a>`).join("")}</div>`;
+}
 function sBox(){
   const el=$("#sBox");if(!el||!SBopen)return;const g=SB.games.find(x=>x.id===SBopen),b=SB.box[SBopen];
-  if(!g)return;if(!b){el.innerHTML=`<div class="bx"><div class="mute">${g.state==="pre"?"Box score starts at tip-off.":"Box score not available yet."}</div></div>`;return}
+  if(!g)return;if(!b){el.innerHTML=`<div class="bx">${g.state!=="post"?watchLinks(g):""}<div class="mute">${g.state==="pre"?"Box score starts at tip-off.":"Box score not available yet."}</div></div>`;return}
   const O=owners();
   const team=t=>{const rows=b.rows.filter(r=>r.tm===t.abbr);const played=rows.filter(r=>!r.dnp).sort((a,c)=>c.fp-a.fp),dnp=rows.filter(r=>r.dnp);
     return `<div><h3><img src="${esc(t.logo)}" alt="">${esc(t.name)} <span class="faint num">${t.score??""}</span></h3><div class="tscroll"><table class="tbl"><thead><tr><th>Player</th><th>Owner</th>${BXCOLS.map(c=>`<th>${c[1]}</th>`).join("")}<th>FG</th><th>FT</th><th>+/-</th><th>FPTS</th></tr></thead><tbody>
     ${played.map(r=>{const o=O[r.id];const cls=typeof D!=="undefined"&&D&&+o===+D.me?"mine":typeof D!=="undefined"&&D&&+o===+D.opp?"opp":"";
       return `<tr class="${cls}"><td><span class="nm">${esc(r.n)}<small>${r.starter?"Starter":"Bench"}</small></span></td><td style="text-align:left">${otag(o)}</td>${BXCOLS.map(c=>`<td>${r[c[0]]}</td>`).join("")}<td>${r.fgm}-${r.fga}</td><td>${r.ftm}-${r.fta}</td><td>${esc(r.pm)}</td><td class="fp">${r.fp}</td></tr>`}).join("")}
     ${dnp.length?`<tr><td colspan="${BXCOLS.length+6}" class="faint" style="text-align:left;white-space:normal">Did not play: ${dnp.map(r=>esc(r.n)).join(", ")}</td></tr>`:""}</tbody></table></div></div>`};
-  el.innerHTML=`<div class="bx">${team(g.away)}${team(g.home)}</div>`;
+  el.innerHTML=`<div class="bx">${g.state!=="post"?watchLinks(g):""}${team(g.away)}${team(g.home)}</div>`;
 }
 
 const AVCOLS=[["gp","GP"],["min","MIN"],["pts","PTS"],["reb","REB"],["ast","AST"],["stl","STL"],["blk","BLK"],["tpm","3PM"],["to","TO"],["fg","FG%"],["ft","FT%"],["fp","FPTS/G"],["fpt","FPTS"]];

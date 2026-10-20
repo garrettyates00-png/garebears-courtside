@@ -83,6 +83,7 @@ function aNext(){
   $("#aNext").innerHTML=`<div class="row"><span class="eyebrow">Next game · ${esc(n.stype)}</span><span class="pill" id="cd"></span></div>
     <div class="ng"><div class="ngt"><img src="${esc(A.team.logo)}" alt=""><b>${esc(us)}</b></div><div class="mid" style="padding:0">${n.home?"vs":"@"}</div><div class="ngt"><img src="${esc(n.opp_logo)}" alt=""><b>${esc(n.opp)}</b></div></div>
     <div class="faint" style="text-align:center;font-size:13px">${esc(ct(n.date))} CT${n.venue?" · "+esc(n.venue):""}${n.tv?" · "+esc(n.tv):""}</div>
+    ${typeof watchLinks==="function"?`<div style="display:flex;justify-content:center;margin-top:6px">${watchLinks({id:n.id,tv:n.tv})}</div>`:""}
     <div class="eyebrow" style="margin-top:6px">Win chance for ${esc(A.team.short)}</div>
     <div style="display:grid;gap:8px">${bar("Our model",mw)}${bar("ESPN BPI",ew)}${bar("Market (no vig)",mkt&&impl(thML)?mkt/(mkt+impl(thML)):mkt)}</div>
     ${o?`<div class="lines"><div><span class="faint">Spread</span><b class="num">${esc(us)} ${sign(usLine)}</b></div><div><span class="faint">Total</span><b class="num">${o.ou??"–"}</b></div><div><span class="faint">Moneyline</span><b class="num">${mlTxt(usML)} / ${mlTxt(thML)}</b></div><div><span class="faint">Book</span><b>${esc(o.provider)}</b></div></div>`:""}
