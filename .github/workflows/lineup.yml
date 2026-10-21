@@ -41,5 +41,5 @@ jobs:
         run: |
           git config user.name "courtside-bot"
           git config user.email "courtside-bot@users.noreply.github.com"
-          git add data.json lineup_log.json 2>/dev/null || true
-          git diff --cached --quiet || (git commit -m "Set lineup and refresh" && git pull --rebase -q && git push)
+          for f in data.json lineup_log.json highlights.json season.json weekbase.json; do [ -f "$f" ] && git add "$f"; done
+          git diff --cached --quiet || (git commit -m "Set lineup and refresh" && git pull --rebase --autostash -q && git push)
