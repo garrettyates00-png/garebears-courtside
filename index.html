@@ -511,7 +511,7 @@ select option{background:#16171b;color:var(--ink)}
         <li><div><b>Availability</b>Out or suspended counts as 0. Day-to-day and questionable count at 85%. Doubtful counts at 30%.</div></li>
         <li><div><b>Daily best lineup</b>For every remaining day of the week, each team's players with a game are fitted into the 11 starting slots (PG, SG, SF, PF, C, G, F, 4 UTIL) to get the most points. Leftovers sit.</div></li>
         <li><div><b>Week projection</b>Points already scored this week plus the sum of those daily best lineups. More games and fewer empty slots means more points.</div></li>
-        <li><div><b>Win chance</b>Each start gets an uncertainty of about 35% of the player's value. The two teams' totals are compared as a bell curve, which gives the chance one finishes ahead.</div></li>
+        <li><div><b>Win chance</b>Each start gets an uncertainty of about 35% of the player's value, and each team gets another 8% of its remaining projection for things that don't average out (minutes changes, rest days, injuries). The two totals are compared as a bell curve. It never shows 0% or 100%: one bad injury can swing a week.</div></li>
         <li><div><b>Power score</b>Per-game value of a team's top 11, plus a quarter of the bench, minus 2 per injury tag. It measures roster strength, not this week's schedule.</div></li>
         <li><div><b>Moves</b>The top 40 free agents are swapped in for each of your low-value players, and the week is replayed. Swaps that add the most points are listed. Technical-foul magnets are skipped.</div></li>
       </ol>
@@ -562,7 +562,10 @@ const injTag=i=>!i?"":/OUT|SUSP|RESERVE/.test(i)?'<span class="tag t-out">OUT</s
 const injWord=i=>i.replace(/_/g," ").toLowerCase();
 function erf(x){const t=1/(1+.3275911*Math.abs(x));const y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-.284496736)*t+.254829592)*t*Math.exp(-x*x);return x>=0?y:-y}
 const P=tid=>D.players.filter(p=>p.t==tid);
-function sd(tid){return Math.sqrt(P(tid).reduce((a,p)=>a+(p.st||0)*Math.pow(.35*p.v,2),0))||1}
+/* Uncertainty in a team's remaining points: game-to-game noise per start (35% of value), plus a team-level
+   projection error of 8% of what's left (minutes changes, rest days, injuries) that doesn't average out. */
+function sd(tid){const g=P(tid).reduce((a,p)=>a+(p.st||0)*Math.pow(.35*p.v,2),0),m=.08*(D.teams[tid].rest||0);return Math.sqrt(g+m*m)||1}
+const pc=p=>Math.min(99,Math.max(1,Math.round(p*100)));
 function winProb(a,b){const T=D.teams;const z=(T[a].proj-T[b].proj)/Math.sqrt(sd(a)**2+sd(b)**2);return .5*(1+erf(z/Math.SQRT2))}
 function closeness(p){const d=Math.abs(p-.5);return d<.07?"Coin flip":d<.17?"Lean":d<.32?"Clear favorite":"Heavy favorite"}
 function countUp(el,to){if(reduce){el.textContent=Math.round(to);return}const t0=performance.now();const f=t=>{const k=Math.min(1,(t-t0)/1200);el.textContent=Math.round(to*(1-Math.pow(1-k,4)));if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)}
@@ -605,7 +608,7 @@ function analyze(a,b){
     why[X===A?a:b]={w:w.slice(0,5),l:l.slice(0,4)};
   }
   const p=Math.max(pA,1-pA);
-  const sum=`<em>${esc(F.t.name)}</em> is ${closeness(p).toLowerCase()==="coin flip"?"a hair ahead":"favored"} at ${Math.round(p*100)}%, projected to win by ${Math.round(margin)}. The edge comes mostly from ${lead[0]}${lead[0]==="schedule volume"?` (${F.starts} starts to ${U.starts})`:lead[0]==="star power"?` (${F.ps.slice(0,2).map(x=>esc(last(x.n))).join(" and ")})`:""}.`;
+  const sum=`<em>${esc(F.t.name)}</em> is ${closeness(p).toLowerCase()==="coin flip"?"a hair ahead":"favored"} at ${pc(p)}%, projected to win by ${Math.round(margin)}. The edge comes mostly from ${lead[0]}${lead[0]==="schedule volume"?` (${F.starts} starts to ${U.starts})`:lead[0]==="star power"?` (${F.ps.slice(0,2).map(x=>esc(last(x.n))).join(" and ")})`:""}.`;
   return {pA,fav,dog,margin,label:closeness(p),sum,why};
 }
 
@@ -619,7 +622,7 @@ function renderHero(){
   const side=(t,cls,win)=>`<div class="side ${cls}"><div class="tn">${esc(t.name)}</div><div class="ow">${esc(t.owner)} · ${t.w}-${t.l}${LIVE?' · <span class="up">live</span>':""}</div><div class="big num ${win?"":"faint"}" data-to="${num(t)}">0</div><div class="sub">${t.live.toFixed(0)} scored · ${t.rest.toFixed(0)} to come · ${t.starts} starts</div></div>`;
   $("#hero").innerHTML=`<div class="row"><span class="eyebrow">Your matchup</span><span class="pill">${A.label}</span></div>
    <div class="vs">${side(me,"",p>=.5)}<div class="mid">vs</div>${side(op,"r",p<.5)}</div>
-   <div><div class="meter"><span style="width:0%" id="heroMeter"></span></div><div class="meter-l"><span>${Math.round(p*100)}% win chance</span><span>${Math.round(100-p*100)}%</span></div></div>
+   <div><div class="meter"><span style="width:0%" id="heroMeter"></span></div><div class="meter-l"><span>${pc(p)}% win chance</span><span>${100-pc(p)}%</span></div></div>
    <div id="liveBox"></div>
    <p class="summary">${A.sum}</p>
    <div class="chips">${me.if_claims!=null?`<span class="pill">With pending claims: ${Math.round(me.live+me.if_claims)}</span>`:""}${P(D.me).filter(x=>x.inj).map(x=>`<span class="pill">${esc(last(x.n))} ${injWord(x.inj)}</span>`).join("")}<button class="b" type="button" id="heroToggle" aria-expanded="${heroOpen}" aria-controls="heroX">${heroOpen?"Hide breakdown ↑":"Open breakdown ↓"}</button></div>
@@ -632,7 +635,7 @@ function renderCards(){setTimeout(()=>{if(openCard){const [h,a]=openCard.split("
   const T=D.teams;
   $("#cards").innerHTML=matchups().map(([h,a])=>{const A=analyze(h,a);const ph=A.pA;const mine=h==D.me||a==D.me;
     const r=(id,win)=>`<div class="row ${win?"":"lose"}"><span class="n">${esc(T[id].name)}</span><span class="p">${Math.round(T[id].proj)}</span></div>`;
-    return `<button class="card ${mine?"mine":""}" type="button" data-h="${h}" data-a="${a}">${r(h,ph>=.5)}${r(a,ph<.5)}<div class="mini"><span style="width:${(ph*100).toFixed(0)}%"></span></div><div class="cfoot"><span>${A.label}</span><span>${Math.round(Math.max(ph,1-ph)*100)}% · by ${Math.round(Math.abs(A.margin))}</span></div></button>`}).join("");
+    return `<button class="card ${mine?"mine":""}" type="button" data-h="${h}" data-a="${a}">${r(h,ph>=.5)}${r(a,ph<.5)}<div class="mini"><span style="width:${(ph*100).toFixed(0)}%"></span></div><div class="cfoot"><span>${A.label}</span><span>${pc(Math.max(ph,1-ph))}% · by ${Math.round(Math.abs(A.margin))}</span></div></button>`}).join("");
 }
 function detailHTML(h,a,withHead){
   const T=D.teams,A=analyze(h,a),newsBy=Object.fromEntries(D.news.map(n=>[n.n,n]));
@@ -644,9 +647,9 @@ function detailHTML(h,a,withHead){
     return `<div><div class="eyebrow" style="margin-bottom:4px">${esc(T[id].name)}</div><div class="plist"><div class="grp">Starting five · proj pts</div>${five.map(pl).join("")}${rot.length?`<div class="grp">Rotation</div>${rot.map(pl).join("")}`:""}${bench.length?`<div class="grp">Bench · no starts</div>${bench.map(pl).join("")}`:""}</div></div>`};
   const daily=`<div class="scroll"><table><thead><tr><th>Day</th><th class="r">${esc(T[h].name)}</th><th class="r">${esc(T[a].name)}</th></tr></thead><tbody>${T[h].daily.map((d,i)=>{const e=T[a].daily[i]||{pts:0,start:[]};return `<tr><td>${esc(d.day)}</td><td class="r num">${Math.round(d.pts)} <span class="faint">· ${d.start.length}</span></td><td class="r num">${Math.round(e.pts)} <span class="faint">· ${e.start.length}</span></td></tr>`}).join("")}</tbody></table></div>`;
   const flip=Math.abs(A.margin)<60?"Expect it to come down to the last day.":Math.abs(A.margin)<140?"One hot or cold night could flip it.":"It would take an upset week to flip.";
-  return `${withHead?`<div class="row"><span class="eyebrow">Matchup ${D.period}</span><span class="pill">${A.label} · ${Math.round(Math.max(A.pA,1-A.pA)*100)}%</span></div>
+  return `${withHead?`<div class="row"><span class="eyebrow">Matchup ${D.period}</span><span class="pill">${A.label} · ${pc(Math.max(A.pA,1-A.pA))}%</span></div>
     <div class="vs">${side(h,A.pA>=.5)}<div class="mid">vs</div>${side(a,A.pA<.5)}</div>
-    <div><div class="meter"><span style="width:${(A.pA*100).toFixed(1)}%"></span></div><div class="meter-l"><span>${Math.round(A.pA*100)}%</span><span>${Math.round(100-A.pA*100)}%</span></div></div>`:""}
+    <div><div class="meter"><span style="width:${(A.pA*100).toFixed(1)}%"></span></div><div class="meter-l"><span>${pc(A.pA)}%</span><span>${100-pc(A.pA)}%</span></div></div>`:""}
     <div class="dsec"><div class="eyebrow" style="margin-bottom:8px">How close</div><p class="summary">${withHead?A.sum+" ":`<em>${A.label}.</em> Projected margin ${Math.round(Math.abs(A.margin))} points. `}${flip}</p></div>
     <div class="dsec reasons">${reasons(h)}${reasons(a)}</div>
     <div class="dsec"><div class="eyebrow" style="margin-bottom:8px">Points by day</div>${typeof dayTable==="function"&&D.all_days?dayTable(h,a):daily}</div>
@@ -833,7 +836,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1792534434";
+const BUILD="1792544552";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(checkBuild,90000);
 loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
@@ -879,8 +882,8 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1792534434"></script>
-<script src="season.js?v=1792534434"></script>
-<script src="bets.js?v=1792534434"></script>
-<script src="live.js?v=1792534434"></script>
+<script src="arena.js?v=1792544552"></script>
+<script src="season.js?v=1792544552"></script>
+<script src="bets.js?v=1792544552"></script>
+<script src="live.js?v=1792544552"></script>
 </body></html>
