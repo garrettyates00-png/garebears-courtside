@@ -444,6 +444,40 @@ select option{background:#16171b;color:var(--ink)}
 .dtbl{font-size:13px}.dtbl td,.dtbl th{padding:6px}.dtbl tr.bn td{opacity:.5}.dtbl tr.tt td{font-weight:600;border-top:1px solid var(--line2)}
 .dtbl .up{color:var(--up)}.dtbl .down{color:var(--down)}
 @media (max-width:700px){.lvnotes,.dsplit{grid-template-columns:1fr}}
+
+/* section nav: sliding ink on desktop, hamburger drawer on phones */
+.snav{flex-basis:100%;position:relative;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;margin:2px -6px -6px;padding:4px 6px}
+.snav::-webkit-scrollbar{display:none}
+.snav a{position:relative;z-index:1;flex:none;font:500 13.5px var(--sans);color:var(--mute);text-decoration:none;padding:7px 14px;border-radius:999px;transition:color .25s}
+.snav a:hover,.snav a.on{color:var(--ink)}
+.snav a.on{color:#0b0b0d}
+.snav a:focus-visible{outline:2px solid var(--hi);outline-offset:1px}
+.snav .ink{position:absolute;z-index:0;left:0;top:4px;height:calc(100% - 8px);width:0;border-radius:999px;opacity:0;
+  background:linear-gradient(135deg,var(--hi),color-mix(in srgb,var(--a) 70%,var(--hi)));box-shadow:0 0 22px color-mix(in srgb,var(--a) 45%,transparent),inset 0 1px 0 rgba(255,255,255,.5);
+  transition:transform .45s cubic-bezier(.3,1.4,.5,1),width .45s cubic-bezier(.3,1.4,.5,1),opacity .3s}
+.snav:has(a:hover) a.on:not(:hover){color:var(--ink)}
+.snav.in a{animation:navin .5s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i) * 40ms)}
+@keyframes navin{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.burger{display:none;width:40px;height:40px;padding:0;justify-content:center;flex-direction:column;gap:4px}
+.burger i{display:block;width:16px;height:1.6px;border-radius:2px;background:currentColor;transition:transform .3s,opacity .2s}
+.burger.x i:nth-child(1){transform:translateY(5.6px) rotate(45deg)}.burger.x i:nth-child(2){opacity:0}.burger.x i:nth-child(3){transform:translateY(-5.6px) rotate(-45deg)}
+.drawer{position:fixed;inset:0;z-index:60;background:rgba(5,6,8,0);backdrop-filter:blur(0);-webkit-backdrop-filter:blur(0);transition:background .3s,backdrop-filter .3s}
+.drawer.open{background:rgba(5,6,8,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.dpanel{position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);width:min(320px,calc(100vw - 24px));overflow-y:auto;
+  padding:22px 18px;border-radius:26px;display:grid;align-content:start;gap:20px;
+  background:linear-gradient(160deg,color-mix(in srgb,var(--a) 14%,rgba(20,21,25,.96)),rgba(14,15,18,.96));border:1px solid color-mix(in srgb,var(--a) 40%,var(--line2));
+  box-shadow:0 30px 80px -20px rgba(0,0,0,.8),0 0 40px -10px color-mix(in srgb,var(--a) 50%,transparent);
+  transform:translateX(30px) scale(.98);opacity:0;transition:transform .4s cubic-bezier(.2,.9,.2,1),opacity .3s}
+.drawer.open .dpanel{transform:none;opacity:1}
+.dgrp{display:grid;gap:2px}.dgrp .eyebrow{margin:0 0 6px 10px}
+.dgrp a{font:500 17px var(--sans);color:var(--mute);text-decoration:none;padding:10px 12px;border-radius:12px;opacity:0;transform:translateX(14px);transition:background .2s,color .2s}
+.drawer.open .dgrp a{animation:drin .4s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(60ms + var(--i) * 22ms)}
+@keyframes drin{to{opacity:1;transform:none}}
+.dgrp a:hover,.dgrp a:focus-visible{background:rgba(255,255,255,.06);color:var(--ink);outline:none}
+.dgrp a.on{color:#0b0b0d;background:linear-gradient(135deg,var(--hi),color-mix(in srgb,var(--a) 70%,var(--hi)))}
+.dgrp:not(.cur) a{font-size:15px}
+@media (max-width:700px){.snav{display:none}.burger{display:inline-flex}}
+@media (prefers-reduced-motion:reduce){.snav .ink,.dpanel,.drawer{transition:none}.snav.in a,.drawer.open .dgrp a{animation:none;opacity:1;transform:none}}
 </style></head><body>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div>
 
@@ -453,29 +487,27 @@ select option{background:#16171b;color:var(--ink)}
     <div class="mark"><h1>Grindex</h1><span class="meta"><span class="dot" id="dot"></span><span id="pulled">Loading</span></span></div>
     <div class="seg" role="tablist" aria-label="Section"><button type="button" role="tab" data-view="fantasy" aria-selected="true">Fantasy</button><button type="button" role="tab" data-view="arena" aria-selected="false">Arena</button></div>
     <div class="btns">
+      <button class="b burger" id="burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="drawer"><i></i><i></i><i></i></button>
       <button class="b" id="refresh" type="button" title="Reload the newest published data">Reload</button>
       <button class="b gear" id="gear" type="button" aria-label="Colors" aria-expanded="false" title="Colors"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="13.5" cy="6.5" r="1.5"/><circle cx="17.5" cy="10.5" r="1.5"/><circle cx="8.5" cy="7.5" r="1.5"/><circle cx="6.5" cy="12.5" r="1.5"/><path d="M12 2a10 10 0 1 0 0 20c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h2.3A5.7 5.7 0 0 0 22 11.6C22 6.3 17.5 2 12 2z"/></svg></button>
       <button class="b primary" id="force" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg><span>Force update</span></button>
     </div>
     <div class="status" id="status" aria-live="polite" style="flex-basis:100%"></div>
+    <nav class="snav" id="snav" aria-label="Page sections"><i class="ink" aria-hidden="true"></i></nav>
   </header>
+  <div class="drawer" id="drawer" hidden><div class="dpanel" role="dialog" aria-label="Menu"></div></div>
 
   <div id="fantasyView" class="view">
   <section class="g pad hero" id="hero" tabindex="0" role="button" aria-label="Open your matchup"></section>
 
-  <section>
+  <section id="secMatchups">
     <div class="sec-h"><div><div class="eyebrow" id="wkLabel">This week</div><h2>Matchups</h2></div><span class="faint" style="font-size:13px">Tap any matchup for the full breakdown</span></div>
     <div class="grid" id="cards"></div>
     <div class="expand" id="cardX" aria-hidden="true"><div></div></div>
   </section>
 
-  <section class="g pad" id="newsroom">
-    <div class="sec-h"><div><div class="eyebrow">Newsroom</div><h2>News, notes and highlights</h2></div></div>
-    <div class="filters" id="nrFilters" role="tablist"></div>
-    <div class="nr" id="nr"></div>
-  </section>
 
-  <section class="g pad">
+  <section class="g pad" id="secLineup">
     <div class="sec-h"><div><div class="eyebrow">Garebears</div><h2>Lineup by day</h2></div></div>
     <div class="tabs" id="dayTabs" role="tablist"></div>
     <div class="slots" id="slots"></div>
@@ -483,7 +515,7 @@ select option{background:#16171b;color:var(--ink)}
     <div id="lineupAct"></div>
   </section>
 
-  <div class="two">
+  <div class="two" id="secPower">
     <section class="g pad">
       <div class="sec-h"><div><div class="eyebrow">Season strength</div><h2>Power rankings</h2></div><span class="faint" style="font-size:13px">Tap a team for details</span></div>
       <div class="scroll"><table id="power"></table></div>
@@ -494,7 +526,7 @@ select option{background:#16171b;color:var(--ink)}
     </section>
   </div>
 
-  <section class="g pad">
+  <section class="g pad" id="secMoves">
     <div class="sec-h"><div><div class="eyebrow">Waiver wire</div><h2>Moves to make</h2></div></div>
     <div class="two" style="gap:28px"><ul class="notes" id="moves" style="margin:0"></ul><div class="scroll"><table id="fa"></table></div></div>
   </section>
@@ -516,6 +548,12 @@ select option{background:#16171b;color:var(--ink)}
         <li><div><b>Moves</b>The top 40 free agents are swapped in for each of your low-value players, and the week is replayed. Swaps that add the most points are listed. Technical-foul magnets are skipped.</div></li>
       </ol>
     </div>
+  </section>
+
+  <section class="g pad" id="newsroom">
+    <div class="sec-h"><div><div class="eyebrow">Newsroom</div><h2>News, notes and highlights</h2></div></div>
+    <div class="filters" id="nrFilters" role="tablist"></div>
+    <div class="nr" id="nr"></div>
   </section>
 
   <p class="foot">Pulled from ESPN every 30 minutes by GitHub Actions. Owner names are shortened for privacy.</p>
@@ -836,7 +874,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1792544552";
+const BUILD="1792785952";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(checkBuild,90000);
 loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
@@ -882,8 +920,9 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1792544552"></script>
-<script src="season.js?v=1792544552"></script>
-<script src="bets.js?v=1792544552"></script>
-<script src="live.js?v=1792544552"></script>
+<script src="arena.js?v=1792785952"></script>
+<script src="season.js?v=1792785952"></script>
+<script src="bets.js?v=1792785952"></script>
+<script src="nav.js?v=1792785952"></script>
+<script src="live.js?v=1792785952"></script>
 </body></html>
