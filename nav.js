@@ -28,7 +28,7 @@ function navBuild(){
   navActive=null;spy();
 }
 function ink(a){const nav=$("#snav"),k=nav.querySelector(".ink");if(!a){k.style.opacity=0;return}
-  const r=a.getBoundingClientRect(),n=nav.getBoundingClientRect();k.style.opacity=1;k.style.width=r.width+"px";k.style.transform=`translateX(${r.left-n.left+nav.scrollLeft}px)`}
+  const r=a.getBoundingClientRect(),n=nav.getBoundingClientRect();k.style.opacity=1;k.style.width=(r.width-20)+"px";k.style.transform=`translateX(${r.left-n.left+nav.scrollLeft+10}px)`}
 function setActive(id){if(id===navActive)return;navActive=id;
   document.querySelectorAll("#snav a, #drawer a").forEach(a=>{const on=a.dataset.id===id;a.classList.toggle("on",on);on?a.setAttribute("aria-current","true"):a.removeAttribute("aria-current")});
   const a=$(`#snav a[data-id="${id}"]`);ink(a);if(a&&innerWidth>700)a.scrollIntoView({block:"nearest",inline:"nearest"})}

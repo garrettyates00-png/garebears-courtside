@@ -450,12 +450,16 @@ select option{background:#16171b;color:var(--ink)}
 .snav::-webkit-scrollbar{display:none}
 .snav a{position:relative;z-index:1;flex:none;font:500 13.5px var(--sans);color:var(--mute);text-decoration:none;padding:7px 14px;border-radius:999px;transition:color .25s}
 .snav a:hover,.snav a.on{color:var(--ink)}
-.snav a.on{color:#0b0b0d}
+.snav a.on{text-shadow:0 0 14px color-mix(in srgb,var(--a) 60%,transparent)}
 .snav a:focus-visible{outline:2px solid var(--hi);outline-offset:1px}
-.snav .ink{position:absolute;z-index:0;left:0;top:4px;height:calc(100% - 8px);width:0;border-radius:999px;opacity:0;
-  background:linear-gradient(135deg,var(--hi),color-mix(in srgb,var(--a) 70%,var(--hi)));box-shadow:0 0 22px color-mix(in srgb,var(--a) 45%,transparent),inset 0 1px 0 rgba(255,255,255,.5);
-  transition:transform .45s cubic-bezier(.3,1.4,.5,1),width .45s cubic-bezier(.3,1.4,.5,1),opacity .3s}
-.snav:has(a:hover) a.on:not(:hover){color:var(--ink)}
+/* the ink: a glowing underline that slides between links, with a light streak running along it */
+.snav .ink{position:absolute;z-index:0;left:0;bottom:2px;height:2px;width:0;border-radius:2px;opacity:0;overflow:hidden;
+  background:linear-gradient(90deg,transparent,var(--a2) 18%,var(--hi) 50%,var(--a) 82%,transparent);
+  box-shadow:0 0 10px color-mix(in srgb,var(--a) 80%,transparent),0 0 22px color-mix(in srgb,var(--a) 45%,transparent);
+  transition:transform .5s cubic-bezier(.3,1.35,.5,1),width .5s cubic-bezier(.3,1.35,.5,1),opacity .3s}
+.snav .ink::after{content:"";position:absolute;inset:0;width:40%;background:linear-gradient(90deg,transparent,#fff,transparent);animation:streak 2.4s ease-in-out infinite}
+@keyframes streak{from{transform:translateX(-120%)}to{transform:translateX(320%)}}
+.snav a{-webkit-tap-highlight-color:transparent}
 .snav.in a{animation:navin .5s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i) * 40ms)}
 @keyframes navin{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 .burger{display:none;width:40px;height:40px;padding:0;justify-content:center;flex-direction:column;gap:4px}
@@ -477,7 +481,7 @@ select option{background:#16171b;color:var(--ink)}
 .dgrp a.on{color:#0b0b0d;background:linear-gradient(135deg,var(--hi),color-mix(in srgb,var(--a) 70%,var(--hi)))}
 .dgrp:not(.cur) a{font-size:15px}
 @media (max-width:700px){.snav{display:none}.burger{display:inline-flex}}
-@media (prefers-reduced-motion:reduce){.snav .ink,.dpanel,.drawer{transition:none}.snav.in a,.drawer.open .dgrp a{animation:none;opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.snav .ink::after{animation:none;display:none}.snav .ink,.dpanel,.drawer{transition:none}.snav.in a,.drawer.open .dgrp a{animation:none;opacity:1;transform:none}}
 </style></head><body>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div>
 
@@ -874,7 +878,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1792785952";
+const BUILD="1792786944";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(checkBuild,90000);
 loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
@@ -920,9 +924,9 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1792785952"></script>
-<script src="season.js?v=1792785952"></script>
-<script src="bets.js?v=1792785952"></script>
-<script src="nav.js?v=1792785952"></script>
-<script src="live.js?v=1792785952"></script>
+<script src="arena.js?v=1792786944"></script>
+<script src="season.js?v=1792786944"></script>
+<script src="bets.js?v=1792786944"></script>
+<script src="nav.js?v=1792786944"></script>
+<script src="live.js?v=1792786944"></script>
 </body></html>
