@@ -63,7 +63,7 @@ def main():
     for t in lg["teams"]:
         f, l = mem.get(t.get("primaryOwner") or t["owners"][0], ("", ""))
         rec = t.get("record", {}).get("overall", {})
-        teams[t["id"]] = dict(name=t["name"].strip(), owner=short_name(f, l), w=rec.get("wins", 0), l=rec.get("losses", 0),
+        teams[t["id"]] = dict(name=t["name"].strip(), owner=short_name(f, l), w=rec.get("wins", 0), l=rec.get("losses", 0), ti=rec.get("ties", 0),
                               pf=round(rec.get("pointsFor", 0), 1))
 
     # NBA schedule: team abbrev and game dates (Central time)
@@ -399,9 +399,22 @@ def main():
     plan = plan_moves([dict(id=p["id"], n=p["n"], slot=p["slot"], el=set(p["el"]) | ({"G"} if {"PG", "SG"} & set(p["el"]) else set()) | ({"F"} if {"SF", "PF"} & set(p["el"]) else set()) | {"UTIL", "BE"},
                             v=value(p), plays=p["tm"] in tips, locked=p["tm"] in tips and now >= tips[p["tm"]] - dt.timedelta(minutes=5))
                        for p in players if p["t"] == MY_TEAM], slots)
+    # Season simulator inputs: whole league schedule, games per NBA team per matchup week, playoff format
+    ss = settings["scheduleSettings"]
+    mps = {int(k): v for k, v in ss["matchupPeriods"].items()}
+    sp_date = lambda sp: WEEK1_START + dt.timedelta(days=sp - 1)
+    gpw = {}
+    for tid_, ds in games.items():
+        ab = pro_abbr.get(tid_)
+        if not ab: continue
+        gpw[ab] = {mp: sum(1 for sp in sps if sp_date(sp) in ds) for mp, sps in mps.items()}
+    sim = dict(reg=ss.get("matchupPeriodCount"), pteams=ss.get("playoffTeamCount"), plen=ss.get("playoffMatchupPeriodLength", 1),
+               cur=cur_mp, days={mp: len(sps) for mp, sps in mps.items()},
+               sched=[[m["matchupPeriodId"], m["home"]["teamId"], m.get("away", {}).get("teamId")] for m in lg["schedule"] if m.get("away")],
+               gpw=gpw, fa=[dict(id=f["id"], n=f["n"], tm=f["tm"], el=f["el"], pa=f["pa"], inj=f["inj"]) for f in fa[:40]])
     data = dict(pulled=dt.datetime.now(TZ).strftime("%b %-d, %-I:%M %p CT"), pulled_iso=dt.datetime.now(dt.timezone.utc).isoformat(), pending=pending, league=settings["name"], me=MY_TEAM, opp=opp,
                 plan=[{k: m[k] for k in ("n", "from", "to", "why")} for m in plan], plan_day=plan_day.strftime("%a %b ") + str(plan_day.day), period=cur_mp, week=[wk_start.isoformat(), wk_end.isoformat()], days=[d.isoformat() for d in days],
-                slots=slots, scoring=scoring, teams=teams, base=wk_base, act=act, all_days=[d.isoformat() for d in all_days], players=players, sched=sched, moves=top_moves,
+                slots=slots, scoring=scoring, teams=teams, sim=sim, base=wk_base, act=act, all_days=[d.isoformat() for d in all_days], players=players, sched=sched, moves=top_moves,
                 fa=[{k: f[k] for k in ("n", "pos", "tm", "inj", "pa", "claimed")} | {"g": len(f["days"])} for f in fa[:12]], news=news, feed=feed[:220], yt=bool(os.environ.get("YT_API_KEY")))
     with open("data.json", "w") as fh:
         json.dump(data, fh, separators=(",", ":"))
