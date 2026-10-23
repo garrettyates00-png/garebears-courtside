@@ -1,7 +1,12 @@
 name: Set lineup
 
 on:
-  workflow_dispatch:       # manual only: started by the Set lineup button on the dashboard
+  schedule:
+    # 10:31 AM Central every day. GitHub cron is UTC, so both DST offsets are listed and the gate below
+    # lets only the run that lands in the 10 o'clock hour (or a late one before noon) through, once a day.
+    - cron: "31 15 * * *"
+    - cron: "31 16 * * *"
+  workflow_dispatch:       # also the Set lineup button on the dashboard
     inputs:
       dry_run:
         description: "Plan only, do not save to ESPN"
@@ -20,24 +25,38 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Gate scheduled runs to once a day, 10:30-noon Central
+        id: gate
+        run: |
+          go=1
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            h=$(TZ=America/Chicago date +%H); today=$(TZ=America/Chicago date +%F)
+            if [ "$h" != "10" ] && [ "$h" != "11" ]; then go=0; fi
+            if [ -f lineup_log.json ] && python3 -c "import json,sys;sys.exit(0 if any(e.get('src')=='schedule' and e.get('date')=='$today' and e.get('status')!='error' for e in json.load(open('lineup_log.json'))) else 1)"; then go=0; fi
+          fi
+          echo "go=$go" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-python@v5
+        if: steps.gate.outputs.go == '1'
         with:
           python-version: "3.12"
       - run: pip install requests numpy scipy
+        if: steps.gate.outputs.go == '1'
       - name: Set lineup on ESPN
+        if: steps.gate.outputs.go == '1'
         env:
           ESPN_S2: ${{ secrets.ESPN_S2 }}
           ESPN_SWID: ${{ secrets.ESPN_SWID }}
           DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
+          RUN_SRC: ${{ github.event_name }}
         run: python setlineup.py
       - name: Refresh dashboard data
-        if: always()
+        if: always() && steps.gate.outputs.go == '1'
         env:
           ESPN_S2: ${{ secrets.ESPN_S2 }}
           ESPN_SWID: ${{ secrets.ESPN_SWID }}
         run: python fetch.py
       - name: Commit
-        if: always()
+        if: always() && steps.gate.outputs.go == '1'
         run: |
           git config user.name "courtside-bot"
           git config user.email "courtside-bot@users.noreply.github.com"

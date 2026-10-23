@@ -477,6 +477,19 @@ select option{background:#16171b;color:var(--ink)}
 .dgrp:not(.cur) a{font-size:15px}
 @media (max-width:700px){.snav{display:none}.burger{display:inline-flex}}
 @media (prefers-reduced-motion:reduce){.snav .ink,.dpanel,.drawer{transition:none}.drawer.open .dgrp a{animation:none;opacity:1;transform:none}}
+
+/* trade targets */
+.tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.tcol{display:grid;gap:4px;align-content:start}.tcol>.eyebrow{margin-bottom:6px}
+.trow{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.trow .nm{display:flex;flex-direction:column;min-width:0;font-weight:500}.trow small{color:var(--faint);font:500 11px var(--mono);font-weight:500}
+.trow .tv{text-align:right;display:flex;flex-direction:column}.trow .tv b{font:600 16px var(--mono)}
+.tideas{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.tidea{padding:14px 16px;border-radius:14px;background:linear-gradient(160deg,color-mix(in srgb,var(--a) 9%,transparent),transparent 60%),rgba(255,255,255,.03);border:1px solid color-mix(in srgb,var(--a) 25%,var(--line))}
+.tsw{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center}.tsw>div{display:flex;flex-direction:column;gap:2px}.tsw>div:last-child{text-align:right}
+.tsw b{font-size:15px}.tsw small{font-size:11.5px}.tsw .arr{font-size:20px;color:var(--a)}
+.tidea p{margin:10px 0 0;font-size:13.5px;line-height:1.5;color:var(--mute)}.tidea p b{color:var(--ink)}
+@media (max-width:900px){.tgrid{grid-template-columns:1fr}}
 </style></head><body>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div>
 
@@ -529,6 +542,8 @@ select option{background:#16171b;color:var(--ink)}
     <div class="sec-h"><div><div class="eyebrow">Waiver wire</div><h2>Moves to make</h2></div></div>
     <div class="two" style="gap:28px"><ul class="notes" id="moves" style="margin:0"></ul><div class="scroll"><table id="fa"></table></div></div>
   </section>
+
+  <section class="g pad" id="secTrades"></section>
 
   <section class="g pad" id="how">
     <div class="sec-h"><div><div class="eyebrow">Method</div><h2>How the numbers work</h2></div></div>
@@ -819,7 +834,7 @@ function renderAll(){
   const age=D.pulled_iso?(Date.now()-Date.parse(D.pulled_iso))/60000:0;
   if(document.body.dataset.view!=="arena")$("#pulled").textContent="Updated "+D.pulled;$("#dot").classList.toggle("stale",age>75);
   if(!forcing){if(age>75)staleNote(age);else $("#status").textContent=""}
-  renderHero();renderCards();renderDays();renderPower();renderStrength(selTeam);renderWire();renderScoring();renderNewsroom();
+  renderHero();renderCards();renderDays();renderPower();renderStrength(selTeam);renderWire();renderScoring();renderNewsroom();if(typeof renderTrades==="function")renderTrades();
 }
 
 
@@ -873,7 +888,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1792787355";
+const BUILD="1792788634";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(checkBuild,90000);
 loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
@@ -919,9 +934,10 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1792787355"></script>
-<script src="season.js?v=1792787355"></script>
-<script src="bets.js?v=1792787355"></script>
-<script src="nav.js?v=1792787355"></script>
-<script src="live.js?v=1792787355"></script>
+<script src="arena.js?v=1792788634"></script>
+<script src="season.js?v=1792788634"></script>
+<script src="bets.js?v=1792788634"></script>
+<script src="trades.js?v=1792788634"></script>
+<script src="nav.js?v=1792788634"></script>
+<script src="live.js?v=1792788634"></script>
 </body></html>

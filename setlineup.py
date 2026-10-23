@@ -30,6 +30,7 @@ AVAIL = {"OUT": 0.0, "SUSPENSION": 0.0, "INJURY_RESERVE": 0.0, "DAY_TO_DAY": 0.8
 
 def log(entry):
     entry["at"] = dt.datetime.now(TZ).strftime("%b %-d, %-I:%M %p CT")
+    entry["src"] = "schedule" if os.environ.get("RUN_SRC") == "schedule" else "button"
     try:
         hist = json.load(open("lineup_log.json"))
     except Exception:

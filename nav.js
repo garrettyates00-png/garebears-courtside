@@ -1,7 +1,7 @@
 /* Section navigation: a sliding-ink nav row in the header on desktop, a hamburger drawer on phones.
    Links follow the current view (Fantasy, Arena Team, Arena Season); the drawer lists all three. */
 const NAV={
-  fantasy:{label:"Fantasy",items:[["hero","Matchup"],["secMatchups","Matchups"],["secLineup","Lineup"],["secPower","Rankings"],["secMoves","Moves"],["how","How it works"],["newsroom","News"]]},
+  fantasy:{label:"Fantasy",items:[["hero","Matchup"],["secMatchups","Matchups"],["secLineup","Lineup"],["secPower","Rankings"],["secMoves","Moves"],["secTrades","Trades"],["how","How it works"],["newsroom","News"]]},
   team:{label:"Arena · Team",items:[["aHero","Team"],["aNext","Next game"],["aGames","Games"],["aShots","Shot chart"],["aImpact","Impact"],["aTeam","Team stats"],["aMedia","Highlights"],["aNews","News"],["aSched","Schedule"]]},
   season:{label:"Arena · Season",items:[["sMine","Your players"],["sBoard","Scoreboard"],["sBets","My bets"],["sAvg","Averages"]]}
 };
