@@ -147,7 +147,9 @@ function dayPlayers(t,iso){
     const srv=Object.fromEntries((((D.act||{})[iso]||{})[t]||{pl:[]}).pl.map(x=>[x[0],x[3]]));
     rows=P(t).filter(p=>pp[p.id]!=null).map(p=>{const g=gameOf(p),r=LV.rows[p.id];
       const act=LV.ok?(g&&g.state!=="pre"&&r&&!r.dnp?r.fp:g&&g.state==="post"?0:null):(srv[p.id]??null);
-      return {n:p.n,slot:p.slot,proj:pp[p.id],act,st:g?(g.state==="in"?g.detail:g.state==="post"?"Final":g.detail):LV.ok?"":"as of last update"}});
+      // live games: compare against the share of his projection that should be in by now, not the full number
+      const exp=g&&g.state==="in"?pp[p.id]*g.f:null;
+      return {n:p.n,slot:p.slot,proj:pp[p.id],act,exp,st:g?(g.state==="in"?g.detail:g.state==="post"?"Final":g.detail):LV.ok?"":"as of last update"}});
   }else{
     const byName=Object.fromEntries(P(t).map(p=>[p.n,p]));const src=cur||{start:[],bench:[],pp:{}};
     rows=src.start.map(([s,n])=>({n,slot:s,proj:(byName[n]&&src.pp[byName[n].id])||(byName[n]&&byName[n].v)||0,act:null,st:""})).concat((src.bench||[]).map(n=>({n,slot:"BE",proj:(byName[n]&&src.pp[byName[n].id])||0,act:null,st:""})));
@@ -158,7 +160,7 @@ function playersTbl(t,iso){
   const rows=dayPlayers(t,iso);if(!rows.length)return `<div class="faint">No games.</div>`;
   const tot=rows.filter(r=>!isBench(r.slot));
   return `<table class="tbl dtbl"><thead><tr><th>${esc(D.teams[t].name)}</th><th>Slot</th><th>Proj</th><th>Actual</th><th>+/-</th></tr></thead><tbody>
-    ${rows.map(r=>{const d=r.act!=null&&r.proj!=null?r1(r.act-r.proj):null;return `<tr class="${isBench(r.slot)?"bn":""}"><td><span class="nm">${esc(r.n)}<small>${esc(r.st||"")}</small></span></td><td>${esc(r.slot)}</td><td>${r.proj!=null?r1(r.proj):"–"}</td><td class="fp">${r.act!=null?r.act:"–"}</td><td class="${d==null?"":d>=0?"up":"down"}">${d==null?"":(d>0?"+":"")+d}</td></tr>`}).join("")}
+    ${rows.map(r=>{const d=r.act!=null&&r.proj!=null?r1(r.act-(r.exp??r.proj)):null;return `<tr class="${isBench(r.slot)?"bn":""}"><td><span class="nm">${esc(r.n)}<small>${esc(r.st||"")}</small></span></td><td>${esc(r.slot)}</td><td>${r.proj!=null?r1(r.proj):"–"}</td><td class="fp">${r.act!=null?r.act:"–"}</td><td class="${d==null?"":d>=0?"up":"down"}" ${r.exp!=null?`title="vs ${r1(r.exp)} expected by now"`:""}>${d==null?"":(d>0?"+":"")+d}${r.exp!=null?'<small class="faint"> pace</small>':""}</td></tr>`}).join("")}
     <tr class="tt"><td>Starters</td><td></td><td>${r1(tot.reduce((s,r)=>s+(r.proj||0),0))}</td><td class="fp">${tot.some(r=>r.act!=null)?r1(tot.reduce((s,r)=>s+(r.act||0),0)):"–"}</td><td></td></tr></tbody></table>`;
 }
 function dayTable(h,a){
