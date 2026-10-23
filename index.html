@@ -490,6 +490,30 @@ select option{background:#16171b;color:var(--ink)}
 .tsw b{font-size:15px}.tsw small{font-size:11.5px}.tsw .arr{font-size:20px;color:var(--a)}
 .tidea p{margin:10px 0 0;font-size:13.5px;line-height:1.5;color:var(--mute)}.tidea p b{color:var(--ink)}
 @media (max-width:900px){.tgrid{grid-template-columns:1fr}}
+
+/* season simulator */
+.simload{display:flex;align-items:center;gap:12px;color:var(--mute);font:500 13px var(--mono);padding:18px 0}
+.simload span{width:16px;height:16px;border-radius:50%;border:2px solid color-mix(in srgb,var(--a) 30%,transparent);border-top-color:var(--a);animation:spin .8s linear infinite}
+.simme{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:18px}
+.simbig{padding:14px 18px;border-radius:14px;background:color-mix(in srgb,var(--a) 9%,rgba(255,255,255,.03));border:1px solid color-mix(in srgb,var(--a) 28%,var(--line));display:grid;gap:2px;min-width:120px}
+.simbig small,.simseed small{font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}.simbig b{font:600 30px var(--sans);letter-spacing:-.03em}
+.simseed{padding:14px 18px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid var(--line);display:grid;gap:8px}
+.bars{display:flex;align-items:flex-end;gap:5px;height:60px}.bars i{position:relative;width:18px;height:var(--h);border-radius:4px 4px 1px 1px;background:rgba(255,255,255,.14)}.bars i.po{background:linear-gradient(180deg,var(--hi),var(--a))}
+.bars em{position:absolute;bottom:-16px;left:0;right:0;text-align:center;font:500 10px var(--mono);font-style:normal;color:var(--faint)}.simseed .bars{margin-bottom:14px}
+.simt td.pb{text-align:left;min-width:150px}.pbw{display:inline-flex;align-items:center;gap:10px}
+.pbar{display:inline-block;width:110px;height:6px;border-radius:9px;background:rgba(255,255,255,.08);overflow:hidden}.pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--a2),var(--a))}.pbar.t i{background:linear-gradient(90deg,var(--a),var(--hi))}
+.sbgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.sbl{font-size:12.5px;margin-bottom:8px;display:flex;gap:8px;align-items:center}
+.pchips{display:flex;flex-wrap:wrap;gap:6px}
+.pchip{font:500 13px var(--sans);color:var(--mute);background:rgba(255,255,255,.04);border:1px solid var(--line2);border-radius:999px;padding:5px 11px;cursor:pointer;display:inline-flex;gap:6px;align-items:baseline}
+.pchip small{font:500 10.5px var(--mono);color:var(--faint)}.pchip:hover{color:var(--ink)}
+.pchip.on{color:#0b0b0d;background:linear-gradient(135deg,var(--hi),color-mix(in srgb,var(--a) 70%,var(--hi)));border-color:transparent}.pchip.on small{color:#333}
+.b:disabled{opacity:.45;cursor:not-allowed}
+.sbres{margin-top:16px;padding:16px;border-radius:14px;background:color-mix(in srgb,var(--a) 8%,rgba(255,255,255,.02));border:1px solid color-mix(in srgb,var(--a) 30%,var(--line))}
+.cmp{display:grid;grid-template-columns:80px 1fr 1fr 80px;gap:12px;align-items:center;padding:6px 0;font-size:14px}.cmp.hd{font:500 11px var(--mono);text-transform:uppercase;letter-spacing:.06em;padding:0}
+.cmp>div{display:flex;align-items:center;gap:8px}.cmp b{font:600 15px var(--mono)}.cmp>span:last-child{text-align:right;font:500 13px var(--mono)}
+.cb{flex:1;height:8px;border-radius:9px;background:rgba(255,255,255,.07);overflow:hidden}.cb i{display:block;height:100%;background:rgba(255,255,255,.35);transition:width 1s cubic-bezier(.2,.8,.2,1)}.cb.n i{background:linear-gradient(90deg,var(--a2),var(--a))}
+.spark{display:block}
+@media (max-width:700px){.sbgrid{grid-template-columns:1fr}.cmp{grid-template-columns:62px 1fr 1fr 64px;gap:8px}.pbar{width:60px}.simbig b{font-size:24px}}
 </style></head><body>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div>
 
@@ -563,6 +587,8 @@ select option{background:#16171b;color:var(--ink)}
       </ol>
     </div>
   </section>
+
+  <section class="g pad" id="secSim"></section>
 
   <section class="g pad" id="newsroom">
     <div class="sec-h"><div><div class="eyebrow">Newsroom</div><h2>News, notes and highlights</h2></div></div>
@@ -834,7 +860,7 @@ function renderAll(){
   const age=D.pulled_iso?(Date.now()-Date.parse(D.pulled_iso))/60000:0;
   if(document.body.dataset.view!=="arena")$("#pulled").textContent="Updated "+D.pulled;$("#dot").classList.toggle("stale",age>75);
   if(!forcing){if(age>75)staleNote(age);else $("#status").textContent=""}
-  renderHero();renderCards();renderDays();renderPower();renderStrength(selTeam);renderWire();renderScoring();renderNewsroom();if(typeof renderTrades==="function")renderTrades();
+  renderHero();renderCards();renderDays();renderPower();renderStrength(selTeam);renderWire();renderScoring();renderNewsroom();if(typeof renderTrades==="function")renderTrades();if(typeof renderSim==="function"){SIMR=null;renderSim()}
 }
 
 
@@ -888,7 +914,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1792788634";
+const BUILD="1792789816";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(checkBuild,90000);
 loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
@@ -934,10 +960,11 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1792788634"></script>
-<script src="season.js?v=1792788634"></script>
-<script src="bets.js?v=1792788634"></script>
-<script src="trades.js?v=1792788634"></script>
-<script src="nav.js?v=1792788634"></script>
-<script src="live.js?v=1792788634"></script>
+<script src="arena.js?v=1792789816"></script>
+<script src="season.js?v=1792789816"></script>
+<script src="bets.js?v=1792789816"></script>
+<script src="trades.js?v=1792789816"></script>
+<script src="sim.js?v=1792789816"></script>
+<script src="nav.js?v=1792789816"></script>
+<script src="live.js?v=1792789816"></script>
 </body></html>
