@@ -401,15 +401,22 @@ def main():
                        for p in players if p["t"] == MY_TEAM], slots)
     # Season simulator inputs: whole league schedule, games per NBA team per matchup week, playoff format
     ss = settings["scheduleSettings"]
+    # matchupPeriods maps each matchup to the scoring weeks it spans (playoff rounds can span two weeks)
     mps = {int(k): v for k, v in ss["matchupPeriods"].items()}
-    sp_date = lambda sp: WEEK1_START + dt.timedelta(days=sp - 1)
+    mp_days = {}
+    for mp, wks in mps.items():
+        ds = []
+        for w in wks:
+            a, b = week_range(w)
+            ds += [a + dt.timedelta(days=i) for i in range((b - a).days + 1)]
+        mp_days[mp] = set(ds)
     gpw = {}
     for tid_, ds in games.items():
         ab = pro_abbr.get(tid_)
         if not ab: continue
-        gpw[ab] = {mp: sum(1 for sp in sps if sp_date(sp) in ds) for mp, sps in mps.items()}
-    sim = dict(reg=ss.get("matchupPeriodCount"), pteams=ss.get("playoffTeamCount"), plen=ss.get("playoffMatchupPeriodLength", 1),
-               cur=cur_mp, days={mp: len(sps) for mp, sps in mps.items()},
+        gpw[ab] = {mp: len(dd & ds) for mp, dd in mp_days.items()}
+    sim = dict(reg=ss.get("matchupPeriodCount"), pteams=ss.get("playoffTeamCount"), plen=1, rounds=len([m for m in mps if m > ss.get("matchupPeriodCount", 99)]),
+               cur=cur_mp, days={mp: len(dd) for mp, dd in mp_days.items()},
                sched=[[m["matchupPeriodId"], m["home"]["teamId"], m.get("away", {}).get("teamId")] for m in lg["schedule"] if m.get("away")],
                gpw=gpw, fa=[dict(id=f["id"], n=f["n"], tm=f["tm"], el=f["el"], pa=f["pa"], inj=f["inj"]) for f in fa[:40]])
     data = dict(pulled=dt.datetime.now(TZ).strftime("%b %-d, %-I:%M %p CT"), pulled_iso=dt.datetime.now(dt.timezone.utc).isoformat(), pending=pending, league=settings["name"], me=MY_TEAM, opp=opp,
