@@ -2,10 +2,16 @@ name: Set lineup
 
 on:
   schedule:
-    # 10:31 AM Central every day. GitHub cron is UTC, so both DST offsets are listed and the gate below
-    # lets only the run that lands in the 10 o'clock hour (or a late one before noon) through, once a day.
+    # Target 10:30 AM Central. GitHub often starts scheduled runs late or drops them, so there are
+    # hourly backup attempts through the afternoon. The gate lets the first one after 10:30 CT through,
+    # once a day; the rest skip in seconds. Players whose game already tipped are never moved.
     - cron: "31 15 * * *"
     - cron: "31 16 * * *"
+    - cron: "41 17 * * *"
+    - cron: "41 18 * * *"
+    - cron: "41 19 * * *"
+    - cron: "41 20 * * *"
+    - cron: "41 21 * * *"
   workflow_dispatch:       # also the Set lineup button on the dashboard
     inputs:
       dry_run:
@@ -25,13 +31,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Gate scheduled runs to once a day, 10:30-noon Central
+      - name: Gate scheduled runs to once a day, from 10:30 AM to 5 PM Central
         id: gate
         run: |
           go=1
           if [ "${{ github.event_name }}" = "schedule" ]; then
-            h=$(TZ=America/Chicago date +%H); today=$(TZ=America/Chicago date +%F)
-            if [ "$h" != "10" ] && [ "$h" != "11" ]; then go=0; fi
+            hm=$(TZ=America/Chicago date +%H%M); today=$(TZ=America/Chicago date +%F)
+            if [ "$hm" -lt 1030 ] || [ "$hm" -ge 1700 ]; then go=0; fi
             if [ -f lineup_log.json ] && python3 -c "import json,sys;sys.exit(0 if any(e.get('src')=='schedule' and e.get('date')=='$today' and e.get('status')!='error' for e in json.load(open('lineup_log.json'))) else 1)"; then go=0; fi
           fi
           echo "go=$go" >> "$GITHUB_OUTPUT"
