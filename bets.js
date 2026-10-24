@@ -66,7 +66,7 @@ function sBets(){
       <p class="faint" style="grid-column:1/-1;margin:0;font-size:12.5px">Pick a team, then any of its games through today. Spreads, moneylines and totals grade themselves when the game ends.</p>
     </form>`:""}
     ${BETS.length?`<div class="tscroll"><table class="tbl"><thead><tr><th>Bet</th><th>Date</th><th>Odds</th><th>Stake</th><th>Result</th><th>P/L</th><th></th></tr></thead><tbody>
-      ${BETS.slice().sort((a,b)=>b.ts-a.ts).map(b=>`<tr><td><span class="nm">${esc(betLabel(b))}<small>${esc(b.final||(b.type==="total"||b.type==="prop"?"":`${b.away} @ ${b.home}`))}</small></span></td>
+      ${BETS.slice().sort((a,b)=>(b.gt||b.date).localeCompare(a.gt||a.date)||b.ts-a.ts).map(b=>`<tr><td><span class="nm">${esc(betLabel(b))}<small>${esc(b.final||(b.type==="total"||b.type==="prop"?"":`${b.away} @ ${b.home}`))}</small></span></td>
         <td>${b.date.slice(4,6)}/${b.date.slice(6)}</td><td>${b.odds>0?"+":""}${b.odds}</td><td>${money(b.stake)}</td>
         <td>${b.result?`<span class="${b.result==="W"?"up":b.result==="L"?"down":""}">${{W:"Won",L:"Lost",P:"Push"}[b.result]}</span>`:b.type==="prop"?`<button class="b" data-mark="W" data-id="${b.ts}" style="padding:3px 10px">Won</button> <button class="b" data-mark="L" data-id="${b.ts}" style="padding:3px 10px">Lost</button>`:'<span class="faint">open</span>'}</td>
         <td class="${profitOf(b)>0?"up":profitOf(b)<0?"down":""}">${b.result?(profitOf(b)>=0?"+":"")+money(profitOf(b)):"–"}</td>
@@ -80,7 +80,7 @@ function sBets(){
     f.gid.onchange=sync;f.type.onchange=sync;sync();
     f.team.onchange=()=>{betTeam=f.team.value;sBets()};
     f.onsubmit=e=>{e.preventDefault();const g=games.find(x=>x.id===f.gid.value);if(!g)return;const t=f.type.value;
-      const b={ts:Date.now(),gid:g.id,date:g.date,away:g.away.abbr,home:g.home.abbr,type:t,side:t==="prop"?"":f.side.value,line:+f.line.value||0,desc:f.desc.value.trim(),odds:+f.odds.value||-110,stake:+f.stake.value||0,result:null};
+      const b={ts:Date.now(),gid:g.id,date:g.date,gt:g.iso,away:g.away.abbr,home:g.home.abbr,type:t,side:t==="prop"?"":f.side.value,line:+f.line.value||0,desc:f.desc.value.trim(),odds:+f.odds.value||-110,stake:+f.stake.value||0,result:null};
       if((t==="spread"||t==="total")&&!f.line.value){f.line.focus();return}
       b.result=grade(b,g);if(b.result)b.final=`${g.away.abbr} ${g.away.score}, ${g.home.abbr} ${g.home.score}`;
       BETS.push(b);saveBets();betForm=false;sBets();toast(b.result?`Logged and graded: ${{W:"won",L:"lost",P:"push"}[b.result]}.`:"Bet logged. It grades itself when the game ends.")};
