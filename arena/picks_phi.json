@@ -28,5 +28,17 @@
   "result": "W",
   "profit": 90.91,
   "final": "114-106"
+ },
+ {
+  "id": "401909855",
+  "date": "2026-10-24T23:30Z",
+  "opp": "MIL",
+  "home": true,
+  "kind": "spread",
+  "side": "them",
+  "line": 12.5,
+  "edge": 4.7,
+  "price": -110,
+  "made": "2026-10-24T04:44:12.915099+00:00"
  }
 ]
