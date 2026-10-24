@@ -13,5 +13,17 @@
   "result": "W",
   "profit": 90.91,
   "final": "103-110"
+ },
+ {
+  "id": "401909854",
+  "date": "2026-10-24T23:30Z",
+  "opp": "CLE",
+  "home": false,
+  "kind": "total",
+  "side": "under",
+  "line": 227.5,
+  "edge": 4.3,
+  "price": -110,
+  "made": "2026-10-24T13:22:55.318247+00:00"
  }
 ]
