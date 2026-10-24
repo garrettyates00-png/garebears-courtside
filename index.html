@@ -396,7 +396,7 @@ select option{background:#16171b;color:var(--ink)}
 .betf{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;align-items:end;margin:0 0 16px;padding:14px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
 .betf label{display:grid;gap:4px;font-size:12px;color:var(--faint)}.betf label[hidden]{display:none}
 .betf input{font:500 14px var(--sans);color:var(--ink);background:#16171b;border:1px solid var(--line2);border-radius:10px;padding:7px 10px;width:100%}
-.betf select{width:100%}
+.betf select{width:100%}.betf .gm{grid-column:span 2}
 .otag{display:inline-block;font:500 11px var(--mono);padding:2px 8px;border-radius:999px;border:1px solid var(--line2);color:var(--mute);max-width:150px;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
 .otag.me{border-color:color-mix(in srgb,var(--a) 60%,transparent);color:var(--ink);background:color-mix(in srgb,var(--a) 18%,transparent)}
 .otag.op{border-color:color-mix(in srgb,var(--down) 50%,transparent);color:var(--down)}
@@ -914,7 +914,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1792790813";
+const BUILD="1792870710";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(checkBuild,90000);
 loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
@@ -960,11 +960,11 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1792790813"></script>
-<script src="season.js?v=1792790813"></script>
-<script src="bets.js?v=1792790813"></script>
-<script src="trades.js?v=1792790813"></script>
-<script src="sim.js?v=1792790813"></script>
-<script src="nav.js?v=1792790813"></script>
-<script src="live.js?v=1792790813"></script>
+<script src="arena.js?v=1792870710"></script>
+<script src="season.js?v=1792870710"></script>
+<script src="bets.js?v=1792870710"></script>
+<script src="trades.js?v=1792870710"></script>
+<script src="sim.js?v=1792870710"></script>
+<script src="nav.js?v=1792870710"></script>
+<script src="live.js?v=1792870710"></script>
 </body></html>
