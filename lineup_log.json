@@ -1,5 +1,19 @@
 [
  {
+  "date": "2026-10-25",
+  "status": "saved",
+  "moved": [
+   "Anthony Edwards: BE to SG, plays today (47.2 proj)",
+   "Donovan Mitchell: SG to BE, slot needed for a player with a game",
+   "Bam Adebayo: C to BE, slot needed for a player with a game",
+   "Jarrett Allen: UTIL to BE, slot needed for a player with a game",
+   "Jakob Poeltl: BE to C, plays today (31.7 proj)",
+   "Scotty Pippen Jr.: BE to UTIL, plays today (30.6 proj)"
+  ],
+  "at": "Oct 25, 1:31 PM CT",
+  "src": "schedule"
+ },
+ {
   "date": "2026-10-24",
   "status": "ok",
   "moved": [],
