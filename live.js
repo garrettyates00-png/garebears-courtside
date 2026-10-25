@@ -137,7 +137,7 @@ function dayInfo(t,iso){
 }
 function dayPlayers(t,iso){
   const today=TODAY(),B=D.base&&D.base.teams[t],bd=(B&&B.days[iso])||{pp:{},start:[]},cur=(D.teams[t].daily||[]).find(x=>x.iso===iso);
-  const name=id=>{const p=D.players.find(x=>x.id==id);return p?p.n:String(id)};
+  const name=id=>{const p=D.players.find(x=>x.id==id)||(typeof SEA!=="undefined"&&SEA&&SEA.players||[]).find(x=>x.id==id);return p?p.n:"Former player"};
   let rows=[];
   if(iso<today&&(D.act||{})[iso]&&D.act[iso][t]){
     rows=D.act[iso][t].pl.map(([id,n,slot,fp])=>({n,slot,proj:bd.pp[id],act:fp,st:"Final"}));
