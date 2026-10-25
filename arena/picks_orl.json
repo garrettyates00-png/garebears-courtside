@@ -28,5 +28,17 @@
   "result": "L",
   "profit": -100,
   "final": "93-115"
+ },
+ {
+  "id": "401909863",
+  "date": "2026-10-25T23:00Z",
+  "opp": "NY",
+  "home": false,
+  "kind": "total",
+  "side": "under",
+  "line": 224.5,
+  "edge": 5.9,
+  "price": -110,
+  "made": "2026-10-25T17:53:26.641495+00:00"
  }
 ]

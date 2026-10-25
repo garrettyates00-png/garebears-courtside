@@ -28,5 +28,17 @@
   "result": "L",
   "profit": -100,
   "final": "96-84"
+ },
+ {
+  "id": "401909865",
+  "date": "2026-10-25T23:00Z",
+  "opp": "LAC",
+  "home": true,
+  "kind": "spread",
+  "side": "them",
+  "line": 16.5,
+  "edge": 7.5,
+  "price": -110,
+  "made": "2026-10-25T17:53:26.641495+00:00"
  }
 ]
