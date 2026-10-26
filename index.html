@@ -8,7 +8,7 @@
 /* Layout: near-black stage, slow drifting white/grey light behind frosted glass. Sticky glass bar, hero matchup, matchup grid that opens a detail sheet, then lineup, rankings, wire, and a how-it-works appendix. */
 :root{
   --fi:12px; --fr:30px; /* frame inset and corner radius */
-  --bg:#07080a; --ink:#f4f4f5; --mute:#a1a1aa; --faint:#63636e; --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.14);
+  --bg:#07080a; --ink:#f4f4f5; --mute:#ffffff; --faint:#ffffff; --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.14);
   --glass:rgba(255,255,255,.045); --glass2:rgba(255,255,255,.075); --ah:220; --as:0%; --glow:.75; --hi:hsl(var(--ah) calc(var(--as) * .85) 90%);
   --up:#9ef0c4; --down:#ff9da6; --warn:#f3d58e;
   --sans:"Geist",ui-sans-serif,system-ui,-apple-system,sans-serif; --mono:"Geist Mono",ui-monospace,SFMono-Regular,monospace; --serif:"Instrument Serif",Georgia,serif;
@@ -129,7 +129,7 @@ h2{font:500 20px/1.2 var(--sans);letter-spacing:-.02em;margin:4px 0 0}
 .lead:hover img{transform:scale(1.04)}
 .lead .ov{position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(7,8,10,.92));display:flex;flex-direction:column;justify-content:flex-end;padding:22px;gap:8px}
 .lead h3{margin:0;font:600 clamp(20px,2.4vw,28px)/1.15 var(--sans);letter-spacing:-.025em;text-wrap:balance}
-.lead p{margin:0;color:#c9c9cf;font-size:14px;max-width:60ch}
+.lead p{margin:0;color:#ffffff;font-size:14px;max-width:60ch}
 .stack{display:grid;gap:10px}
 .item{display:grid;grid-template-columns:84px 1fr;gap:12px;align-items:start;padding:10px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:inherit;text-decoration:none;transition:background .2s,border-color .2s;min-width:0}
 a.item:hover,button.item:hover{background:rgba(255,255,255,.06);border-color:var(--line2)}
@@ -332,7 +332,7 @@ body{background:radial-gradient(130% 90% at 15% -10%,color-mix(in srgb,var(--a) 
 .card{border-color:color-mix(in srgb,var(--a) 18%,var(--line));background:linear-gradient(160deg,color-mix(in srgb,var(--a) 7%,transparent),transparent 50%),var(--glass)}
 .card:hover,.card.sel{border-color:color-mix(in srgb,var(--a) 60%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--a) 25%,transparent),0 18px 40px -18px color-mix(in srgb,var(--a) 55%,transparent)}
 .card.mine{border-color:color-mix(in srgb,var(--a) 50%,transparent)}
-.eyebrow{color:color-mix(in srgb,var(--a) 70%,var(--mute))}
+.eyebrow{color:color-mix(in srgb,var(--a) 35%,#fff)}
 .side .big{background:linear-gradient(180deg,#fff 35%,var(--hi));-webkit-background-clip:text;background-clip:text;color:transparent}
 .meter span{background:linear-gradient(90deg,var(--a2),var(--a),var(--hi));box-shadow:0 0 14px color-mix(in srgb,var(--a) 70%,transparent)}
 .mini span{background:linear-gradient(90deg,var(--a2),var(--a))}
@@ -441,7 +441,7 @@ select option{background:#16171b;color:var(--ink)}
 .drow td:first-child::before{content:"▸";display:inline-block;width:14px;color:var(--faint);transition:transform .2s}.drow.open td:first-child::before{transform:rotate(90deg)}
 .dsub td{padding:6px 0 16px;background:rgba(255,255,255,.015)}
 .dsplit{display:grid;grid-template-columns:1fr 1fr;gap:16px;overflow-x:auto}
-.dtbl{font-size:13px}.dtbl td,.dtbl th{padding:6px}.dtbl tr.bn td{opacity:.5}.dtbl tr.tt td{font-weight:600;border-top:1px solid var(--line2)}
+.dtbl{font-size:13px}.dtbl td,.dtbl th{padding:6px}.dtbl tr.bn td{opacity:.75}.dtbl tr.tt td{font-weight:600;border-top:1px solid var(--line2)}
 .dtbl .up{color:var(--up)}.dtbl .down{color:var(--down)}
 @media (max-width:700px){.lvnotes,.dsplit{grid-template-columns:1fr}}
 
@@ -960,7 +960,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1792983164";
+const BUILD="1793020550";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(checkBuild,90000);
 loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
@@ -1006,12 +1006,12 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1792983164"></script>
-<script src="season.js?v=1792983164"></script>
-<script src="bets.js?v=1792983164"></script>
-<script src="trades.js?v=1792983164"></script>
-<script src="sim.js?v=1792983164"></script>
-<script src="overunder.js?v=1792983164"></script>
-<script src="nav.js?v=1792983164"></script>
-<script src="live.js?v=1792983164"></script>
+<script src="arena.js?v=1793020550"></script>
+<script src="season.js?v=1793020550"></script>
+<script src="bets.js?v=1793020550"></script>
+<script src="trades.js?v=1793020550"></script>
+<script src="sim.js?v=1793020550"></script>
+<script src="overunder.js?v=1793020550"></script>
+<script src="nav.js?v=1793020550"></script>
+<script src="live.js?v=1793020550"></script>
 </body></html>
