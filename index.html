@@ -563,6 +563,30 @@ select option{background:#16171b;color:var(--ink)}
 .gtag{display:inline-block;min-width:26px;text-align:center;font:700 11px var(--mono);padding:2px 6px;border-radius:7px;margin-left:6px;vertical-align:1px;border:1px solid transparent}
 .gA{color:#0b0b0d;background:#9ef0c4}.gB{color:#0b0b0d;background:#c9e88f}.gC{color:#0b0b0d;background:#f3d58e}.gD{color:#0b0b0d;background:#f7a97a}.gF{color:#0b0b0d;background:#ff8f9a}
 .gwhy{display:flex;gap:8px;align-items:center;font-size:13px;margin:-4px 0 10px}.gwhy .gtag{margin-left:0;font-size:12px;padding:3px 8px}
+
+/* player profile */
+.sheet.prof .panel{width:min(820px,100%);display:grid;gap:18px;align-content:start}
+.phero{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}
+.duo{position:relative;width:132px;height:132px;border-radius:24px;overflow:hidden;background:linear-gradient(160deg,var(--c1),var(--c2));box-shadow:0 18px 40px -16px var(--c1)}
+.duo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;filter:grayscale(1) contrast(1.25) brightness(1.05);mix-blend-mode:luminosity}
+.duo::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,var(--c1),var(--c2));mix-blend-mode:color;opacity:.85;pointer-events:none}
+.duo.team img{object-fit:contain;padding:14px;filter:grayscale(1) brightness(1.6)}
+.pname{font:900 clamp(26px,5vw,40px)/1 "Archivo",var(--sans);font-stretch:115%;letter-spacing:-.02em;text-transform:uppercase;margin:4px 0 0}
+.ptiles{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.ptiles div{padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid var(--line);display:grid;gap:2px}
+.ptiles span{font:500 10.5px var(--mono);letter-spacing:.06em;color:var(--faint)}.ptiles b{font-size:18px}
+.ptwo{display:grid;grid-template-columns:1fr 1.1fr;gap:18px;align-items:start}.ptwo .court{max-width:100%}
+.plog td,.plog th{padding:7px 6px}
+.plink{cursor:pointer;text-decoration:underline;text-decoration-color:var(--line2);text-underline-offset:3px}.plink:hover{text-decoration-color:var(--a)}
+.sumcard{padding:16px 18px;border-radius:16px;background:linear-gradient(160deg,color-mix(in srgb,var(--a) 12%,transparent),transparent 60%),rgba(255,255,255,.03);border:1px solid color-mix(in srgb,var(--a) 35%,var(--line));display:grid;gap:8px}
+.sumcard.empty{grid-template-columns:1fr auto;align-items:center}
+.sumhead{font:500 18px/1.4 var(--sans);margin:4px 0 2px}
+.sumcard h4{margin:6px 0 2px;font:600 13px var(--sans)}.sumcard p{margin:0;font-size:14px;line-height:1.55}
+.sumcols{display:grid;grid-template-columns:1fr 1fr;gap:14px}.sumcols ul{margin:4px 0 0;padding-left:18px;font-size:14px;line-height:1.5;display:grid;gap:4px}
+.sumsrc{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.sumsrc a{font-size:12px;color:var(--ink);padding:3px 9px;border-radius:999px;border:1px solid var(--line2);text-decoration:none;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.spin{display:inline-block;width:12px;height:12px;border-radius:50%;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;animation:spin .8s linear infinite}
+.copyrow{display:flex;gap:8px;align-items:center}.copyrow code{flex:1;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,.06);font:500 13px var(--mono);overflow-x:auto}
+@media (max-width:700px){.duo{width:96px;height:96px;border-radius:18px}.ptiles{grid-template-columns:repeat(3,1fr)}.ptwo,.sumcols{grid-template-columns:1fr}.sumcard.empty{grid-template-columns:1fr}}
 </style></head><body>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div>
 
@@ -986,7 +1010,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1793041335";
+const BUILD="1793045520";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(checkBuild,90000);
 loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
@@ -1032,12 +1056,13 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1793041335"></script>
-<script src="season.js?v=1793041335"></script>
-<script src="bets.js?v=1793041335"></script>
-<script src="trades.js?v=1793041335"></script>
-<script src="sim.js?v=1793041335"></script>
-<script src="overunder.js?v=1793041335"></script>
-<script src="nav.js?v=1793041335"></script>
-<script src="live.js?v=1793041335"></script>
+<script src="arena.js?v=1793045520"></script>
+<script src="season.js?v=1793045520"></script>
+<script src="bets.js?v=1793045520"></script>
+<script src="trades.js?v=1793045520"></script>
+<script src="sim.js?v=1793045520"></script>
+<script src="overunder.js?v=1793045520"></script>
+<script src="profile.js?v=1793045520"></script>
+<script src="nav.js?v=1793045520"></script>
+<script src="live.js?v=1793045520"></script>
 </body></html>

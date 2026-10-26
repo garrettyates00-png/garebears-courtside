@@ -1,0 +1,84 @@
+name: Summary
+
+# Writes a scouting summary for one player or team with Claude, using your Claude subscription
+# (CLAUDE_CODE_OAUTH_TOKEN from `claude setup-token`), not pay-per-use API billing.
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "player:<espn id>:<team abbr>  or  team:<team abbr>   e.g. player:4065733:mem"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: summary-${{ inputs.target }}
+  cancel-in-progress: false
+
+jobs:
+  summary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the request
+        id: t
+        env:
+          TARGET: ${{ inputs.target }}
+        run: |
+          if [[ "$TARGET" =~ ^player:([0-9]{3,12}):([a-z]{2,4})$ ]]; then
+            echo "kind=player" >> "$GITHUB_OUTPUT"; echo "id=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"; echo "team=${BASH_REMATCH[2]}" >> "$GITHUB_OUTPUT"
+            echo "file=summaries/player-${BASH_REMATCH[1]}.json" >> "$GITHUB_OUTPUT"
+          elif [[ "$TARGET" =~ ^team:([a-z]{2,4})$ ]]; then
+            echo "kind=team" >> "$GITHUB_OUTPUT"; echo "id=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"; echo "team=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+            echo "file=summaries/team-${BASH_REMATCH[1]}.json" >> "$GITHUB_OUTPUT"
+          else
+            echo "Bad target: $TARGET"; exit 1
+          fi
+          test -f "arena/${BASH_REMATCH[2]:-${BASH_REMATCH[1]}}.json" || { echo "No data for that team yet"; exit 1; }
+          echo "today=$(TZ=America/Chicago date +'%A, %B %-d, %Y')" >> "$GITHUB_OUTPUT"
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          claude_args: |
+            --max-turns 20
+            --allowedTools "Read,Write,Glob,Grep,WebSearch,WebFetch"
+          prompt: |
+            You are writing a short scouting summary for a personal NBA dashboard. Today is ${{ steps.t.outputs.today }}.
+            Subject: ${{ steps.t.outputs.kind }} "${{ steps.t.outputs.id }}" (team file arena/${{ steps.t.outputs.team }}.json).
+
+            Data in this repo (read it first):
+            - arena/${{ steps.t.outputs.team }}.json: "team", "players" (season per-game averages, ts, usg, impact, keyed by "pid"),
+              "games" (recent games; each has "box" rows per player with "pid", and "shots" as [pid, x, y, made, value, period, team, is3]),
+              "teamstats", "schedule", "next", "news".
+            - arena/grades.json: "grades" keyed by pid string: letter grade "g", score "s", reasons "why".
+            For a player, use his row in "players", his rows in each game's "box", his shots, and his grade.
+            For a team, use "teamstats", "players", recent "games" results, "next" and "news".
+
+            Then search the web for the last 2 to 3 weeks of news, beat-writer analysis, and fan sentiment
+            (for example the team subreddit, local beat writers, ESPN, The Athletic headlines). Use 2 to 4 searches.
+
+            Write the file ${{ steps.t.outputs.file }} as JSON with exactly these keys:
+            {"kind": "${{ steps.t.outputs.kind }}", "id": "${{ steps.t.outputs.id }}", "name": "<player or team name>",
+             "at": "<current UTC time, ISO 8601>",
+             "headline": "<one punchy sentence>",
+             "good": ["<what's going well, with specific numbers>", "... 2 to 4 items"],
+             "bad": ["<what's not working, with specific numbers>", "... 1 to 3 items"],
+             "fans": "<2 to 3 sentences on what fans and analysts are saying>",
+             "outlook": "<2 sentences on what to expect next, including the next game if known>",
+             "sources": [{"title": "...", "url": "https://..."}]}
+            Rules: plain conversational language, cite real numbers from the data, no em dashes, no markdown inside strings,
+            only claims you can support from the data or sources. Do not create or change any other file.
+      - name: Publish
+        env:
+          FILE: ${{ steps.t.outputs.file }}
+        run: |
+          python3 -c "import json,sys;d=json.load(open('$FILE'));assert d.get('headline') and isinstance(d.get('good'),list)" 
+          git config user.name "courtside-bot"
+          git config user.email "courtside-bot@users.noreply.github.com"
+          git add "$FILE"
+          git diff --cached --quiet || (git commit -m "Summary: ${{ inputs.target }}" && git pull --rebase --autostash -q && git push)
