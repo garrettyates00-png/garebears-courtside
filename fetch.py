@@ -212,9 +212,27 @@ def main():
             tot, dl, _ = week_plan(roster, dlist=all_days, live_today=False)
             nm = {p["n"]: p["id"] for p in roster}
             snap[tid] = dict(proj=tot, days={x["iso"]: dict(pts=x["pts"], start=[nm[n] for _, n in x["start"]], pp=x["pp"]) for x in dl})
-        wb = {str(cur_mp): dict(at=now_ct.isoformat(), teams=snap)}  # keep only the current matchup
+        # older matchups keep just each team's starting projection (for the over/under history); the
+        # current one keeps the full day-by-day detail
+        for k in list(wb):
+            if "teams" in wb[k] and k != str(cur_mp):
+                wb[k] = dict(at=wb[k].get("at"), proj={t: v["proj"] for t, v in wb[k]["teams"].items()})
+        wb[str(cur_mp)] = dict(at=now_ct.isoformat(), teams=snap)
         json.dump(wb, open("weekbase.json", "w"), separators=(",", ":"))
     wk_base = wb[str(cur_mp)]
+    # over/under history: start-of-week projection vs final (or live) score for every team, every matchup so far
+    week_hist = {}
+    for k, v in wb.items():
+        projs = v.get("proj") or {t: x["proj"] for t, x in (v.get("teams") or {}).items()}
+        week_hist[k] = {"proj": projs, "act": {}}
+    for m in lg["schedule"]:
+        k = str(m["matchupPeriodId"])
+        if k not in week_hist: continue
+        for side in ("home", "away"):
+            sd = m.get(side) or {}
+            if sd.get("teamId") is None: continue
+            pts = sd.get("totalPointsLive", sd.get("totalPoints", 0)) if m["matchupPeriodId"] == cur_mp else sd.get("totalPoints", 0)
+            week_hist[k]["act"][str(sd["teamId"])] = round(pts or 0, 1)
 
     # What actually happened each day so far (ESPN's official fantasy points, lineup slot that day)
     act = {}
@@ -421,7 +439,7 @@ def main():
                gpw=gpw, fa=[dict(id=f["id"], n=f["n"], tm=f["tm"], el=f["el"], pa=f["pa"], inj=f["inj"]) for f in fa[:40]])
     data = dict(pulled=dt.datetime.now(TZ).strftime("%b %-d, %-I:%M %p CT"), pulled_iso=dt.datetime.now(dt.timezone.utc).isoformat(), pending=pending, league=settings["name"], me=MY_TEAM, opp=opp,
                 plan=[{k: m[k] for k in ("n", "from", "to", "why")} for m in plan], plan_day=plan_day.strftime("%a %b ") + str(plan_day.day), period=cur_mp, week=[wk_start.isoformat(), wk_end.isoformat()], days=[d.isoformat() for d in days],
-                slots=slots, scoring=scoring, teams=teams, sim=sim, base=wk_base, act=act, all_days=[d.isoformat() for d in all_days], players=players, sched=sched, moves=top_moves,
+                slots=slots, scoring=scoring, teams=teams, sim=sim, base=wk_base, week_hist=week_hist, act=act, all_days=[d.isoformat() for d in all_days], players=players, sched=sched, moves=top_moves,
                 fa=[{k: f[k] for k in ("n", "pos", "tm", "inj", "pa", "claimed")} | {"g": len(f["days"])} for f in fa[:12]], news=news, feed=feed[:220], yt=bool(os.environ.get("YT_API_KEY")))
     with open("data.json", "w") as fh:
         json.dump(data, fh, separators=(",", ":"))
