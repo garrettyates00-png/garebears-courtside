@@ -1,5 +1,19 @@
 [
  {
+  "date": "2026-10-26",
+  "status": "saved",
+  "moved": [
+   "Donovan Mitchell: BE to G, plays today (46.5 proj)",
+   "Bam Adebayo: BE to UTIL, plays today (39.6 proj)",
+   "Jaylen Brown: G to BE, slot needed for a player with a game",
+   "Jarrett Allen: BE to C, plays today (36.9 proj)",
+   "Ausar Thompson: UTIL to BE, slot needed for a player with a game",
+   "Jakob Poeltl: C to BE, slot needed for a player with a game"
+  ],
+  "at": "Oct 26, 8:20 AM CT",
+  "src": "button"
+ },
+ {
   "date": "2026-10-25",
   "status": "saved",
   "moved": [
