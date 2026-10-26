@@ -308,7 +308,8 @@ def main():
         if not f2["days"]: continue
         for d in mine:
             if d["inj"] == "OUT" or d["id"] in claim_drop: continue
-            if d["pa"] > repl + 1.5: continue           # too good to cut: you'd never get him back
+            keep = max(d["pa"], d.get("la") or 0, d["ca"] if (d.get("ca") is not None and d.get("cg", 0) >= 2) else 0)
+            if keep > repl: continue                     # better than what's on waivers: you'd never get him back
             d2 = dict(d, days=[x for x in d["days"] if x < first_ok.isoformat()])
             trial = [p for p in mine if p is not d] + [d2, f2]
             gain = week_plan(trial)[0] - base
