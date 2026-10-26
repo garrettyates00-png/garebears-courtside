@@ -1,6 +1,14 @@
 [
  {
   "date": "2026-10-26",
+  "status": "ok",
+  "moved": [],
+  "note": "Lineup was already optimal.",
+  "at": "Oct 26, 3:41 PM CT",
+  "src": "schedule"
+ },
+ {
+  "date": "2026-10-26",
   "status": "saved",
   "moved": [
    "Donovan Mitchell: BE to G, plays today (46.5 proj)",
