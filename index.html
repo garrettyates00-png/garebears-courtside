@@ -551,6 +551,13 @@ select option{background:#16171b;color:var(--ink)}
   .dtbl th:nth-child(2),.dtbl td:nth-child(2){display:none}
   .simt th:nth-child(3),.simt td:nth-child(3){display:none}.simt .nm small{display:none}.simt .pbar{display:none}.simt td:first-child{white-space:normal}.simt .pbw{gap:0}.simt td.pb,.simt th:nth-child(4),.simt th:nth-child(5){text-align:right}.simt td,.simt th{padding:8px 5px}
 }
+
+/* over / under */
+.out td.ouc,.out th.ouc{text-align:left;min-width:180px}
+.oubar{display:inline-block;position:relative;width:120px;height:8px;border-radius:9px;background:rgba(255,255,255,.06);vertical-align:middle;margin-right:10px}
+.oubar::after{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--line2)}
+.oubar i{position:absolute;top:0;bottom:0;border-radius:9px}.oubar i.p{left:50%;background:var(--up)}.oubar i.n{right:50%;background:var(--down)}
+@media (max-width:700px){.out th:nth-child(3),.out td:nth-child(3){display:none}.out td.ouc,.out th.ouc{min-width:0}.oubar{width:60px;margin-right:6px}.out td:first-child{white-space:normal}.out .nm small{display:none}.out td,.out th{padding:8px 5px}}
 </style></head><body>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div>
 
@@ -598,6 +605,8 @@ select option{background:#16171b;color:var(--ink)}
       <div><div class="eyebrow" style="margin-bottom:10px">Category ranks</div><div class="cats" id="cats"></div><div class="sw" id="sw"></div></div></div>
     </section>
   </div>
+
+  <section class="g pad" id="secOU"></section>
 
   <section class="g pad" id="secMoves">
     <div class="sec-h"><div><div class="eyebrow">Waiver wire</div><h2>Moves to make</h2></div></div>
@@ -897,7 +906,7 @@ function renderAll(){
   const age=D.pulled_iso?(Date.now()-Date.parse(D.pulled_iso))/60000:0;
   if(document.body.dataset.view!=="arena")$("#pulled").textContent="Updated "+D.pulled;$("#dot").classList.toggle("stale",age>75);
   if(!forcing){if(age>75)staleNote(age);else $("#status").textContent=""}
-  renderHero();renderCards();renderDays();renderPower();renderStrength(selTeam);renderWire();renderScoring();renderNewsroom();if(typeof renderTrades==="function")renderTrades();if(typeof renderSim==="function"){SIMR=null;renderSim()}
+  renderHero();renderCards();renderDays();renderPower();renderStrength(selTeam);renderWire();renderScoring();renderNewsroom();if(typeof renderTrades==="function")renderTrades();if(typeof renderOU==="function")renderOU();if(typeof renderSim==="function"){SIMR=null;renderSim()}
 }
 
 
@@ -951,7 +960,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1792964608";
+const BUILD="1792983164";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(checkBuild,90000);
 loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
@@ -997,11 +1006,12 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1792964608"></script>
-<script src="season.js?v=1792964608"></script>
-<script src="bets.js?v=1792964608"></script>
-<script src="trades.js?v=1792964608"></script>
-<script src="sim.js?v=1792964608"></script>
-<script src="nav.js?v=1792964608"></script>
-<script src="live.js?v=1792964608"></script>
+<script src="arena.js?v=1792983164"></script>
+<script src="season.js?v=1792983164"></script>
+<script src="bets.js?v=1792983164"></script>
+<script src="trades.js?v=1792983164"></script>
+<script src="sim.js?v=1792983164"></script>
+<script src="overunder.js?v=1792983164"></script>
+<script src="nav.js?v=1792983164"></script>
+<script src="live.js?v=1792983164"></script>
 </body></html>
