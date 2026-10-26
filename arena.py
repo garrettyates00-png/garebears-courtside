@@ -506,7 +506,7 @@ def grades_file():
         exps = dict(zip([p["pid"] for p in allp], ex.map(experience, [p["pid"] for p in allp])))
     for p in allp:
         score = .45 * pct_rank(I36, p["i36"]) + .25 * pct_rank(IPG, p["impact"]) + .30 * pct_rank(TSX, p["tsx"])
-        exp = exps.get(p["pid"]); curve = 5 if exp == 0 else 2 if exp == 1 else 0
+        exp = exps.get(p["pid"]); curve = 5 if exp == 0 else 2 if exp in (1, 2) else 0  # ESPN lists rookies as 0 and counts the current season for everyone else
         score = min(100.0, score + curve)
         g = next(l for cut, l in LETTERS if score >= cut)
         why = []
