@@ -108,7 +108,7 @@ async function renderSim(force){
       <div class="simbig"><small>Playoffs</small><b>${pct1(R.po[mi])}</b></div>
       <div class="simbig"><small>Title</small><b>${pct1(R.title[mi])}</b></div>
       <div class="simbig"><small>Projected record</small><b>${R.wins[mi].toFixed(1)}-${(totW-R.wins[mi]).toFixed(1)}</b></div>
-      <div class="simseed"><small>Where Garebears finishes</small><div class="bars">${R.seed[mi].map((v,k)=>`<i class="${k<D.sim.pteams?"po":""}" style="--h:${Math.max(2,v/Math.max(...R.seed[mi])*100)}%" title="#${k+1}: ${pct1(v)}"><em>${k+1}</em></i>`).join("")}</div></div>
+      <div class="simseed"><small>Where Garebears finishes</small><div class="seedbars">${R.seed[mi].map((v,k)=>`<i class="${k<D.sim.pteams?"po":""}" style="--h:${Math.max(2,v/Math.max(...R.seed[mi])*100)}%" title="#${k+1}: ${pct1(v)}"><em>${k+1}</em></i>`).join("")}</div></div>
       ${hist.length>1?`<div class="simseed"><small>Your playoff odds over time</small>${spark(hist)}</div>`:""}
     </div>
     <div class="tscroll"><table class="tbl simt"><thead><tr><th>Team</th><th>Record</th><th>Likely seed</th><th style="text-align:left">Playoffs</th><th style="text-align:left">Title</th></tr></thead><tbody>

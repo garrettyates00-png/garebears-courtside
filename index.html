@@ -498,8 +498,8 @@ select option{background:#16171b;color:var(--ink)}
 .simbig{padding:14px 18px;border-radius:14px;background:color-mix(in srgb,var(--a) 9%,rgba(255,255,255,.03));border:1px solid color-mix(in srgb,var(--a) 28%,var(--line));display:grid;gap:2px;min-width:120px}
 .simbig small,.simseed small{font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}.simbig b{font:600 30px var(--sans);letter-spacing:-.03em}
 .simseed{padding:14px 18px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid var(--line);display:grid;gap:8px}
-.bars{display:flex;align-items:flex-end;gap:5px;height:60px}.bars i{position:relative;width:18px;height:var(--h);border-radius:4px 4px 1px 1px;background:rgba(255,255,255,.14)}.bars i.po{background:linear-gradient(180deg,var(--hi),var(--a))}
-.bars em{position:absolute;bottom:-16px;left:0;right:0;text-align:center;font:500 10px var(--mono);font-style:normal;color:var(--faint)}.simseed .bars{margin-bottom:14px}
+.seedbars{display:flex;align-items:flex-end;gap:5px;height:60px}.seedbars i{position:relative;width:18px;height:var(--h);border-radius:4px 4px 1px 1px;background:rgba(255,255,255,.14)}.seedbars i.po{background:linear-gradient(180deg,var(--hi),var(--a))}
+.seedbars em{position:absolute;bottom:-16px;left:0;right:0;text-align:center;font:500 10px var(--mono);font-style:normal;color:var(--faint)}.simseed .seedbars{margin-bottom:14px}
 .simt td.pb{text-align:left;min-width:150px}.pbw{display:inline-flex;align-items:center;gap:10px}
 .pbar{display:inline-block;width:110px;height:6px;border-radius:9px;background:rgba(255,255,255,.08);overflow:hidden}.pbar i{display:block;height:100%;background:linear-gradient(90deg,var(--a2),var(--a))}.pbar.t i{background:linear-gradient(90deg,var(--a),var(--hi))}
 .sbgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.sbl{font-size:12.5px;margin-bottom:8px;display:flex;gap:8px;align-items:center}
@@ -558,6 +558,11 @@ select option{background:#16171b;color:var(--ink)}
 .oubar::after{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--line2)}
 .oubar i{position:absolute;top:0;bottom:0;border-radius:9px}.oubar i.p{left:50%;background:var(--up)}.oubar i.n{right:50%;background:var(--down)}
 @media (max-width:700px){.out th:nth-child(3),.out td:nth-child(3){display:none}.out td.ouc,.out th.ouc{min-width:0}.oubar{width:60px;margin-right:6px}.out td:first-child{white-space:normal}.out .nm small{display:none}.out td,.out th{padding:8px 5px}}
+
+/* report-card grades */
+.gtag{display:inline-block;min-width:26px;text-align:center;font:700 11px var(--mono);padding:2px 6px;border-radius:7px;margin-left:6px;vertical-align:1px;border:1px solid transparent}
+.gA{color:#0b0b0d;background:#9ef0c4}.gB{color:#0b0b0d;background:#c9e88f}.gC{color:#0b0b0d;background:#f3d58e}.gD{color:#0b0b0d;background:#f7a97a}.gF{color:#0b0b0d;background:#ff8f9a}
+.gwhy{display:flex;gap:8px;align-items:center;font-size:13px;margin:-4px 0 10px}.gwhy .gtag{margin-left:0;font-size:12px;padding:3px 8px}
 </style></head><body>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div>
 
@@ -981,7 +986,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1793040045";
+const BUILD="1793041335";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(checkBuild,90000);
 loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
@@ -1027,12 +1032,12 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1793040045"></script>
-<script src="season.js?v=1793040045"></script>
-<script src="bets.js?v=1793040045"></script>
-<script src="trades.js?v=1793040045"></script>
-<script src="sim.js?v=1793040045"></script>
-<script src="overunder.js?v=1793040045"></script>
-<script src="nav.js?v=1793040045"></script>
-<script src="live.js?v=1793040045"></script>
+<script src="arena.js?v=1793041335"></script>
+<script src="season.js?v=1793041335"></script>
+<script src="bets.js?v=1793041335"></script>
+<script src="trades.js?v=1793041335"></script>
+<script src="sim.js?v=1793041335"></script>
+<script src="overunder.js?v=1793041335"></script>
+<script src="nav.js?v=1793041335"></script>
+<script src="live.js?v=1793041335"></script>
 </body></html>

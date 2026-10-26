@@ -445,6 +445,82 @@ def scoreboard_file():
     print("scoreboard:", {k: len(v["games"]) for k, v in days.items()})
 
 
+# ---------- report cards: letter grades for every player league-wide ----------
+def experience(pid):
+    """Years in the league (0 = rookie), cached for a week. None if ESPN doesn't say."""
+    path = f"arena/cache/ath_{pid}.json"
+    try:
+        c = json.load(open(path))
+        if (NOW - dt.datetime.fromisoformat(c["at"])).days < 7:
+            return c.get("exp")
+    except Exception:
+        pass
+    exp = None
+    for url in (f"https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/athletes/{pid}",
+                f"https://sports.core.api.espn.com/v2/sports/basketball/leagues/nba/athletes/{pid}"):
+        try:
+            j = get(url)
+            a = j.get("athlete", j)
+            e = a.get("experience")
+            exp = e.get("years") if isinstance(e, dict) else e
+            if exp is not None:
+                exp = int(exp); break
+        except Exception:
+            continue
+    json.dump({"at": NOW.isoformat(), "exp": exp}, open(path, "w"))
+    return exp
+
+
+def pct_rank(vals, v):
+    if not vals: return 50.0
+    below = sum(1 for x in vals if x < v); eq = sum(1 for x in vals if x == v)
+    return 100.0 * (below + 0.5 * eq) / len(vals)
+
+
+LETTERS = [(93, "A+"), (85, "A"), (78, "A-"), (70, "B+"), (62, "B"), (55, "B-"), (48, "C+"), (40, "C"), (33, "C-"), (22, "D"), (0, "F")]
+
+
+def grades_file():
+    """Grade = how a player's production compares with every NBA rotation player this season:
+    45% impact per 36 minutes, 25% impact per game (role matters), 30% shooting efficiency adjusted for
+    how much of the offense he carries. Rookies get a curve (+5), second-year players +2."""
+    allp = []
+    for f in os.listdir("arena"):
+        if not f.endswith(".json") or "_" in f or f in ("config.json", "scoreboard.json", "grades.json"): continue
+        try:
+            j = json.load(open(f"arena/{f}"))
+        except Exception:
+            continue
+        for p in j.get("players", []):
+            if p.get("gp", 0) >= 1 and p.get("min", 0) >= 8:
+                allp.append(dict(p, team=j["team"]["abbr"]))
+    if not allp:
+        return
+    lg_ts = sum(p["ts"] * p["min"] for p in allp) / max(1, sum(p["min"] for p in allp))
+    for p in allp:
+        p["i36"] = p["impact"] / p["min"] * 36
+        p["tsx"] = p["ts"] - (lg_ts - 0.15 * (p.get("usg", 0.2) - 0.2))  # heavy-usage scorers get a little slack
+    I36 = [p["i36"] for p in allp]; IPG = [p["impact"] for p in allp]; TSX = [p["tsx"] for p in allp]
+    out = {}
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        exps = dict(zip([p["pid"] for p in allp], ex.map(experience, [p["pid"] for p in allp])))
+    for p in allp:
+        score = .45 * pct_rank(I36, p["i36"]) + .25 * pct_rank(IPG, p["impact"]) + .30 * pct_rank(TSX, p["tsx"])
+        exp = exps.get(p["pid"]); curve = 5 if exp == 0 else 2 if exp == 1 else 0
+        score = min(100.0, score + curve)
+        g = next(l for cut, l in LETTERS if score >= cut)
+        why = []
+        if pct_rank(I36, p["i36"]) >= 80: why.append("elite production for his minutes")
+        elif pct_rank(I36, p["i36"]) <= 25: why.append("not producing much in his minutes")
+        if p["tsx"] >= 0.06: why.append(f"very efficient ({round(p['ts'] * 100)}% TS)")
+        elif p["tsx"] <= -0.08: why.append(f"inefficient shooting ({round(p['fg'] * 100) if p.get('fg') is not None else round(p['ts'] * 100)}% FG)")
+        if curve: why.append("rookie curve" if exp == 0 else "second-year curve")
+        if p["gp"] < 4: why.append(f"only {p['gp']} game{'s' if p['gp'] != 1 else ''}")
+        out[str(p["pid"])] = dict(g=g, s=round(score), why=why, exp=exp)
+    json.dump(dict(at=NOW.isoformat(), lg_ts=round(lg_ts, 3), n=len(allp), grades=out), open("arena/grades.json", "w"), separators=(",", ":"))
+    print("grades:", len(out), "players")
+
+
 def league_teams():
     out = []
     for sp in get(f"{B}/teams").get("sports", []):
@@ -490,3 +566,7 @@ if __name__ == "__main__":
             build(t, False)
         except Exception as e:
             print(f"arena {t}: failed {e}")
+    try:
+        grades_file()
+    except Exception as e:
+        print("grades failed:", e)

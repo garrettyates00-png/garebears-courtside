@@ -1,5 +1,5 @@
 /* Arena tab: deep live view of the favorite team. Shares $, esc, toast, reduce from the main script. */
-let A=null, aTeam=null, aGame="all", aPlayer="all", aMetric="impact";
+let GR={},A=null, aTeam=null, aGame="all", aPlayer="all", aMetric="impact";
 const ATK="courtside-team";
 const getFav=()=>{try{return localStorage.getItem(ATK)||"mem"}catch(e){return "mem"}};
 const setFav=v=>{try{localStorage.setItem(ATK,v)}catch(e){}};
@@ -28,12 +28,18 @@ async function loadArena(force){
   try{
     let r=await fetch(`arena/${aTeam}.json?t=${Date.now()}`,{cache:"no-store"});
     if(!r.ok&&aTeam!=="mem"){toast&&toast(`${aTeam.toUpperCase()} is still being built. Showing Memphis for now; try again in a few minutes.`);aTeam="mem";r=await fetch(`arena/mem.json?t=${Date.now()}`,{cache:"no-store"})}
-    const j=await r.json(); if(!force&&A&&j.pulled===A.pulled)return; A=j; applyTheme(); renderArena();
+    const j=await r.json(); if(!force&&A&&j.pulled===A.pulled)return; A=j;
+    try{GR=(await (await fetch("arena/grades.json?t="+Date.now(),{cache:"no-store"})).json()).grades||{}}catch(e){GR=GR||{}}
+    applyTheme(); renderArena();
   }catch(e){$("#aHero").innerHTML='<div class="mute">Arena data is still being built. Check back in a minute.</div>'}
 }
 setInterval(()=>{if(document.body.dataset.view==="arena")loadArena()},120000);
 function applyTheme(){if(!A)return;const r=document.documentElement.style;r.setProperty("--tc",A.team.color);r.setProperty("--tc2",A.team.alt)}
 
+/* report-card grades (arena/grades.json): letter vs every NBA rotation player, rookies on a curve */
+function gradeTag(pid){const x=GR[String(pid)];if(!x)return "";const L=x.g[0];
+  return ` <span class="gtag g${L}" title="${esc(x.g)} · ${esc(x.why.join(", "))}">${esc(x.g)}</span>`}
+function gradeWhy(pid){const x=GR[String(pid)];return x?`<div class="gwhy">${gradeTag(pid)} <span>Report card: ${esc(x.why.join(" · ")||"solid all around")}</span></div>`:""}
 /* ---------- render ---------- */
 function renderArena(){
   aHero();aNext();aBets();aGames();aShots();aImpact();aTeamStats();aMedia();aNews();aSched();
@@ -107,7 +113,7 @@ function aGames(){
   $("#aGames .gstrip").onclick=e=>{const b=e.target.closest("[data-g]");if(!b)return;aGame=aGame===b.dataset.g?"all":b.dataset.g;aGames();aShots()};
   const g=A.games.find(x=>x.id===aGame);
   if(g){const bx=g.box.slice().sort((a,b)=>b.min-a.min);
-    $("#aBox").innerHTML=`<div class="scroll" style="margin-top:14px"><table class="box"><thead><tr><th>Player</th><th class="r">MIN</th><th class="r">PTS</th><th class="r">REB</th><th class="r">AST</th><th class="r">STL</th><th class="r">BLK</th><th class="r">TO</th><th class="r">FG</th><th class="r">3PT</th><th class="r">FT</th><th class="r">+/-</th></tr></thead><tbody>${bx.map(b=>`<tr><td><span style="font-weight:500">${esc(b.n)}</span>${b.st?' <span class="faint" style="font-size:11px">S</span>':""}</td><td class="r num">${b.min}</td><td class="r num"><b>${b.pts}</b></td><td class="r num">${b.reb}</td><td class="r num">${b.ast}</td><td class="r num">${b.stl}</td><td class="r num">${b.blk}</td><td class="r num">${b.to}</td><td class="r num">${b.fgm}-${b.fga}</td><td class="r num">${b.tpm}-${b.tpa}</td><td class="r num">${b.ftm}-${b.fta}</td><td class="r num ${b.pm>0?"up":b.pm<0?"down":""}">${sign(b.pm)}</td></tr>`).join("")}</tbody></table></div>`}
+    $("#aBox").innerHTML=`<div class="scroll" style="margin-top:14px"><table class="box"><thead><tr><th>Player</th><th class="r">MIN</th><th class="r">PTS</th><th class="r">REB</th><th class="r">AST</th><th class="r">STL</th><th class="r">BLK</th><th class="r">TO</th><th class="r">FG</th><th class="r">3PT</th><th class="r">FT</th><th class="r">+/-</th></tr></thead><tbody>${bx.map(b=>`<tr><td><span style="font-weight:500">${esc(b.n)}</span>${gradeTag(b.pid)}${b.st?' <span class="faint" style="font-size:11px">S</span>':""}</td><td class="r num">${b.min}</td><td class="r num"><b>${b.pts}</b></td><td class="r num">${b.reb}</td><td class="r num">${b.ast}</td><td class="r num">${b.stl}</td><td class="r num">${b.blk}</td><td class="r num">${b.to}</td><td class="r num">${b.fgm}-${b.fga}</td><td class="r num">${b.tpm}-${b.tpa}</td><td class="r num">${b.ftm}-${b.fta}</td><td class="r num ${b.pm>0?"up":b.pm<0?"down":""}">${sign(b.pm)}</td></tr>`).join("")}</tbody></table></div>`}
 }
 /* shot chart */
 function courtSVG(){const L='stroke="rgba(255,255,255,.28)" stroke-width="2" fill="none"';
@@ -127,6 +133,7 @@ function aShots(){
   const g=A.games.find(x=>x.id===aGame);
   $("#aShots").innerHTML=`<div class="sec-h"><div><div class="eyebrow">${g?`${cday(g.date)} ${g.home?"vs":"@"} ${esc(g.opp)}`:`Last ${A.games.length} games`}</div><h2>Shot chart</h2></div>
     <select id="aPl" aria-label="Player"><option value="all">All players</option>${ppl.map(([id,n])=>`<option value="${id}" ${id===aPlayer?"selected":""}>${esc(n)}</option>`).join("")}</select></div>
+    ${aPlayer!=="all"?gradeWhy(aPlayer):""}
     <svg class="court" viewBox="0 0 500 470" role="img" aria-label="Shot chart: ${made} makes of ${shots.length} shots">${courtSVG()}${dots}</svg>
     <div class="zones">${[["paint","Paint"],["mid","Midrange"],["three","Three"]].map(([k,l])=>`<div><span class="faint">${l}</span><b class="num">${z[k][1]?Math.round(100*z[k][0]/z[k][1])+"%":"–"}</b><span class="faint num" style="font-size:11.5px">${z[k][0]}/${z[k][1]}</span></div>`).join("")}<div><span class="faint">Total</span><b class="num">${shots.length?Math.round(100*made/shots.length)+"%":"–"}</b><span class="faint num" style="font-size:11.5px">${made}/${shots.length}</span></div></div>
     <div class="faint" style="font-size:12px;display:flex;gap:14px"><span><svg width="10" height="10"><circle cx="5" cy="5" r="4.5" class="mk"/></svg> Make</span><span><svg width="10" height="10"><path d="M1 1L9 9M9 1L1 9" class="ms"/></svg> Miss</span>${aGame!=="all"?'<button class="b" type="button" id="aAll" style="padding:3px 10px;font-size:12px">Show all games</button>':""}</div>`;
@@ -140,7 +147,7 @@ function aImpact(){
   const mx=Math.max(...ps.map(m[2]).map(Math.abs))||1;
   $("#aImpact").innerHTML=`<div class="sec-h"><div><div class="eyebrow">Per game · ${esc(A.teamstats.sample.toLowerCase())}</div><h2>Impact players</h2></div></div>
     <div class="filters">${METRICS.map(x=>`<button type="button" class="fchip" data-m="${x[0]}" aria-selected="${x[0]===aMetric}">${x[1]}</button>`).join("")}</div>
-    <div class="lb">${ps.map((p,i)=>`<button type="button" class="lbr" data-p="${p.pid}"><span class="rk" style="font-size:18px">${i+1}</span><img src="${esc(p.hs)}" alt="" onerror="this.style.visibility='hidden'"><div style="min-width:0"><b>${esc(p.n)}</b><div class="faint" style="font-size:12px">${esc(p.pos)} · ${p.gp} GP · ${p.min} min · ${p.pts}p ${p.reb}r ${p.ast}a · TS ${pct(p.ts)}</div><div class="bars" style="margin-top:6px"><i style="width:${Math.max(4,100*Math.abs(m[2](p))/mx).toFixed(0)}%;background:var(--tcText)"></i></div></div><b class="num" style="font-size:17px">${m[3](m[2](p))}</b></button>`).join("")}</div>
+    <div class="lb">${ps.map((p,i)=>`<button type="button" class="lbr" data-p="${p.pid}"><span class="rk" style="font-size:18px">${i+1}</span><img src="${esc(p.hs)}" alt="" onerror="this.style.visibility='hidden'"><div style="min-width:0"><b>${esc(p.n)}</b>${gradeTag(p.pid)}<div class="faint" style="font-size:12px">${esc(p.pos)} · ${p.gp} GP · ${p.min} min · ${p.pts}p ${p.reb}r ${p.ast}a · TS ${pct(p.ts)}</div><div class="bars" style="margin-top:6px"><i style="width:${Math.max(4,100*Math.abs(m[2](p))/mx).toFixed(0)}%;background:var(--tcText)"></i></div></div><b class="num" style="font-size:17px">${m[3](m[2](p))}</b></button>`).join("")}</div>
     <p class="faint" style="font-size:12px;margin:0">Impact = points + 1.2×reb + 1.5×ast + 3×(stl+blk) − TO + half of +/−, per game. Tap a player to see his shots.</p>`;
   $("#aImpact .filters").onclick=e=>{const b=e.target.closest("[data-m]");if(b){aMetric=b.dataset.m;aImpact()}};
   $("#aImpact .lb").onclick=e=>{const b=e.target.closest("[data-p]");if(b){aPlayer=b.dataset.p;aShots();$("#aShots").scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"})}};
