@@ -9,7 +9,8 @@ const agoTxt=iso=>{const m=(Date.now()-Date.parse(iso))/60000;return m<60?Math.m
 function summaryHTML(S,kind,id){
   const t=kind==="team"?`team:${id}`:`player:${id}:${aTeam}`,busy=SUMQ[t];
   const btn=`<button class="b ${S?"":"primary"}" type="button" data-sum="${t}" ${busy?"disabled":""}>${busy?`<span class="spin"></span> Writing… about 1 to 3 min`:S?"Refresh summary":"✦ Write a summary"}</button>`;
-  if(!S)return `<div class="sumcard empty"><div><div class="eyebrow">Scouting summary</div><p class="mute" style="margin:6px 0 0">Claude reads his numbers, searches the latest news and fan takes, and writes it up.</p></div>${btn}</div>`;
+  const setup=`<button type="button" class="linkbtn" onclick="claudeSetup('missing')">First time? Connect your Claude plan</button>`;
+  if(!S)return `<div class="sumcard empty"><div><div class="eyebrow">Scouting summary</div><p class="mute" style="margin:6px 0 0">Claude reads ${kind==="team"?"the team's":"his"} numbers, searches the latest news and fan takes, and writes it up.</p>${setup}</div>${btn}</div>`;
   return `<div class="sumcard"><div class="row" style="align-items:center"><div class="eyebrow">Scouting summary · ${esc(agoTxt(S.at))}</div>${btn}</div>
     <p class="sumhead">${esc(S.headline)}</p>
     <div class="sumcols"><div><h4 class="up">Going well</h4><ul>${(S.good||[]).map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>
@@ -29,7 +30,7 @@ async function requestSummary(t,rerender){
     const [kind,id]=t.split(":");const since=SUMQ[t];
     for(let i=0;i<50;i++){await new Promise(s=>setTimeout(s,8000));
       const S=await loadSummary(kind,id);if(S&&Date.parse(S.at)>since-120000){delete SUMQ[t];rerender();toast("Summary is ready.");return}
-      if(i%3===2){const why=await summaryFailure(since);if(why)throw new Error(why)}}
+      if(i%2===1){const why=await summaryFailure(since);if(why)throw new Error(why)}}
     throw new Error("Still writing. It'll show up here when GitHub finishes.")
   }catch(e){delete SUMQ[t];rerender();toast(e.message)}
 }
@@ -39,10 +40,29 @@ async function summaryFailure(since){try{
   const run=(runs.workflow_runs||[]).find(r=>r.conclusion==="failure");if(!run)return null;
   const jobs=await (await gh(`/actions/runs/${run.id}/jobs`)).json();
   const step=((jobs.jobs||[])[0]?.steps||[]).find(s=>s.conclusion==="failure");const n=step?step.name:"";
-  return n==="Check the Claude token"?"The summary needs the CLAUDE_CODE_OAUTH_TOKEN secret on GitHub (run 'claude setup-token', then add it).":
+  if(n==="Check the Claude token"){claudeSetup("missing");return "The Claude token isn't set up yet. Follow the steps that just opened."}
+  if(n.includes("anthropics")||n.includes("claude-code-action")){claudeSetup("bad");return "Claude couldn't run. Check the steps that just opened."}
+  return n==="Check the Claude token"?"":
     n==="Check the request"?"No Arena data for that team yet, so there's nothing to summarize.":
     n.includes("claude-code-action")||n.includes("anthropics")?"Claude couldn't run. The token may be wrong or expired, or you've hit your Pro usage limit for now.":
     n==="Publish"?"Claude ran but didn't produce a summary file. Try again.":`The summary failed on GitHub${n?` at "${n}"`:""}.`}catch(e){return null}}
+/* step-by-step guide for the one-time Claude token (created on your computer, pasted into GitHub) */
+function claudeSetup(why){document.querySelector(".modal.csetup")?.remove();const m=document.createElement("div");m.className="modal csetup";
+  const cmd=(c)=>`<div class="copyrow"><code>${esc(c)}</code><button class="b" type="button" data-copy="${esc(c)}">Copy</button></div>`;
+  m.innerHTML=`<div class="box" role="dialog" aria-label="Connect your Claude plan" style="max-width:560px">
+    <h2 style="margin:0">${why==="bad"?"Claude couldn't run":"Connect your Claude plan"}</h2>
+    <p class="mute" style="margin:0;font-size:14px">${why==="bad"?"The run reached Claude but was turned away. Usually the token is wrong or expired, or your Pro usage limit is used up for now (then just wait and try later). To redo the token:":"Summaries run on your Claude Pro plan. That needs a one-time token that only your computer can create. About 5 minutes:"}</p>
+    <ol class="csteps">
+      <li>On your computer, open <b>PowerShell</b> and install Claude Code:${cmd("irm https://claude.ai/install.ps1 | iex")}</li>
+      <li>Close and reopen PowerShell, then run:${cmd("claude setup-token")}A browser opens. Sign in with your Claude Pro account and approve.</li>
+      <li>Copy the long token PowerShell prints.</li>
+      <li>On GitHub, add a secret with this name and paste the token as its value:${cmd("CLAUDE_CODE_OAUTH_TOKEN")}
+        <a class="b primary" style="justify-content:center;text-decoration:none;margin-top:6px" href="https://github.com/${REPO}/settings/secrets/actions/new" target="_blank" rel="noopener">Open GitHub secrets</a></li>
+      <li>Come back and tap <b>Write a summary</b> again.</li>
+    </ol>
+    <button class="b" type="button" id="csClose">Close</button></div>`;
+  document.body.appendChild(m);m.querySelectorAll("[data-copy]").forEach(b=>b.onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(b.dataset.copy);b.textContent="Copied";setTimeout(()=>b.textContent="Copy",1500)});
+  $("#csClose").onclick=()=>m.remove();m.addEventListener("click",e=>{if(e.target===m)m.remove()})}
 function summaryHelp(t){const m=document.createElement("div");m.className="modal";m.innerHTML=`<div class="box" role="dialog" aria-label="Write a summary"><h2 style="margin:0">Write a summary</h2>
   <p class="mute" style="margin:0;font-size:14px">This browser isn't connected to GitHub yet. Open GitHub, tap <b>Run workflow</b>, paste this, and run it:</p>
   <div class="copyrow"><code>${esc(t)}</code><button class="b" type="button" id="sumCopy">Copy</button></div>
