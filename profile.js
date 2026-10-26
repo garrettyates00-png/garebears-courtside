@@ -28,10 +28,21 @@ async function requestSummary(t,rerender){
     if(!r.ok)throw new Error("GitHub said "+r.status);
     const [kind,id]=t.split(":");const since=SUMQ[t];
     for(let i=0;i<50;i++){await new Promise(s=>setTimeout(s,8000));
-      const S=await loadSummary(kind,id);if(S&&Date.parse(S.at)>since-120000){delete SUMQ[t];rerender();toast("Summary is ready.");return}}
+      const S=await loadSummary(kind,id);if(S&&Date.parse(S.at)>since-120000){delete SUMQ[t];rerender();toast("Summary is ready.");return}
+      if(i%3===2){const why=await summaryFailure(since);if(why)throw new Error(why)}}
     throw new Error("Still writing. It'll show up here when GitHub finishes.")
   }catch(e){delete SUMQ[t];rerender();toast(e.message)}
 }
+/* if the GitHub run failed, say which step failed */
+async function summaryFailure(since){try{
+  const runs=await (await gh(`/actions/workflows/summary.yml/runs?per_page=3&created=>=${new Date(since-60000).toISOString()}`)).json();
+  const run=(runs.workflow_runs||[]).find(r=>r.conclusion==="failure");if(!run)return null;
+  const jobs=await (await gh(`/actions/runs/${run.id}/jobs`)).json();
+  const step=((jobs.jobs||[])[0]?.steps||[]).find(s=>s.conclusion==="failure");const n=step?step.name:"";
+  return n==="Check the Claude token"?"The summary needs the CLAUDE_CODE_OAUTH_TOKEN secret on GitHub (run 'claude setup-token', then add it).":
+    n==="Check the request"?"No Arena data for that team yet, so there's nothing to summarize.":
+    n.includes("claude-code-action")||n.includes("anthropics")?"Claude couldn't run. The token may be wrong or expired, or you've hit your Pro usage limit for now.":
+    n==="Publish"?"Claude ran but didn't produce a summary file. Try again.":`The summary failed on GitHub${n?` at "${n}"`:""}.`}catch(e){return null}}
 function summaryHelp(t){const m=document.createElement("div");m.className="modal";m.innerHTML=`<div class="box" role="dialog" aria-label="Write a summary"><h2 style="margin:0">Write a summary</h2>
   <p class="mute" style="margin:0;font-size:14px">This browser isn't connected to GitHub yet. Open GitHub, tap <b>Run workflow</b>, paste this, and run it:</p>
   <div class="copyrow"><code>${esc(t)}</code><button class="b" type="button" id="sumCopy">Copy</button></div>

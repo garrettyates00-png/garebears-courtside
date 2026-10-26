@@ -24,6 +24,14 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+      - name: Check the Claude token
+        env:
+          TOK: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: |
+          if [ -z "$TOK" ]; then
+            echo "::error title=Missing Claude token::Add the CLAUDE_CODE_OAUTH_TOKEN repository secret (run 'claude setup-token' and paste the result)."
+            exit 1
+          fi
       - name: Check the request
         id: t
         env:
