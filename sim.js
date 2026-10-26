@@ -35,9 +35,9 @@ function run(cfg,P0,scen,n,seed){
           if(out[i]>0)continue;
           if(R()<.035){out[i]=1+Math.floor(R()*4);g=Math.floor(g*R());if(!g)continue} // new injury mid-week
           if(left<=0)continue;
-          const v=P[i].v*m[i],k=g<left?g:left;mu+=v*k;va+=k*.1225*v*v;left-=k;
+          const v=P[i].v*m[i],k=g<left?g:left;mu+=v*k;va+=k*.2025*v*v;left-=k;
         }
-        score[ti*W+w]=mu+Math.sqrt(va)*gauss();
+        score[ti*W+w]=mu*(1+.09*gauss())+Math.sqrt(va)*gauss(); // week-level team shock + game noise
       }
       for(let i=0;i<NP;i++)if(out[i]>0)out[i]--;
     }
@@ -115,7 +115,7 @@ async function renderSim(force){
     ${rows.map(r=>`<tr class="${r.t==me?"mine":""}"><td><span class="nm">${esc(D.teams[r.t].name)}<small>${esc(D.teams[r.t].owner)}</small></span></td><td>${r.w.toFixed(1)}-${(totW-r.w).toFixed(1)}</td><td>#${mostSeed(r.seed)}</td>
       <td class="pb"><span class="pbw"><span class="pbar"><i style="width:${r.po*100}%"></i></span>${pct1(r.po)}</span></td><td class="pb"><span class="pbw"><span class="pbar t"><i style="width:${r.title*100}%"></i></span>${pct1(r.title)}</span></td></tr>`).join("")}</tbody></table></div>
     <div class="sandbox" id="sandbox"></div>
-    <p class="faint" style="font-size:12.5px;margin:12px 0 0">Every season redraws each player's true level (about ±12% around his projection) and random injuries, then plays the real league schedule with each NBA team's real games per week, capped by your ${D.slots.length} lineup slots. Top ${D.sim.pteams} make the playoffs. Ran in ${R.ms} ms.</p>`;
+    <p class="faint" style="font-size:12.5px;margin:12px 0 0">Every season redraws each player's true level (about ±12% around his projection, each week swings about ±9% as a team on top of game-to-game noise) and random injuries, then plays the real league schedule with each NBA team's real games per week, capped by your ${D.slots.length} lineup slots. Top ${D.sim.pteams} make the playoffs. Ran in ${R.ms} ms.</p>`;
   $("#simRerun").onclick=()=>renderSim(true);
   renderSandbox();
 }

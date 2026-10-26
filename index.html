@@ -627,7 +627,7 @@ select option{background:#16171b;color:var(--ink)}
         <li><div><b>Availability</b>Out or suspended counts as 0. Day-to-day and questionable count at 85%. Doubtful counts at 30%.</div></li>
         <li><div><b>Daily best lineup</b>For every remaining day of the week, each team's players with a game are fitted into the 11 starting slots (PG, SG, SF, PF, C, G, F, 4 UTIL) to get the most points. Leftovers sit.</div></li>
         <li><div><b>Week projection</b>Points already scored this week plus the sum of those daily best lineups. More games and fewer empty slots means more points.</div></li>
-        <li><div><b>Win chance</b>Each start gets an uncertainty of about 35% of the player's value, and each team gets another 8% of its remaining projection for things that don't average out (minutes changes, rest days, injuries). The two totals are compared as a bell curve. It never shows 0% or 100%: one bad injury can swing a week.</div></li>
+        <li><div><b>Win chance</b>Each start gets an uncertainty of about 35% of the player's value, and Each remaining start can swing about 45% around the player's projection. Each team also carries 12% of its remaining projection for things that don't average out (minutes changes, rest days, injuries), day-to-day players count as a real chance of a zero, and open lineup spots count as room for the other side to stream. Those numbers come from how far real weeks have landed from projection. The margin is compared on a fat-tailed curve because bad nights come in bunches. It only shows 100% or 0% once there's nothing left to play.</div></li>
         <li><div><b>Power score</b>Per-game value of a team's top 11, plus a quarter of the bench, minus 2 per injury tag. It measures roster strength, not this week's schedule.</div></li>
         <li><div><b>Moves</b>The top 40 free agents are swapped in for each of your low-value players, and the week is replayed. Swaps that add the most points are listed. Technical-foul magnets are skipped.</div></li>
       </ol>
@@ -686,11 +686,31 @@ const injTag=i=>!i?"":/OUT|SUSP|RESERVE/.test(i)?'<span class="tag t-out">OUT</s
 const injWord=i=>i.replace(/_/g," ").toLowerCase();
 function erf(x){const t=1/(1+.3275911*Math.abs(x));const y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-.284496736)*t+.254829592)*t*Math.exp(-x*x);return x>=0?y:-y}
 const P=tid=>D.players.filter(p=>p.t==tid);
-/* Uncertainty in a team's remaining points: game-to-game noise per start (35% of value), plus a team-level
-   projection error of 8% of what's left (minutes changes, rest days, injuries) that doesn't average out. */
-function sd(tid){const g=P(tid).reduce((a,p)=>a+(p.st||0)*Math.pow(.35*p.v,2),0),m=.08*(D.teams[tid].rest||0);return Math.sqrt(g+m*m)||1}
-const pc=p=>Math.min(99,Math.max(1,Math.round(p*100)));
-function winProb(a,b){const T=D.teams;const z=(T[a].proj-T[b].proj)/Math.sqrt(sd(a)**2+sd(b)**2);return .5*(1+erf(z/Math.SQRT2))}
+/* Win chance. Calibrated against real weeks: teams land about 11% off their start-of-week projection
+   (one standard deviation), single games swing about 45% around a player's projection, and bad nights
+   come in bunches (fat tails), so the margin is compared on a Student-t curve, not a normal one.
+   Sources of uncertainty in what's left of the week:
+   - each remaining start: 45% of the player's value
+   - team-level: 12% of the remaining projection (minutes changes, rest days, injuries that hit several games)
+   - day-to-day players: a real chance of a zero, not a flat 85%
+   - open lineup spots: either side can stream pickups into empty slots */
+const DTDP={DAY_TO_DAY:.65,QUESTIONABLE:.6,DOUBTFUL:.25};
+const liveOn=()=>typeof LV!=="undefined"&&LV.ok&&typeof remaining==="function";
+function restNow(t){return liveOn()?remaining(+t):(D.teams[t].rest||0)}
+function finalMean(t){return liveOn()?liveScore(+t)+remaining(+t):D.teams[t].proj}
+function sd(tid){const T=D.teams[tid],r=restNow(tid),k=T.rest?Math.min(1,r/T.rest):0;
+  let g=0,dtd=0;for(const p of P(tid)){const st=p.st||0;if(!st)continue;g+=st*Math.pow(.45*p.v,2);
+    const q=DTDP[p.inj];if(q){const full=p.v/(p.av||1);dtd+=.5*Math.pow(full*st,2)*q*(1-q)}}
+  const today=liveOn()?TODAY():"";let open=0;for(const d of T.daily||[])if(d.iso>=today)open+=Math.max(0,D.slots.length-d.start.length);
+  const team=.12*r,stream=Math.sqrt(Math.min(open,8))*12*(r>0?1:0);
+  return Math.sqrt((g+dtd)*k+team*team+stream*stream)||1}
+function tcdf(z,v=5){const f=x=>Math.pow(1+x*x/v,-(v+1)/2),n=200,a=Math.abs(z),h=a/n;let s2=f(0)+f(a);for(let i=1;i<n;i++)s2+=(i%2?4:2)*f(i*h);
+  const c=Math.exp(lgam((v+1)/2)-lgam(v/2))/Math.sqrt(v*Math.PI);const half=c*s2*h/3;return z>=0?.5+half:.5-half}
+function lgam(x){const g=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,.1208650973866179e-2,-.5395239384953e-5];let y=x,t=x+5.5;t-=(x+.5)*Math.log(t);let s=1.000000000190015;for(const c of g)s+=c/++y;return -t+Math.log(2.5066282746310005*s/x)}
+const pc=p=>p>=1?100:p<=0?0:Math.min(98,Math.max(2,Math.round(p*100)));
+function winProb(a,b){const ra=restNow(a),rb=restNow(b),ma=finalMean(a),mb=finalMean(b);
+  if(ra<=0&&rb<=0&&!(liveOn()&&Object.values(LV.games).some(g=>g.state==="in")))return ma>mb?1:ma<mb?0:.5; // nothing left to play
+  return tcdf((ma-mb)/Math.sqrt(sd(a)**2+sd(b)**2))}
 function closeness(p){const d=Math.abs(p-.5);return d<.07?"Coin flip":d<.17?"Lean":d<.32?"Clear favorite":"Heavy favorite"}
 function countUp(el,to){if(reduce){el.textContent=Math.round(to);return}const t0=performance.now();const f=t=>{const k=Math.min(1,(t-t0)/1200);el.textContent=Math.round(to*(1-Math.pow(1-k,4)));if(k<1)requestAnimationFrame(f)};requestAnimationFrame(f)}
 const fmtD=iso=>new Date(iso+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric"});
@@ -860,8 +880,9 @@ function renderWire(){
   const me=D.teams[D.me];
   const pend=(D.pending||[]).map(c=>`<b>Pending:</b> add ${esc(c.add.join(", "))}, drop ${esc(c.drop.join(", "))}${c.when?` <span class="faint">· ${esc(c.when)}</span>`:""}`);
   if(pend.length&&me.if_claims!=null) pend.push(`If the claims go through, this week projects to <b>${Math.round(me.live+me.if_claims)}</b> (now ${Math.round(me.proj)}).`);
-  const mv=D.moves.map(m=>`<b>Add ${esc(m.add)}, drop ${esc(m.drop)}.</b> ${m.games} games left vs ${m.dropgames}. About +${Math.round(m.gain)} this week.`);
-  if(!mv.length) mv.push("No free agent beats your bench for the rest of this week.");
+  const mv=D.moves.map(m=>m.from_day!=null?`<b>Add ${esc(m.add)}, drop ${esc(m.drop)}.</b> He's usable from ${esc(m.from_day)} once the claim clears: ${m.games} games from then vs ${m.dropgames} for ${esc(last(m.drop))}. About +${Math.round(m.gain)} this week${m.ros>0?`, minus about ${Math.round(m.ros)} in long-run value, net +${Math.round(m.net)}`:""}. ${esc(last(m.drop))} projects ${m.dropval}/g vs ${m.addval}, so you're not cutting real value.`
+    :`<b>Add ${esc(m.add)}, drop ${esc(m.drop)}.</b> ${m.games} games left vs ${m.dropgames}. About +${Math.round(m.gain)} this week.`);
+  if(!mv.length) mv.push(`No pickup is worth it right now. Pickups only count once the claim clears${D.waiver?` (${esc(new Date(D.waiver.from_day+"T12:00:00").toLocaleDateString("en-US",{weekday:"short"}))})`:""}, and nobody on your roster is close enough to free-agent level to cut without losing real value.`);
   $("#moves").innerHTML=pend.concat(mv).map(m=>`<li>${m}</li>`).join("");
   $("#fa").innerHTML=`<thead><tr><th>Free agent</th><th>Pos</th><th class="r">G</th><th class="r">Proj/G</th></tr></thead><tbody>`+D.fa.map(f=>`<tr><td>${esc(f.n)}${injTag(f.inj)}${f.claimed?'<span class="tag t-claim">CLAIMED</span>':""}<div class="faint" style="font-size:12px">${esc(f.tm)}</div></td><td class="mute">${f.pos}</td><td class="r num mute">${f.g}</td><td class="r num">${f.pa.toFixed(1)}</td></tr>`).join("")+"</tbody>";
 }
@@ -960,7 +981,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1793020550";
+const BUILD="1793040045";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(checkBuild,90000);
 loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
@@ -1006,12 +1027,12 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1793020550"></script>
-<script src="season.js?v=1793020550"></script>
-<script src="bets.js?v=1793020550"></script>
-<script src="trades.js?v=1793020550"></script>
-<script src="sim.js?v=1793020550"></script>
-<script src="overunder.js?v=1793020550"></script>
-<script src="nav.js?v=1793020550"></script>
-<script src="live.js?v=1793020550"></script>
+<script src="arena.js?v=1793040045"></script>
+<script src="season.js?v=1793040045"></script>
+<script src="bets.js?v=1793040045"></script>
+<script src="trades.js?v=1793040045"></script>
+<script src="sim.js?v=1793040045"></script>
+<script src="overunder.js?v=1793040045"></script>
+<script src="nav.js?v=1793040045"></script>
+<script src="live.js?v=1793040045"></script>
 </body></html>
