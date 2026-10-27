@@ -28,5 +28,17 @@
   "result": "L",
   "profit": -100,
   "final": "128-120"
+ },
+ {
+  "id": "401909880",
+  "date": "2026-10-28T03:00Z",
+  "opp": "LAL",
+  "home": false,
+  "kind": "total",
+  "side": "over",
+  "line": 235.5,
+  "edge": 3.4,
+  "price": -110,
+  "made": "2026-10-27T10:39:20.728123+00:00"
  }
 ]
