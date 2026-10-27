@@ -236,12 +236,22 @@ def main():
 
     # What actually happened each day so far (ESPN's official fantasy points, lineup slot that day)
     act = {}
+    def day_opt(rows):
+        """Best possible starting score that day in hindsight: assign players to lineup slots by actual points."""
+        if not rows: return 0.0
+        M = np.full((len(rows), len(slots)), -1e6)
+        for i, r in enumerate(rows):
+            for j, sl in enumerate(slots):
+                if fits({"el": r["el"]}, sl): M[i, j] = r["fp"]
+        ri, ci = linear_sum_assignment(-M)
+        return round(sum(max(0.0, M[i, j]) for i, j in zip(ri, ci) if M[i, j] > -1e5), 1)
+
     def day_actual(d):
         sp = (d - WEEK1_START).days + 1
         j = get(LG, [("view", "mRoster"), ("scoringPeriodId", sp)])
         out = {}
         for t in j.get("teams", []):
-            pl, tot = [], 0.0
+            pl, tot, rows = [], 0.0, []
             for e in t["roster"]["entries"]:
                 p = e["playerPoolEntry"]["player"]
                 st = next((x for x in p.get("stats", []) if x.get("scoringPeriodId") == sp and x.get("statSourceId") == 0), None)
@@ -250,15 +260,92 @@ def main():
                 slot = SLOT.get(e["lineupSlotId"], "BE")
                 pl.append([p["id"], p["fullName"], slot, fp])
                 if slot not in ("BE", "IR"): tot += fp
-            out[t["id"]] = dict(tot=round(tot, 1), pl=pl)
+                if slot != "IR":
+                    rows.append(dict(fp=fp, el=[SLOT[x] for x in p.get("eligibleSlots", []) if x in (0, 1, 2, 3, 4)]))
+            out[t["id"]] = dict(tot=round(tot, 1), opt=day_opt(rows), pl=pl)
         return d.isoformat(), out
+
+    # Manager history (mgr.json): every day's lineup result for every team, plus league transactions.
+    # Days of the current week are refreshed each run; earlier days are fetched once and kept.
+    try:
+        mgr = json.load(open("mgr.json"))
+    except Exception:
+        mgr = {}
+    mgr.setdefault("days", {}); mgr.setdefault("tx", []); mgr.setdefault("names", {})
+    want = [d for d in all_days if d <= today]
+    first = WEEK1_START
+    want += [first + dt.timedelta(days=i) for i in range((min(today, all_days[0]) - first).days)
+             if (first + dt.timedelta(days=i)).isoformat() not in mgr["days"]]
     try:
         from concurrent.futures import ThreadPoolExecutor as _TP
         with _TP(max_workers=4) as ex:
-            for iso, out in ex.map(day_actual, [d for d in all_days if d <= today]):
-                act[iso] = out
+            for iso, out in ex.map(day_actual, sorted(set(want))):
+                if iso >= all_days[0].isoformat(): act[iso] = out
+                mgr["days"][iso] = {str(t): [v["tot"], v["opt"], [[x[0], x[2], x[3]] for x in v["pl"]]] for t, v in out.items()}
+                for t, v in out.items():
+                    for x in v["pl"]: mgr["names"][str(x[0])] = x[1]
     except Exception as e:
         print("daily actuals skipped:", e)
+    # league transactions (adds, drops, trades), once per scoring period
+    seen_tx = {x["id"] for x in mgr["tx"]}
+    for sp in range(max(1, (today - WEEK1_START).days - 1), (today - WEEK1_START).days + 2) if mgr.get("tx_done") else range(1, (today - WEEK1_START).days + 2):
+        try:
+            tj = get(LG, [("view", "mTransactions2"), ("scoringPeriodId", sp)])
+        except Exception as e:
+            print("transactions", sp, e); continue
+        for tx in tj.get("transactions", []) or []:
+            if tx.get("status") != "EXECUTED" or tx.get("id") in seen_tx: continue
+            if tx.get("type") not in ("FREEAGENT", "WAIVER", "TRADE_ACCEPT"): continue
+            items = tx.get("items", []) or []
+            mgr["tx"].append(dict(id=tx["id"], type=tx["type"], t=tx.get("teamId"),
+                                  date=dt.datetime.fromtimestamp((tx.get("processDate") or tx.get("proposedDate") or 0) / 1000, TZ).date().isoformat(),
+                                  items=[[i.get("playerId"), i.get("type"), i.get("fromTeamId"), i.get("toTeamId")] for i in items]))
+            seen_tx.add(tx["id"])
+    mgr["tx_done"] = True
+    for p in players: mgr["names"][str(p["id"])] = p["n"]
+    json.dump(mgr, open("mgr.json", "w"), separators=(",", ":"))
+
+    # Summaries for the dashboard
+    def mgr_summary():
+        wk = set(x.isoformat() for x in all_days)
+        out = {str(t): dict(lost=0.0, lost_wk=0.0, opt=0.0, act=0.0, dead=0, adds=0, drops=0, trades=0) for t in teams}
+        for iso, day in mgr["days"].items():
+            for t, (tot, opt, pl) in day.items():
+                if t not in out: continue
+                o = out[t]; lost = max(0.0, opt - tot)
+                o["lost"] += lost; o["opt"] += opt; o["act"] += tot
+                if iso in wk: o["lost_wk"] += lost
+                # a starter who didn't score while a benched player did
+                bench_scored = any(s == "BE" and fp > 0 for _, s, fp in pl)
+                o["dead"] += sum(1 for _, s, fp in pl if s not in ("BE", "IR") and fp == 0) if bench_scored else 0
+        # pickups: points each added player has scored in that team's starting lineup since the add
+        picks = []
+        for tx in mgr["tx"]:
+            if tx["type"] == "TRADE_ACCEPT":
+                for t in {str(i[2]) for i in tx["items"]} | {str(i[3]) for i in tx["items"]}:
+                    if t in out: out[t]["trades"] += 1
+                continue
+            for pid, kind, frm, to in tx["items"]:
+                team = to if kind == "ADD" else frm
+                if kind == "ADD" and str(to) in out:
+                    out[str(to)]["adds"] += 1
+                    pts = g = 0
+                    for iso, day in mgr["days"].items():
+                        if iso < tx["date"]: continue
+                        for p_, s, fp in (day.get(str(to)) or [0, 0, []])[2]:
+                            if p_ == pid and s not in ("BE", "IR"): pts += fp; g += 1
+                    if True:
+                        picks.append(dict(t=to, n=mgr["names"].get(str(pid), str(pid)), date=tx["date"], pts=round(pts, 1), g=g))
+                elif kind == "DROP" and str(frm) in out:
+                    out[str(frm)]["drops"] += 1
+        for o in out.values():
+            for k in ("lost", "lost_wk", "opt", "act"): o[k] = round(o[k], 1)
+        picks.sort(key=lambda x: -x["pts"])
+        return dict(teams=out, picks=picks[:25], days=len(mgr["days"]), since=min(mgr["days"]) if mgr["days"] else None)
+    try:
+        mgr_out = mgr_summary()
+    except Exception as e:
+        print("manager summary skipped:", e); mgr_out = None
 
     for k in keys:
         order = sorted(teams.values(), key=lambda t: t["cat"][k] if k != "to" else -t["cat"][k], reverse=True)
@@ -455,7 +542,7 @@ def main():
                gpw=gpw, fa=[dict(id=f["id"], n=f["n"], tm=f["tm"], el=f["el"], pa=f["pa"], inj=f["inj"]) for f in fa[:40]])
     data = dict(pulled=dt.datetime.now(TZ).strftime("%b %-d, %-I:%M %p CT"), pulled_iso=dt.datetime.now(dt.timezone.utc).isoformat(), pending=pending, league=settings["name"], me=MY_TEAM, opp=opp,
                 plan=[{k: m[k] for k in ("n", "from", "to", "why")} for m in plan], plan_day=plan_day.strftime("%a %b ") + str(plan_day.day), period=cur_mp, week=[wk_start.isoformat(), wk_end.isoformat()], days=[d.isoformat() for d in days],
-                slots=slots, scoring=scoring, teams=teams, sim=sim, waiver=dict(hours=wait_h, from_day=first_ok.isoformat(), repl=repl), base=wk_base, week_hist=week_hist, act=act, all_days=[d.isoformat() for d in all_days], players=players, sched=sched, moves=top_moves,
+                slots=slots, scoring=scoring, teams=teams, sim=sim, mgr=mgr_out, waiver=dict(hours=wait_h, from_day=first_ok.isoformat(), repl=repl), base=wk_base, week_hist=week_hist, act=act, all_days=[d.isoformat() for d in all_days], players=players, sched=sched, moves=top_moves,
                 fa=[{k: f[k] for k in ("n", "pos", "tm", "inj", "pa", "claimed")} | {"g": len(f["days"])} for f in fa[:12]], news=news, feed=feed[:220], yt=bool(os.environ.get("YT_API_KEY")))
     with open("data.json", "w") as fh:
         json.dump(data, fh, separators=(",", ":"))
