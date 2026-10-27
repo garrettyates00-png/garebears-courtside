@@ -1,6 +1,14 @@
 [
  {
   "date": "2026-10-27",
+  "status": "ok",
+  "moved": [],
+  "note": "Lineup was already optimal.",
+  "at": "Oct 27, 3:11 PM CT",
+  "src": "schedule"
+ },
+ {
+  "date": "2026-10-27",
   "status": "saved",
   "moved": [
    "Ja Morant: BE to PG, plays today (37.5 proj)",
