@@ -135,6 +135,19 @@ function dayInfo(t,iso){
   const starts=bd?bd.start.length:cur?cur.start.length:0;
   return {proj,actual,starts,now:cur?cur.pts:null};
 }
+/* Lineup check for today and upcoming days: who has a game but sits on the bench in the team's current ESPN
+   lineup (ESPN carries today's lineup forward until the manager changes it), and what their best lineup adds. */
+function lineupCheck(t,iso){
+  const today=TODAY();if(iso<today)return null;
+  const cur=(D.teams[t].daily||[]).find(x=>x.iso===iso);if(!cur)return null;
+  const pp=cur.pp||{},ps=P(t).filter(p=>pp[p.id]!=null&&p.slot!=="IR");
+  const benched=ps.filter(p=>p.slot==="BE").map(p=>({n:p.n,proj:pp[p.id]})).sort((a,b)=>b.proj-a.proj);
+  const now=ps.filter(p=>p.slot!=="BE").reduce((s,p)=>s+pp[p.id],0);
+  const lockedPts=(cur.locked||[]).reduce((s,id)=>s+(pp[id]||0),0);
+  const best=cur.pts+lockedPts,gain=Math.max(0,best-now);
+  const idle=D.slots.length-ps.filter(p=>p.slot!=="BE").length;  // starting slots whose player has no game
+  return {benched,now,best,gain,idle};
+}
 function dayPlayers(t,iso){
   const today=TODAY(),B=D.base&&D.base.teams[t],bd=(B&&B.days[iso])||{pp:{},start:[]},cur=(D.teams[t].daily||[]).find(x=>x.iso===iso);
   const name=id=>{const p=D.players.find(x=>x.id==id)||(typeof SEA!=="undefined"&&SEA&&SEA.players||[]).find(x=>x.id==id);return p?p.n:"Former player"};
@@ -149,28 +162,35 @@ function dayPlayers(t,iso){
       const act=LV.ok?(g&&g.state!=="pre"&&r&&!r.dnp?r.fp:g&&g.state==="post"?0:null):(srv[p.id]??null);
       // live games: compare against the share of his projection that should be in by now, not the full number
       const exp=g&&g.state==="in"?pp[p.id]*g.f:null;
-      return {n:p.n,slot:p.slot,proj:pp[p.id],act,exp,st:g?(g.state==="in"?g.detail:g.state==="post"?"Final":g.detail):LV.ok?"":"as of last update"}});
+      return {n:p.n,slot:p.slot,proj:pp[p.id],act,exp,st:(p.slot==="BE"&&(!g||g.state==="pre")?"bench, has a game · ":"")+(g?(g.state==="in"?g.detail:g.state==="post"?"Final":g.detail):LV.ok?"":"as of last update")}});
   }else{
-    const byName=Object.fromEntries(P(t).map(p=>[p.n,p]));const src=cur||{start:[],bench:[],pp:{}};
-    rows=src.start.map(([s,n])=>({n,slot:s,proj:(byName[n]&&src.pp[byName[n].id])||(byName[n]&&byName[n].v)||0,act:null,st:""})).concat((src.bench||[]).map(n=>({n,slot:"BE",proj:(byName[n]&&src.pp[byName[n].id])||0,act:null,st:""})));
+    const pp=(cur||{}).pp||{};
+    rows=P(t).filter(p=>pp[p.id]!=null&&p.slot!=="IR").map(p=>({n:p.n,slot:p.slot,proj:pp[p.id],act:null,st:p.slot==="BE"?"bench, has a game":""}));
   }
   return rows.sort((a,b)=>(isBench(a.slot)-isBench(b.slot))||((b.act??b.proj??0)-(a.act??a.proj??0)));
 }
+function lineupNote(t,iso){const L=lineupCheck(t,iso);if(!L||(!L.benched.length&&L.gain<1))return "";
+  const mine=t==D.me;
+  if(iso>TODAY())return `<div class="lnote"><b>Not set yet.</b> ${L.benched.length?`In ${mine?"your":"their"} current lineup, ${L.benched.map(b=>esc(b.n)).join(", ")} ${L.benched.length>1?"are":"is"} on the bench for this day. `:""}ESPN carries today's lineup forward, so the projection assumes ${mine?"you start":"they start"} the best players that morning. If ${mine?"you":"they"} don't, it's about ${Math.round(L.gain)} lower.${mine?` <span class="faint">Your auto-lineup sets it at 10:30 AM.</span>`:""}</div>`;
+  return `<div class="lnote ${L.gain>=5?"warn":""}"><b>${L.benched.length} on the bench with a game:</b> ${L.benched.map(b=>`${esc(b.n)} (${r1(b.proj)})`).join(", ")}.
+    ${L.gain>=1?` The projection assumes ${mine?"you start":"they start"} the best lineup. As it stands right now, ${mine?"you'd":"they'd"} score about <b>${Math.round(L.gain)} less</b>.`:" They project lower than the starters, so it barely matters."}
+    ${mine?` <span class="faint">Your auto-lineup sets this at 10:30 AM on game days; tap Set lineup if it hasn't run.</span>`:""}</div>`}
 function playersTbl(t,iso){
-  const rows=dayPlayers(t,iso);if(!rows.length)return `<div class="faint">No games.</div>`;
+  const rows=dayPlayers(t,iso);if(!rows.length)return `<div class="dteam faint">No games.</div>`;
   const tot=rows.filter(r=>!isBench(r.slot));
-  return `<table class="tbl dtbl"><thead><tr><th>${esc(D.teams[t].name)}</th><th>Slot</th><th>Proj</th><th>Actual</th><th>+/-</th></tr></thead><tbody>
+  return `<div class="dteam"><table class="tbl dtbl"><thead><tr><th>${esc(D.teams[t].name)}</th><th>Slot</th><th>Proj</th><th>Actual</th><th>+/-</th></tr></thead><tbody>
     ${rows.map(r=>{const d=r.act!=null&&r.proj!=null?r1(r.act-(r.exp??r.proj)):null;return `<tr class="${isBench(r.slot)?"bn":""}"><td><span class="nm">${esc(r.n)}<small>${esc(r.st||"")}</small></span></td><td>${esc(r.slot)}</td><td>${r.proj!=null?r1(r.proj):"–"}</td><td class="fp">${r.act!=null?r.act:"–"}</td><td class="${d==null?"":d>=0?"up":"down"}" ${r.exp!=null?`title="vs ${r1(r.exp)} expected by now"`:""}>${d==null?"":(d>0?"+":"")+d}${r.exp!=null?'<small class="faint"> pace</small>':""}</td></tr>`}).join("")}
-    <tr class="tt"><td>Starters</td><td></td><td>${r1(tot.reduce((s,r)=>s+(r.proj||0),0))}</td><td class="fp">${tot.some(r=>r.act!=null)?r1(tot.reduce((s,r)=>s+(r.act||0),0)):"–"}</td><td></td></tr></tbody></table>`;
+    <tr class="tt"><td>Starters</td><td></td><td>${r1(tot.reduce((s,r)=>s+(r.proj||0),0))}</td><td class="fp">${tot.some(r=>r.act!=null)?r1(tot.reduce((s,r)=>s+(r.act||0),0)):"–"}</td><td></td></tr></tbody></table>${lineupNote(t,iso)}</div>`;
 }
 function dayTable(h,a){
   const days=D.all_days||(D.teams[h].daily||[]).map(x=>x.iso),today=TODAY();
   const lbl=iso=>{const d=new Date(iso+"T12:00:00");return d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})};
-  const cell=(t,iso)=>{const x=dayInfo(t,iso);return x.actual!=null?`<span class="num">${Math.round(x.actual)}</span> <span class="faint">/ ${Math.round(x.proj)}</span>`:`<span class="num">${Math.round(x.now??x.proj)}</span> <span class="faint">· ${x.starts}</span>`};
+  const cell=(t,iso)=>{const x=dayInfo(t,iso),L=iso===today?lineupCheck(t,iso):null,flag=L&&L.gain>=5?` <span class="bflag" title="${L.benched.length} on the bench with a game; best lineup adds about +${Math.round(L.gain)}">⚠ ${L.benched.length} benched</span>`:"";
+    return x.actual!=null?`<span class="num">${Math.round(x.actual)}</span> <span class="faint">/ ${Math.round(x.proj)}</span>${flag}`:`<span class="num">${Math.round(x.now??x.proj)}</span> <span class="faint">· ${x.starts}</span>${flag}`};
   return `<div id="dayTbl" data-h="${h}" data-a="${a}"><div class="scroll"><table class="dayt"><thead><tr><th>Day</th><th class="r">${esc(D.teams[h].name)}</th><th class="r">${esc(D.teams[a].name)}</th></tr></thead><tbody>
     ${days.map(iso=>`<tr class="drow ${iso===today?"today":iso<today?"past":""} ${openDay===iso?"open":""}" data-iso="${iso}" tabindex="0" aria-expanded="${openDay===iso}"><td>${lbl(iso)}${iso===today?' <span class="pill" style="padding:1px 7px">Today</span>':""}</td><td class="r">${cell(h,iso)}</td><td class="r">${cell(a,iso)}</td></tr>
       ${openDay===iso?`<tr class="dsub"><td colspan="3"><div class="dsplit">${playersTbl(h,iso)}${playersTbl(a,iso)}</div></td></tr>`:""}`).join("")}
-    </tbody></table></div><p class="faint" style="font-size:12px;margin:8px 0 0">Played days show actual / projected at the start of the week. Upcoming days show today's projection · starts. Tap a day for every player.</p></div>`;
+    </tbody></table></div><p class="faint" style="font-size:12px;margin:8px 0 0">Played days show actual / projected at the start of the week. Upcoming days show the best-lineup projection · starts. ⚠ (today only) means players with a game are sitting on the bench in that team's lineup right now. Tap a day for every player.</p></div>`;
 }
 document.addEventListener("click",e=>{const r=e.target.closest(".drow");if(!r)return;e.stopPropagation();openDay=openDay===r.dataset.iso?null:r.dataset.iso;const t=r.closest("#dayTbl");t.outerHTML=dayTable(+t.dataset.h,+t.dataset.a)},true);
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.classList&&e.target.classList.contains("drow"))e.target.click()});
