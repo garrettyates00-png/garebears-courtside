@@ -359,12 +359,20 @@ def main():
         season_tot = {}
         if dropped:
             try:
-                fj = get(LG, {"view": "kona_player_info"}, {"x-fantasy-filter": json.dumps({"players": {"filterIds": {"value": dropped}, "limit": len(dropped) + 5}})})
+                fj = get(LG, {"view": "kona_player_info"}, {"x-fantasy-filter": json.dumps({"players": {"filterIds": {"value": dropped}, "filterStatus": {"value": ["FREEAGENT", "WAIVERS", "ONTEAM"]}, "limit": len(dropped) + 5}})})
                 for x in fj.get("players", []):
                     pp = x["player"]; st = next((q for q in pp.get("stats", []) if q.get("id") == f"00{SEASON}"), None)
                     season_tot[pp["id"]] = round((st or {}).get("appliedTotal", 0) or 0, 1)
             except Exception as e:
                 print("dropped-player totals skipped:", e)
+        # fallback: last run's season.json carries every player with a game this season (season total in fpt)
+        try:
+            sj = {r["id"]: r["fpt"] for r in json.load(open("season.json"))["players"]}
+        except Exception:
+            sj = None
+        for pid in dropped:
+            if pid not in season_tot and sj is not None: season_tot[pid] = sj.get(pid, 0.0)
+        print(f"dropped-player totals: {sum(1 for p_ in dropped if p_ in season_tot)}/{len(dropped)}")
         moves_card = []
         for tx in mgr["tx"]:
             if tx["type"] == "TRADE_ACCEPT": continue

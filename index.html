@@ -555,11 +555,12 @@ select option{background:#16171b;color:var(--ink)}
 }
 
 /* over / under */
+.mvt td{vertical-align:top}.mvt small{font-size:11px}
 .out td.ouc,.out th.ouc{text-align:left;min-width:180px}
 .oubar{display:inline-block;position:relative;width:120px;height:8px;border-radius:9px;background:rgba(255,255,255,.06);vertical-align:middle;margin-right:10px}
 .oubar::after{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--line2)}
 .oubar i{position:absolute;top:0;bottom:0;border-radius:9px}.oubar i.p{left:50%;background:var(--up)}.oubar i.n{right:50%;background:var(--down)}
-@media (max-width:700px){.out th:nth-child(3),.out td:nth-child(3){display:none}.out td.ouc,.out th.ouc{min-width:0}.oubar{width:60px;margin-right:6px}.out td:first-child{white-space:normal}.out .nm small{display:none}.out td,.out th{padding:8px 5px}}
+@media (max-width:700px){.out:not(.mvt) th:nth-child(3),.out:not(.mvt) td:nth-child(3){display:none}.mvt .faint{display:none}.out.mvt .nm small{display:block}.out td.ouc,.out th.ouc{min-width:0}.oubar{width:60px;margin-right:6px}.out td:first-child{white-space:normal}.out .nm small{display:none}.out td,.out th{padding:8px 5px}}
 
 /* report-card grades */
 .gtag{display:inline-block;min-width:26px;text-align:center;font:700 11px var(--mono);padding:2px 6px;border-radius:7px;margin-left:6px;vertical-align:1px;border:1px solid transparent}
@@ -1079,7 +1080,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1793161445";
+const BUILD="1793163367";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(checkBuild,90000);
 loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
@@ -1125,14 +1126,14 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1793161445"></script>
-<script src="season.js?v=1793161445"></script>
-<script src="bets.js?v=1793161445"></script>
-<script src="trades.js?v=1793161445"></script>
-<script src="sim.js?v=1793161445"></script>
-<script src="overunder.js?v=1793161445"></script>
-<script src="profile.js?v=1793161445"></script>
-<script src="timeline.js?v=1793161445"></script>
-<script src="nav.js?v=1793161445"></script>
-<script src="live.js?v=1793161445"></script>
+<script src="arena.js?v=1793163367"></script>
+<script src="season.js?v=1793163367"></script>
+<script src="bets.js?v=1793163367"></script>
+<script src="trades.js?v=1793163367"></script>
+<script src="sim.js?v=1793163367"></script>
+<script src="overunder.js?v=1793163367"></script>
+<script src="profile.js?v=1793163367"></script>
+<script src="timeline.js?v=1793163367"></script>
+<script src="nav.js?v=1793163367"></script>
+<script src="live.js?v=1793163367"></script>
 </body></html>
