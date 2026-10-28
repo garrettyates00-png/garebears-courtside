@@ -1079,7 +1079,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1793160919";
+const BUILD="1793161445";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(checkBuild,90000);
 loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
@@ -1125,14 +1125,14 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1793160919"></script>
-<script src="season.js?v=1793160919"></script>
-<script src="bets.js?v=1793160919"></script>
-<script src="trades.js?v=1793160919"></script>
-<script src="sim.js?v=1793160919"></script>
-<script src="overunder.js?v=1793160919"></script>
-<script src="profile.js?v=1793160919"></script>
-<script src="timeline.js?v=1793160919"></script>
-<script src="nav.js?v=1793160919"></script>
-<script src="live.js?v=1793160919"></script>
+<script src="arena.js?v=1793161445"></script>
+<script src="season.js?v=1793161445"></script>
+<script src="bets.js?v=1793161445"></script>
+<script src="trades.js?v=1793161445"></script>
+<script src="sim.js?v=1793161445"></script>
+<script src="overunder.js?v=1793161445"></script>
+<script src="profile.js?v=1793161445"></script>
+<script src="timeline.js?v=1793161445"></script>
+<script src="nav.js?v=1793161445"></script>
+<script src="live.js?v=1793161445"></script>
 </body></html>

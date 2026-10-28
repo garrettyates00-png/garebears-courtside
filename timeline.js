@@ -1,6 +1,6 @@
 /* My season timeline: projection, strength, power rank and simulated playoff/title odds since the draft,
    with every add, drop, claim, injury and new matchup marked, and how each one moved the selected metric. */
-let TL=null,tlMetric="po",tlHover=null,tlClaims=null;
+let TL=null,tlMetric="po",tlHover=null,tlClaims=null,tlTeam=null;
 const TLM=[["po","Playoff %",v=>Math.round(v*100)+"%",1],["title","Title %",v=>(v*100).toFixed(1)+"%",1],["wins","Projected wins",v=>v.toFixed(1),1],
   ["core","Team strength",v=>Math.round(v),1],["prank","Power rank",v=>"#"+v,-1],["wk","This week's projection",v=>Math.round(v),1]];
 const EVC={add:"var(--up)",return:"var(--up)",drop:"var(--faint)",injury:"var(--down)",claim:"var(--a)",week:"rgba(255,255,255,.35)",draft:"var(--hi)"};
@@ -8,7 +8,10 @@ async function loadTL(){try{TL=await (await fetch("timeline.json?t="+Date.now(),
 async function renderTL(){
   const el=$("#secTL");if(!el)return;if(!TL)await loadTL();
   if(!TL||!TL.points||!TL.points.length){el.innerHTML=`<div class="eyebrow">Since the draft</div><h2>My season timeline</h2><p class="mute">Fills in after the next data refresh.</p>`;return}
-  const P=TL.points,M=TLM.find(m=>m[0]===tlMetric),fmt=M[2],val=p=>p[tlMetric];
+  if(tlTeam==null||!D.teams[tlTeam])tlTeam=String(D.me);
+  const sel=tlTeam,mine=sel===String(D.me);
+  const P=TL.points.filter(p=>p.m?p.m[sel]:mine).map(p=>p.m?{...p,...p.m[sel]}:p),M=TLM.find(m=>m[0]===tlMetric),fmt=M[2],val=p=>p[tlMetric];
+  if(!P.length){el.innerHTML=`<p class="mute">No history for that team yet.</p>`;return}
   const pts=P.map((p,i)=>({i,t:Date.parse(p.at),v:val(p)})).filter(x=>x.v!=null&&!isNaN(x.t));
   const W=900,H=240,L=48,R=16,T=16,B=28;
   const t0=pts[0].t,t1=pts[pts.length-1].t||t0+1,vs=pts.map(x=>x.v);let lo=Math.min(...vs),hi=Math.max(...vs);
@@ -20,7 +23,9 @@ async function renderTL(){
   const ticks=[0,.25,.5,.75,1].map(f=>lo+(hi-lo)*f);
   const days=[];for(let d=new Date(t0);d<=t1;d=new Date(d.getTime()+864e5))days.push(d);
   const dstep=Math.max(1,Math.ceil(days.length/8));
-  const E=(TL.events||[]).filter(e=>P[e.i]);
+  // map event indexes from the full point list to this team's list
+  const idx={};let k2=0;TL.points.forEach((p,i)=>{if(p.m?p.m[sel]:mine)idx[i]=k2++});
+  const E=(TL.events||[]).filter(e=>(e.t==null?mine:(e.t===sel||e.t==="*"))&&idx[e.i]!=null).map(e=>({...e,i:idx[e.i]}));
   const byPoint={};for(const e of E)(byPoint[e.i]=byPoint[e.i]||[]).push(e);
   const marks=Object.entries(byPoint).map(([i,es])=>{const p=P[+i],x=X(Date.parse(p.at)),k=es.find(e=>e.kind!=="week")||es[0];
     return `<g class="tlev" data-i="${i}"><line x1="${x}" x2="${x}" y1="${T}" y2="${H-B}" stroke="${EVC[k.kind]||"#fff"}" stroke-opacity=".35" ${k.kind==="week"?'stroke-dasharray="3 4"':""}/><circle cx="${x}" cy="${H-B}" r="5" fill="${EVC[k.kind]||"#fff"}"/></g>`}).join("");
@@ -31,7 +36,8 @@ async function renderTL(){
   const evList=Object.entries(byPoint).sort((a,b)=>b[0]-a[0]).map(([i,es])=>{const p=P[+i],d=delta(+i);
     return `<li data-i="${i}"><span class="tld">${new Date(p.at).toLocaleDateString("en-US",{month:"short",day:"numeric"})}</span><div>${es.map(e=>`<span class="tlk" style="--c:${EVC[e.kind]}">${esc(e.text)}</span>`).join("")}</div><span class="tlv">${+i>0?`${fmt(val(P[+i-1]))} → <b>${fmt(val(p))}</b> ${dtxt(d)}`:`<b>${fmt(val(p))}</b>`}</span></li>`}).join("");
   const cur=P.at(-1),first=P[0];
-  el.innerHTML=`<div class="sec-h"><div><div class="eyebrow">Since the draft · ${P.length} snapshots</div><h2>My season timeline</h2></div>
+  const teamSel=`<select id="tlTeam" aria-label="Team">${Object.keys(D.teams).sort((a,b)=>(a==D.me?-1:b==D.me?1:D.teams[a].name.localeCompare(D.teams[b].name))).map(t=>`<option value="${t}" ${t===sel?"selected":""}>${esc(D.teams[t].name)}${t==D.me?" (you)":""}</option>`).join("")}</select>`;
+  el.innerHTML=`<div class="sec-h"><div><div class="eyebrow">Since the draft · ${P.length} snapshots</div><h2>${mine?"My season timeline":esc(D.teams[sel].name)+" timeline"}</h2><div style="margin-top:8px">${teamSel}</div></div>
     <div class="tlnow"><span class="faint">${M[1]} now</span><b>${fmt(val(cur))}</b><span>${dtxt(val(cur)-val(first))} <span class="faint">since the draft</span></span></div></div>
     <div class="filters tlf">${TLM.map(m=>`<button type="button" class="fchip" data-m="${m[0]}" aria-selected="${m[0]===tlMetric}">${m[1]}</button>`).join("")}</div>
     <div class="tlchart"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="${M[1]} over time">
@@ -44,15 +50,16 @@ async function renderTL(){
     <div class="tllegend">${[["add","Added"],["drop","Dropped"],["claim","Claim placed"],["injury","Injury"],["return","Healthy"],["week","New matchup"]].map(([k,l])=>`<span><i style="background:${EVC[k]}"></i>${l}</span>`).join("")}</div>
     <div id="tlClaims"></div>
     <div class="eyebrow" style="margin:18px 0 8px">What changed · effect on ${M[1].toLowerCase()}</div><ul class="tllist">${evList}</ul>
-    <p class="faint" style="font-size:12.5px;margin:10px 0 0">Each snapshot re-runs a 3,000-season simulation with your roster, injuries and record at that moment. The change shown is from the snapshot before the event to the one after it, so news that landed at the same time shares the same change.</p>`;
+    <p class="faint" style="font-size:12.5px;margin:10px 0 0">Each snapshot re-runs a 3,000-season simulation with every roster, injury and record at that moment.${mine?"":" Other teams' waiver claims are private on ESPN, so only completed moves show for them."} The change shown is from the snapshot before the event to the one after it, so news that landed at the same time shares the same change.</p>`;
   el.querySelector(".tlf").onclick=e=>{const b=e.target.closest("[data-m]");if(b){tlMetric=b.dataset.m;renderTL()}};
+  $("#tlTeam").onchange=e=>{tlTeam=e.target.value;renderTL()};
   const svg=el.querySelector("svg"),tip=$("#tlTip"),dot=$("#tlDot");
   const show=ev=>{const r=svg.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width*W;let best=pts[0];for(const q of pts)if(Math.abs(X(q.t)-x)<Math.abs(X(best.t)-x))best=q;
     const p=P[best.i],es=byPoint[best.i]||[];dot.style.display="";dot.setAttribute("cx",X(best.t));dot.setAttribute("cy",Y(best.v));
     tip.hidden=false;tip.style.left=Math.min(r.width-220,Math.max(0,X(best.t)/W*r.width-110))+"px";
     tip.innerHTML=`<div class="faint">${esc(p.pulled||new Date(p.at).toLocaleString())}</div><b>${fmt(best.v)}</b> ${dtxt(delta(best.i))}${es.map(e=>`<div class="tlk" style="--c:${EVC[e.kind]}">${esc(e.text)}</div>`).join("")}`};
   svg.addEventListener("pointermove",show);svg.addEventListener("pointerdown",show);svg.addEventListener("pointerleave",()=>{tip.hidden=true;dot.style.display="none"});
-  tlPending();
+  if(mine)tlPending();
 }
 /* what your pending claims would do, using the full simulator with the same random draws */
 async function tlPending(){

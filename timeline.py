@@ -20,7 +20,6 @@ def _bracket_slots(size):
 
 def simulate(d, sim, n=N_SIMS, seed=7):
     """Vectorized season sim (same model as the page's simulator, simplified): returns my playoff %, title %, wins."""
-    me = d["me"]
     teams = [int(t) for t in d["teams"]]
     TI = {t: i for i, t in enumerate(teams)}
     NT = len(teams)
@@ -80,15 +79,14 @@ def simulate(d, sim, n=N_SIMS, seed=7):
             sh, sa = score[:, hi, wi], score[:, ai, wi]
         pf[:, hi] += sh; pf[:, ai] += sa
         wins[:, hi] += (sh > sa) + 0.5 * (sh == sa); wins[:, ai] += (sa > sh) + 0.5 * (sh == sa)
-    order = np.lexsort((-pf, -wins), axis=-1) if False else np.argsort(-(wins * 1e6 + pf), axis=1)
-    mi = TI[me]
-    seed_of_me = np.argmax(order == mi, axis=1)
-    po = float(np.mean(seed_of_me < pteams))
+    order = np.argsort(-(wins * 1e6 + pf), axis=1)
+    po = np.zeros(NT); champ = np.zeros(NT)
+    for ti in range(NT):
+        po[ti] = float(np.mean(np.argmax(order == ti, axis=1) < pteams))
     # playoffs: fixed bracket with byes, one matchup period per round
     S = 1
     while S < pteams: S *= 2
     slots = _bracket_slots(S)
-    champ = 0
     for s_ in range(n):
         seeds = order[s_, :pteams]
         alive = [seeds[x - 1] if x <= pteams else -1 for x in slots]
@@ -103,26 +101,28 @@ def simulate(d, sim, n=N_SIMS, seed=7):
                 sx = score[s_, x, wi] if wi is not None else 0; sy = score[s_, y, wi] if wi is not None else 0
                 nxt.append(x if sx >= sy else y)
             alive = nxt; rw += 1
-        champ += alive[0] == mi
-    return dict(po=round(float(po), 4), title=round(float(champ) / n, 4), wins=round(float(np.mean(wins[:, mi])), 2))
+        champ[alive[0]] += 1
+    mw = wins.mean(axis=0)
+    return {str(t): dict(po=round(float(po[i]), 4), title=round(float(champ[i]) / n, 4), wins=round(float(mw[i]), 2)) for i, t in enumerate(teams)}
 
 
 def point(d, sim):
-    me = str(d["me"]); T = d["teams"]
+    T = d["teams"]
     pw = sorted(T, key=lambda t: -(T[t].get("power") or 0))
-    p = dict(at=d.get("pulled_iso") or "", pulled=d.get("pulled"), period=d.get("period"),
-             wk=round(T[me].get("proj") or 0, 1), core=round(T[me].get("core") or 0, 1),
-             power=round(T[me].get("power") or 0, 1), prank=pw.index(me) + 1,
-             rec=f'{T[me].get("w", 0)}-{T[me].get("l", 0)}')
     try:
-        p.update(simulate(d, sim))
+        sims = simulate(d, sim)
     except Exception as e:
-        print("timeline sim skipped:", e)
-    return p
+        print("timeline sim skipped:", e); sims = {}
+    m = {}
+    for t in T:
+        m[t] = dict(wk=round(T[t].get("proj") or 0, 1), core=round(T[t].get("core") or 0, 1), power=round(T[t].get("power") or 0, 1),
+                    prank=pw.index(t) + 1, rec=f'{T[t].get("w", 0)}-{T[t].get("l", 0)}', **sims.get(t, {}))
+    return dict(at=d.get("pulled_iso") or "", pulled=d.get("pulled"), period=d.get("period"), m=m)
 
 
-def roster(d):
-    return {str(p["id"]): [p["n"], p.get("inj") or "", round(p.get("v") or 0, 1)] for p in d["players"] if p["t"] == d["me"]}
+def roster(d, t):
+    full = lambda p: (p.get("v") or 0) / p["av"] if (p.get("av") or 0) > 0 else (p.get("pa") or 0)
+    return {str(p["id"]): [p["n"], p.get("inj") or "", round(full(p), 1)] for p in d["players"] if str(p["t"]) == str(t)}
 
 
 def events(prev, cur, d_prev, d_cur):
@@ -146,16 +146,29 @@ def events(prev, cur, d_prev, d_cur):
 
 
 def update(d, sim, path="timeline.json", min_gap_h=2.0):
-    """Append the current snapshot (always if something changed on my team, else at most every couple of hours)."""
+    """Append a snapshot for every team (always if any roster or injury changed, else at most every couple of hours)."""
     try:
         tl = json.load(open(path))
+        if "points" in tl and tl["points"] and "m" not in tl["points"][0]: tl = {}   # old single-team format
     except Exception:
-        tl = {"points": [], "events": [], "last": {}}
-    cur = roster(d)
-    prev = tl.get("last", {}).get("roster")
+        tl = {}
+    tl.setdefault("points", []); tl.setdefault("events", []); tl.setdefault("last", {})
+    me = str(d["me"])
     claims = [", ".join(f'{"add" if i["kind"] == "ADD" else "drop"} {i["n"]}' for i in c["items"]) for c in (d.get("league_pending") or []) if c.get("mine")]
     meta = dict(period=d.get("period"), claims=claims)
-    ev = events(prev, cur, tl.get("last", {}).get("meta"), meta) if prev is not None else []
+    lastr = tl["last"].get("rosters") or {}
+    ev = []
+    cur = {t: roster(d, t) for t in d["teams"]}
+    for t in d["teams"]:
+        if t not in lastr: continue
+        pm = tl["last"].get("meta") or {}
+        for e in events(lastr[t], cur[t], {"period": pm.get("period"), "claims": pm.get("claims") if t == me else []},
+                        {"period": d.get("period"), "claims": claims if t == me else []}):
+            if e["kind"] == "week" and t != me: continue
+            e["t"] = t; ev.append(e)
+    if any(e["kind"] == "week" for e in ev):
+        for e in ev:
+            if e["kind"] == "week": e["t"] = "*"
     lastp = tl["points"][-1] if tl["points"] else None
     import datetime as _dt
     gap = 99
@@ -164,14 +177,14 @@ def update(d, sim, path="timeline.json", min_gap_h=2.0):
             gap = (_dt.datetime.fromisoformat(d["pulled_iso"]) - _dt.datetime.fromisoformat(lastp["at"])).total_seconds() / 3600
         except Exception:
             pass
-    if not ev and gap < min_gap_h:
+    if not ev and gap < min_gap_h and lastr:
         return tl
     p = point(d, sim)
-    if not tl["points"]: ev = [dict(kind="draft", n="", text="Draft complete")] + ev
+    if not tl["points"]: ev = [dict(kind="draft", n="", text="Draft complete", t="*")] + ev
     tl["points"].append(p)
     for e in ev:
-        e["i"] = len(tl["points"]) - 1; e["at"] = p["at"]; tl["events"].append(e)
-    tl["last"] = dict(roster=cur, meta=meta)
+        e["i"] = len(tl["points"]) - 1; tl["events"].append(e)
+    tl["last"] = dict(rosters=cur, meta=meta)
     json.dump(tl, open(path, "w"), separators=(",", ":"))
     return tl
 
