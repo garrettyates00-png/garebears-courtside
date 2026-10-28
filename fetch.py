@@ -341,7 +341,51 @@ def main():
         for o in out.values():
             for k in ("lost", "lost_wk", "opt", "act"): o[k] = round(o[k], 1)
         picks.sort(key=lambda x: -x["pts"])
-        return dict(teams=out, picks=picks[:25], days=len(mgr["days"]), since=min(mgr["days"]) if mgr["days"] else None)
+
+        # Move scorecard: for every add/drop, what the added players scored for the team since (total and in the
+        # lineup) against what the dropped players have scored anywhere since. Dropped players' scoring comes from
+        # their ESPN season total minus what they had scored before the drop (from the daily history).
+        def scored(pid, since=None, before=None, team=None, lineup=False):
+            tot = g = 0
+            for iso, day in mgr["days"].items():
+                if since and iso < since: continue
+                if before and iso >= before: continue
+                for t_, (_, _, pl) in day.items():
+                    if team is not None and t_ != str(team): continue
+                    for p_, s, fp in pl:
+                        if p_ == pid and (not lineup or s not in ("BE", "IR")): tot += fp; g += 1
+            return round(tot, 1), g
+        dropped = sorted({i[0] for tx in mgr["tx"] if tx["type"] != "TRADE_ACCEPT" for i in tx["items"] if i[1] == "DROP"})
+        season_tot = {}
+        if dropped:
+            try:
+                fj = get(LG, {"view": "kona_player_info"}, {"x-fantasy-filter": json.dumps({"players": {"filterIds": {"value": dropped}, "limit": len(dropped) + 5}})})
+                for x in fj.get("players", []):
+                    pp = x["player"]; st = next((q for q in pp.get("stats", []) if q.get("id") == f"00{SEASON}"), None)
+                    season_tot[pp["id"]] = round((st or {}).get("appliedTotal", 0) or 0, 1)
+            except Exception as e:
+                print("dropped-player totals skipped:", e)
+        moves_card = []
+        for tx in mgr["tx"]:
+            if tx["type"] == "TRADE_ACCEPT": continue
+            team = tx["t"]
+            adds = [i[0] for i in tx["items"] if i[1] == "ADD"]; drops = [i[0] for i in tx["items"] if i[1] == "DROP"]
+            A = []
+            for pid in adds:
+                tot, g = scored(pid, since=tx["date"], team=team); lin, gl = scored(pid, since=tx["date"], team=team, lineup=True)
+                A.append(dict(n=mgr["names"].get(str(pid), str(pid)), pts=tot, lineup=lin, g=g))
+            Dd = []
+            for pid in drops:
+                before, _ = scored(pid, before=tx["date"])
+                since = round(season_tot[pid] - before, 1) if pid in season_tot else None
+                Dd.append(dict(n=mgr["names"].get(str(pid), str(pid)), pts=since))
+            known = all(x["pts"] is not None for x in Dd)
+            net = round(sum(x["pts"] for x in A) - sum(x["pts"] or 0 for x in Dd), 1) if known else None
+            moves_card.append(dict(t=team, date=tx["date"], type=tx["type"], add=A, drop=Dd, net=net))
+        moves_card.sort(key=lambda m: m["date"], reverse=True)
+        for m in moves_card:
+            if m["net"] is not None and str(m["t"]) in out: out[str(m["t"])]["net"] = round(out[str(m["t"])].get("net", 0) + m["net"], 1)
+        return dict(teams=out, picks=picks[:25], moves=moves_card, days=len(mgr["days"]), since=min(mgr["days"]) if mgr["days"] else None)
     try:
         mgr_out = mgr_summary()
     except Exception as e:
