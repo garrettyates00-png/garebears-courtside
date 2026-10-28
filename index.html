@@ -592,6 +592,17 @@ select option{background:#16171b;color:var(--ink)}
 .csteps{margin:0;padding-left:20px;display:grid;gap:12px;font-size:14px;line-height:1.5}.csteps .copyrow{margin:6px 0}
 .copyrow{display:flex;gap:8px;align-items:center}.copyrow code{flex:1;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,.06);font:500 13px var(--mono);overflow-x:auto}
 @media (max-width:700px){.duo{width:96px;height:96px;border-radius:18px}.ptiles{grid-template-columns:repeat(3,1fr)}.ptwo,.sumcols{grid-template-columns:1fr}.sumcard.empty{grid-template-columns:1fr}}
+
+/* waiver board, matchup pace, power tags */
+.wire{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:18px}
+.wblk{padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid var(--line)}.wblk .eyebrow{margin-bottom:6px}
+.wblk.offer{border-color:color-mix(in srgb,var(--a) 55%,transparent);background:color-mix(in srgb,var(--a) 10%,transparent)}
+.wblk ul{margin:0;padding-left:16px;display:grid;gap:5px;font-size:13px;line-height:1.45}.wblk p{margin:0;font-size:12.5px}
+.tag.t-wv{background:color-mix(in srgb,var(--warn) 22%,transparent);color:var(--warn)}.tag.t-fa{background:color-mix(in srgb,var(--up) 15%,transparent);color:var(--up)}
+.cproj{font:500 11px var(--mono);color:var(--faint);margin:-8px 0 2px;text-align:right}
+.ttags{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}.ttag{font:600 10.5px var(--mono);padding:2px 7px;border-radius:6px;white-space:nowrap}
+.ttag.inj{background:color-mix(in srgb,var(--down) 18%,transparent);color:var(--down)}.ttag.tr{background:color-mix(in srgb,var(--a) 22%,transparent);color:var(--ink)}
+@media (max-width:900px){.wire{grid-template-columns:1fr}}
 </style></head><body>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div>
 
@@ -644,6 +655,7 @@ select option{background:#16171b;color:var(--ink)}
 
   <section class="g pad" id="secMoves">
     <div class="sec-h"><div><div class="eyebrow">Waiver wire</div><h2>Moves to make</h2></div></div>
+    <div id="wire" class="wire"></div>
     <div class="two" style="gap:28px"><ul class="notes" id="moves" style="margin:0"></ul><div class="scroll"><table id="fa"></table></div></div>
   </section>
 
@@ -812,7 +824,10 @@ function renderHero(){
 function renderCards(){setTimeout(()=>{if(openCard){const [h,a]=openCard.split("-");openCard=null;toggleCard(+h,+a)}},0);
   const T=D.teams;
   $("#cards").innerHTML=matchups().map(([h,a])=>{const A=analyze(h,a);const ph=A.pA;const mine=h==D.me||a==D.me;
-    const r=(id,win)=>`<div class="row ${win?"":"lose"}"><span class="n">${esc(T[id].name)}</span><span class="p">${Math.round(T[id].proj)}</span></div>`;
+    const LV2=typeof isLiveWeek==="function"&&isLiveWeek();
+    const r=(id,win)=>{if(!LV2)return `<div class="row ${win?"":"lose"}"><span class="n">${esc(T[id].name)}</span><span class="p">${Math.round(T[id].proj)}</span></div>`;
+      const act=liveScore(+id),fin=finalMean(id),e=expectedSoFar(+id),d=e==null?null:act-e;
+      return `<div class="row ${win?"":"lose"}"><span class="n">${esc(T[id].name)}</span><span class="p">${Math.round(act)}</span></div><div class="cproj">proj ${Math.round(fin)}${d==null?"":` · <span class="${d>=0?"up":"down"}">${d>=0?"+":""}${Math.round(d)}</span> vs pace`}</div>`};
     return `<button class="card ${mine?"mine":""}" type="button" data-h="${h}" data-a="${a}">${r(h,ph>=.5)}${r(a,ph<.5)}<div class="mini"><span style="width:${(ph*100).toFixed(0)}%"></span></div><div class="cfoot"><span>${A.label}</span><span>${pc(Math.max(ph,1-ph))}% · by ${Math.round(Math.abs(A.margin))}</span></div></button>`}).join("");
 }
 function detailHTML(h,a,withHead){
@@ -877,10 +892,16 @@ function renderLineupAct(){
 }
 
 let selTeam=null;
+function tradeInfo(id){const pend=(D.league_pending||[]).filter(c=>/TRADE/.test(c.type||"")&&c.items.some(i=>i.frm==id||i.to==id));
+  const recent=(D.recent||[]).filter(r=>/TRADE/.test(r.type||"")&&r.items.some(i=>i.frm==id||i.to==id));return {pend,recent}}
+function teamTags(id){const I=(D.injury||{})[id],tr=tradeInfo(id),tags=[];
+  if(I&&I.week>=10)tags.push(`<span class="ttag inj" title="${esc(I.who.map(w=>w[0]+" "+w[1].replace("_"," ").toLowerCase()).join(", "))}">🩹 −${Math.round(I.week)} this week</span>`);
+  if(tr.pend.length)tags.push(`<span class="ttag tr">⇄ trade pending</span>`);else if(tr.recent.length)tags.push(`<span class="ttag tr">⇄ just traded</span>`);
+  return tags.length?`<div class="ttags">${tags.join("")}</div>`:""}
 function renderPower(){
   const rows=Object.entries(D.teams).sort((a,b)=>b[1].power-a[1].power);const mx=rows[0][1].power,mn=rows[rows.length-1][1].power;
   if(selTeam==null)selTeam=String(D.me);
-  $("#power").innerHTML=`<thead><tr><th></th><th>Team</th><th class="r">W-L</th><th class="r">Power</th><th></th></tr></thead><tbody>`+rows.map(([id,t],i)=>`<tr class="prow ${id==D.me?"me":""} ${id==selTeam?"sel":""}" data-id="${id}" tabindex="0" aria-selected="${id==selTeam}"><td class="rk">${i+1}</td><td><div style="font-weight:500">${esc(t.name)}</div><div class="faint" style="font-size:12.5px">${esc(t.owner)} · ${esc(t.star)}</div></td><td class="r num mute">${t.w}-${t.l}</td><td class="r num">${Math.round(t.power)}</td><td style="width:18%"><div class="bars"><i style="width:${(15+85*(t.power-mn)/((mx-mn)||1)).toFixed(0)}%"></i></div></td></tr>`).join("")+"</tbody>";
+  $("#power").innerHTML=`<thead><tr><th></th><th>Team</th><th class="r">W-L</th><th class="r">Power</th><th></th></tr></thead><tbody>`+rows.map(([id,t],i)=>`<tr class="prow ${id==D.me?"me":""} ${id==selTeam?"sel":""}" data-id="${id}" tabindex="0" aria-selected="${id==selTeam}"><td class="rk">${i+1}</td><td><div style="font-weight:500">${esc(t.name)}</div><div class="faint" style="font-size:12.5px">${esc(t.owner)} · ${esc(t.star)}</div>${teamTags(id)}</td><td class="r num mute">${t.w}-${t.l}</td><td class="r num">${Math.round(t.power)}</td><td style="width:18%"><div class="bars"><i style="width:${(15+85*(t.power-mn)/((mx-mn)||1)).toFixed(0)}%"></i></div></td></tr>`).join("")+"</tbody>";
 }
 function pickTeam(id){selTeam=String(id);document.querySelectorAll(".prow").forEach(r=>{const on=r.dataset.id==selTeam;r.classList.toggle("sel",on);r.setAttribute("aria-selected",on)});renderStrength(selTeam);
   if(matchMedia("(max-width:760px)").matches)$("#tdetail").scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"})}
@@ -900,6 +921,9 @@ function renderStrength(id){
   why.push(`<b>Star power ranks #${topRank}.</b> ${top.map(p=>esc(p.n)+" ("+p.v.toFixed(1)+")").join(", ")}.`);
   why.push(`<b>Bench ${benchD>=0?"is deeper than most":"is thinner than most"}.</b> ${Math.round(t.bench)} per game from players 12 and beyond (league avg ${Math.round(avg("bench"))}).`);
   if(t.risk) why.push(`<b>${t.risk} injury tag${t.risk>1?"s":""}</b> cost ${t.risk*2} power points: ${ps.filter(p=>p.inj).map(p=>esc(p.n)).join(", ")}.`);
+  const I=(D.injury||{})[id];if(I&&I.week>=1)why.push(`<b>Injuries cost about ${Math.round(I.week)} points this week:</b> ${I.who.map(w=>`${esc(w[0])} (${esc(w[1].replace("_"," ").toLowerCase())}, −${Math.round(w[2])})`).join(", ")}.${I.out.length?` Out: ${I.out.map(esc).join(", ")}.`:""}`);
+  const TR=tradeInfo(id);if(TR.pend.length)why.push(`<b>Trade pending:</b> ${TR.pend.map(c=>c.items.map(i=>esc(i.n)).join(", ")).join("; ")}.`);
+  else if(TR.recent.length)why.push(`<b>Just traded:</b> ${TR.recent.map(c=>c.items.map(i=>esc(i.n)).join(", ")).join("; ")}.`);
   if(above) why.push(`<b>${Math.round(T[above].power-t.power)} points behind #${rank-1} ${esc(T[above].name)}</b>${below?`, ${Math.round(t.power-T[below].power)} ahead of #${rank+1} ${esc(T[below].name)}`:""}.`);
   else why.push(`<b>Top of the league</b>, ${Math.round(t.power-T[below].power)} ahead of ${esc(T[below].name)}.`);
   $("#tdHead").innerHTML=`<div class="row" style="align-items:flex-end"><div><div class="eyebrow">Power ranking</div><h2 style="font-size:22px">${esc(t.name)}</h2><div class="faint" style="font-size:12.5px">${esc(t.owner)} · ${t.w}-${t.l}</div></div><div style="text-align:right"><div class="num" style="font:300 54px/1 var(--sans);letter-spacing:-.04em">#${rank}</div><div class="faint num" style="font-size:12px">${Math.round(t.power)} power</div></div></div>
@@ -910,15 +934,37 @@ function renderStrength(id){
   $("#sw").innerHTML=`<div><h4 class="up">STRENGTHS</h4>${s.length?s.join(", "):"Nothing top-3"}</div><div><h4 class="down">WEAKNESSES</h4>${w.length?w.join(", "):"Nothing bottom-3"}</div>`;
   const box=$("#tdetail");box.classList.remove("swap");void box.offsetWidth;box.classList.add("swap");
 }
+/* claims and pending items, plus recent moves around the league */
+function renderWireBoard(){const el=$("#wire");if(!el)return;const T=D.teams,tn=t=>esc((T[t]||{}).name||"another team");
+  const LP=D.league_pending||[],involves=c=>c.items.some(i=>i.frm==D.me||i.to==D.me);
+  const offers=LP.filter(c=>/TRADE/.test(c.type||"")&&!c.mine&&involves(c)),mine=LP.filter(x=>x.mine),others=LP.filter(x=>!x.mine&&!offers.includes(x)),R=D.recent||[];const me=T[D.me];
+  const desc=c=>{const a=c.items.filter(i=>i.kind==="ADD").map(i=>esc(i.n)),d=c.items.filter(i=>i.kind==="DROP").map(i=>esc(i.n)),tr=c.items.filter(i=>i.kind==="TRADE");
+    if(tr.length){const sides={};for(const i of tr)(sides[i.frm]=sides[i.frm]||[]).push(esc(i.n));return Object.entries(sides).map(([t,ns])=>`${tn(t)} sends ${ns.join(", ")}`).join(" ⇄ ")}
+    return `${a.length?"add "+a.join(", "):""}${a.length&&d.length?", ":""}${d.length?"drop "+d.join(", "):""}`};
+  const kind=c=>c.type==="WAIVER"?"Waiver claim":c.type==="FREEAGENT"?"Free-agent add":/TRADE/.test(c.type||"")?"Trade":c.type;
+  const blk=(title,items,empty)=>`<div class="wblk"><div class="eyebrow">${title}</div>${items.length?`<ul>${items.join("")}</ul>`:`<p class="faint">${empty}</p>`}</div>`;
+  const mineL=mine.map(c=>`<li><b>${kind(c)}:</b> ${desc(c)}${c.when?` <span class="faint">· processes ${esc(c.when)}</span>`:""}</li>`);
+  if(mine.length&&me.if_claims!=null)mineL.push(`<li class="faint">If they all go through, this week projects to <b>${Math.round(me.live+me.if_claims)}</b> (now ${Math.round(me.proj)}).</li>`);
+  const othL=others.map(c=>`<li><b>${tn(c.t)}</b> · ${kind(c)}${c.status&&c.status!=="PENDING"?` (${esc(c.status.toLowerCase())})`:""}: ${desc(c)}${c.when?` <span class="faint">· ${esc(c.when)}</span>`:""}</li>`);
+  const recL=R.slice(0,12).map(r=>`<li><span class="faint">${new Date(r.date+"T12:00:00").toLocaleDateString("en-US",{weekday:"short"})}</span> <b>${tn(r.t)}</b> ${desc(r)}</li>`);
+  const offL=offers.map(c=>{const get=c.items.filter(i=>i.to==D.me).map(i=>esc(i.n)),give=c.items.filter(i=>i.frm==D.me).map(i=>esc(i.n));
+    return `<li><b>${tn(c.t)} offers</b> ${get.join(" + ")} <b>for</b> ${give.join(" + ")}. <span class="faint">Accept or decline in ESPN.</span></li>`});
+  el.innerHTML=(offL.length?`<div class="wblk offer" style="grid-column:1/-1"><div class="eyebrow">Trade offers to you</div><ul>${offL.join("")}</ul></div>`:"")+blk("Your claims and adds",mineL,"Nothing pending.")+blk("Pending around the league",othL,"No trades under review. Other teams' waiver claims stay private on ESPN until they process.")+blk("Recent moves · last 4 days",recL,"No moves in the last 4 days.");
+}
 function renderWire(){
   const me=D.teams[D.me];
-  const pend=(D.pending||[]).map(c=>`<b>Pending:</b> add ${esc(c.add.join(", "))}, drop ${esc(c.drop.join(", "))}${c.when?` <span class="faint">· ${esc(c.when)}</span>`:""}`);
-  if(pend.length&&me.if_claims!=null) pend.push(`If the claims go through, this week projects to <b>${Math.round(me.live+me.if_claims)}</b> (now ${Math.round(me.proj)}).`);
+  const pend=[];renderWireBoard();
   const mv=D.moves.map(m=>m.from_day!=null?`<b>Add ${esc(m.add)}, drop ${esc(m.drop)}.</b> He's usable from ${esc(m.from_day)} once the claim clears: ${m.games} games from then vs ${m.dropgames} for ${esc(last(m.drop))}. About +${Math.round(m.gain)} this week${m.ros>0?`, minus about ${Math.round(m.ros)} in long-run value, net +${Math.round(m.net)}`:""}. ${esc(last(m.drop))} projects ${m.dropval}/g vs ${m.addval}, so you're not cutting real value.`
     :`<b>Add ${esc(m.add)}, drop ${esc(m.drop)}.</b> ${m.games} games left vs ${m.dropgames}. About +${Math.round(m.gain)} this week.`);
   if(!mv.length) mv.push(`No pickup is worth it right now. Pickups only count once the claim clears${D.waiver?` (${esc(new Date(D.waiver.from_day+"T12:00:00").toLocaleDateString("en-US",{weekday:"short"}))})`:""}, and nobody on your roster is close enough to free-agent level to cut without losing real value.`);
   $("#moves").innerHTML=pend.concat(mv).map(m=>`<li>${m}</li>`).join("");
-  $("#fa").innerHTML=`<thead><tr><th>Free agent</th><th>Pos</th><th class="r">G</th><th class="r">Proj/G</th></tr></thead><tbody>`+D.fa.map(f=>`<tr><td>${esc(f.n)}${injTag(f.inj)}${f.claimed?'<span class="tag t-claim">CLAIMED</span>':""}<div class="faint" style="font-size:12px">${esc(f.tm)}</div></td><td class="mute">${f.pos}</td><td class="r num mute">${f.g}</td><td class="r num">${f.pa.toFixed(1)}</td></tr>`).join("")+"</tbody>";
+  const dropped={};for(const r of D.recent||[])for(const i of r.items)if(i.kind==="DROP"&&!dropped[i.n])dropped[i.n]={t:i.frm,date:r.date};
+  const myClaim={};for(const c of (D.league_pending||[]).filter(x=>x.mine))for(const i of c.items)if(i.kind==="ADD")myClaim[i.n]={when:c.when,drop:c.items.filter(x=>x.kind==="DROP").map(x=>x.n)};
+  const status=f=>{const mc=myClaim[f.n]||(f.claimed?{when:"",drop:[]}:null);
+    if(mc)return `<span class="tag t-claim">YOUR CLAIM</span><div class="faint" style="font-size:11.5px">${mc.when?"processes "+esc(mc.when):"pending"}${mc.drop&&mc.drop.length?" · drops "+esc(mc.drop.join(", ")):""}</div>`;
+    const dr=dropped[f.n];const wv=f.st==="WAIVERS";
+    return `${wv?`<span class="tag t-wv">WAIVERS</span>`:`<span class="tag t-fa">FREE AGENT</span>`}${dr?`<div class="faint" style="font-size:11.5px">dropped by ${esc((D.teams[dr.t]||{}).name||"another team")}</div>`:wv&&f.wclear?`<div class="faint" style="font-size:11.5px">clears ${esc(f.wclear)}</div>`:""}`};
+  $("#fa").innerHTML=`<thead><tr><th>Available player</th><th>Status</th><th class="r">G</th><th class="r">Proj/G</th></tr></thead><tbody>`+D.fa.map(f=>`<tr><td>${esc(f.n)}${injTag(f.inj)}<div class="faint" style="font-size:12px">${esc(f.tm)} · ${f.pos}</div></td><td>${f.st!=null||f.claimed?status(f):""}</td><td class="r num mute">${f.g}</td><td class="r num">${f.pa.toFixed(1)}</td></tr>`).join("")+"</tbody>";
 }
 
 /* ---- newsroom ---- */
@@ -1015,7 +1061,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1793128018";
+const BUILD="1793157443";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(checkBuild,90000);
 loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
@@ -1061,13 +1107,13 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1793128018"></script>
-<script src="season.js?v=1793128018"></script>
-<script src="bets.js?v=1793128018"></script>
-<script src="trades.js?v=1793128018"></script>
-<script src="sim.js?v=1793128018"></script>
-<script src="overunder.js?v=1793128018"></script>
-<script src="profile.js?v=1793128018"></script>
-<script src="nav.js?v=1793128018"></script>
-<script src="live.js?v=1793128018"></script>
+<script src="arena.js?v=1793157443"></script>
+<script src="season.js?v=1793157443"></script>
+<script src="bets.js?v=1793157443"></script>
+<script src="trades.js?v=1793157443"></script>
+<script src="sim.js?v=1793157443"></script>
+<script src="overunder.js?v=1793157443"></script>
+<script src="profile.js?v=1793157443"></script>
+<script src="nav.js?v=1793157443"></script>
+<script src="live.js?v=1793157443"></script>
 </body></html>
