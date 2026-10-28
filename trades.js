@@ -50,7 +50,9 @@ function renderTrades(){
     if(helps.length)parts.push(`Helps your weak spots: ${helps.join(", ")}.`);
     const lost=i.A.el.filter(x=>!i.B.el.includes(x));if(lost.length)parts.push(`<span class="faint">You'd lose ${lost.join("/")} eligibility.</span>`);
     return parts.join(" ")};
-  el.innerHTML=`<div class="sec-h"><div><div class="eyebrow">Trade desk</div><h2>Trade targets</h2></div><span class="faint" style="font-size:13px">FP per game this season vs projection</span></div>
+  el.innerHTML=`<div class="sec-h"><div><div class="eyebrow">Trade desk</div><h2>Trade targets</h2></div></div>
+    <div id="txlab"></div>
+    <div class="eyebrow" style="margin:26px 0 10px">Targets · FP per game this season vs projection</div>
     <div class="tgrid">
       <div class="tcol"><div class="eyebrow up">Buy low · other teams, running cold</div>${list(X.buy,true,"Nobody notable is under projection yet.")}</div>
       <div class="tcol"><div class="eyebrow">Sell high · yours, running hot</div>${list(X.sell,false,"None of yours are far over projection yet.")}
@@ -60,4 +62,5 @@ function renderTrades(){
     <div class="eyebrow" style="margin:22px 0 10px">Trade ideas · 1 for 1</div>
     ${X.ideas.length?`<div class="tideas">${X.ideas.map(i=>`<div class="tidea"><div class="tsw"><div><small class="faint">Give</small><b>${esc(i.A.n)}</b><small class="faint">${esc(i.A.tm)} · ${i.A.pa.toFixed(1)} proj</small></div><span class="arr">⇄</span><div><small class="faint">Get from ${tn(i.B.t)}</small><b>${esc(i.B.n)}</b><small class="faint">${esc(i.B.tm)} · ${i.B.pa.toFixed(1)} proj</small></div></div><p>${why(i)}</p>${typeof simTrade==="function"?`<button class="b" type="button" style="margin-top:10px;padding:6px 12px;font-size:12.5px" onclick="simTrade([${i.A.id}],[${i.B.id}],${i.B.t})">Simulate the season with this ↓</button>`:""}</div>`).join("")}</div>`:`<p class="mute" style="margin:0">No clean 1-for-1 upgrades right now.</p>`}
     <p class="faint" style="font-size:12.5px;margin:14px 0 0">Only ${Math.max(...D.players.map(p=>p.cg||0))} game${Math.max(...D.players.map(p=>p.cg||0))===1?"":"s"} played so far, so hot and cold are mostly noise. Rest-of-season value leans on the projection and moves toward real production as games pile up. Ideas assume the other manager values recent scoring.</p>`;
+  if(typeof renderTradeLab==="function")renderTradeLab();
 }

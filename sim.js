@@ -24,7 +24,7 @@ function run(cfg,P0,scen,n,seed){
   const m=new Float64Array(NP),out=new Int32Array(NP),score=new Float64Array(NT*W);
   const byTeam=teams.map(t=>[]);P.forEach((p,i)=>{const ti=TI[p.t];if(ti!=null)byTeam[ti].push(i)});
   for(let s=0;s<n;s++){
-    for(let i=0;i<NP;i++){m[i]=Math.max(.45,Math.min(1.6,1+.12*gauss()));out[i]=P[i].out?1+Math.floor(R()*8):0 /* currently out: 1-8 more weeks, about a month on average */}
+    for(let i=0;i<NP;i++){m[i]=Math.max(.45,Math.min(1.6,1+.12*gauss()));out[i]=P[i].ow!=null?P[i].ow:P[i].out?1+Math.floor(R()*8):0 /* currently out: 1-8 more weeks, about a month on average */}
     // each team's players best-first for this season's draw (sorted once per season, not per week)
     const ord=byTeam.map(L=>L.slice().sort((a,b)=>P[b].v*m[b]-P[a].v*m[a]));
     for(let w=0;w<W;w++){
@@ -81,17 +81,18 @@ function simCfg(){
   const rec=teams.map(t=>{const T=D.teams[t];return [(T.w||0)+.5*(T.ti||0),T.l||0,T.pf||0]});
   return {teams,cur,last,reg:S.reg,pteams,plen,days:S.days,gpw:S.gpw,slots:D.slots.length,games,curGames,curw,rec};
 }
-function simPlayers(){
+function simPlayers(ow){
   // full-health value (p.v is discounted by availability and is 0 for OUT players); the worker handles time missed
   const ps=D.players.map(p=>({id:p.id,t:p.t,tm:p.tm,v:p.av>0?(p.v??p.pa)/p.av:p.pa,out:p.inj==="OUT"||p.inj==="INJURY_RESERVE"}));
+  if(ow)for(const p of ps)if(ow[p.id]!=null)p.ow=ow[p.id];
   for(const f of (D.sim&&D.sim.fa)||[])ps.push({id:f.id,t:0,tm:f.tm,v:f.pa*(f.inj==="OUT"?0:1),out:f.inj==="OUT"});
   return ps;
 }
-function simRun(scen){
+function simRun(scen,ow){
   return new Promise(res=>{
     if(!SIMW)SIMW=new Worker(URL.createObjectURL(new Blob([SIM_WORKER],{type:"text/javascript"})));
     SIMW.onmessage=e=>res(e.data);
-    SIMW.postMessage({cfg:simCfg(),players:simPlayers(),scen,n:SIM_N,seed:20261020});
+    SIMW.postMessage({cfg:simCfg(),players:simPlayers(ow),scen,n:SIM_N,seed:20261020});
   });
 }
 const pct1=v=>v>=.995?">99%":v<=.005&&v>0?"<1%":Math.round(v*100)+"%";
