@@ -1,5 +1,18 @@
 [
  {
+  "date": "2026-10-28",
+  "status": "saved",
+  "moved": [
+   "Jaylen Brown: BE to SF, plays today (38.6 proj)",
+   "Ja Morant: PG to BE, slot needed for a player with a game",
+   "Jakob Poeltl: BE to UTIL, plays today (31.7 proj)",
+   "Darryn Peterson: BE to PG, plays today (29.1 proj)",
+   "Day'Ron Sharpe: UTIL to BE, slot needed for a player with a game"
+  ],
+  "at": "Oct 28, 11:24 AM CT",
+  "src": "button"
+ },
+ {
   "date": "2026-10-27",
   "status": "ok",
   "moved": [],
