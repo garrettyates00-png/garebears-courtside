@@ -24,15 +24,16 @@ function run(cfg,P0,scen,n,seed){
   const m=new Float64Array(NP),out=new Int32Array(NP),score=new Float64Array(NT*W);
   const byTeam=teams.map(t=>[]);P.forEach((p,i)=>{const ti=TI[p.t];if(ti!=null)byTeam[ti].push(i)});
   for(let s=0;s<n;s++){
-    for(let i=0;i<NP;i++){m[i]=Math.max(.45,Math.min(1.6,1+.12*gauss()));out[i]=P[i].out?Math.floor(R()*3):0}
+    for(let i=0;i<NP;i++){m[i]=Math.max(.45,Math.min(1.6,1+.12*gauss()));out[i]=P[i].out?1+Math.floor(R()*8):0 /* currently out: 1-8 more weeks, about a month on average */}
     // each team's players best-first for this season's draw (sorted once per season, not per week)
     const ord=byTeam.map(L=>L.slice().sort((a,b)=>P[b].v*m[b]-P[a].v*m[a]));
     for(let w=0;w<W;w++){
       for(let ti=0;ti<NT;ti++){
-        let left=cap[w],mu=0,va=0;
+        let left=cap[w],mu=0,va=0,used=0;
         for(const i of ord[ti]){
-          let g=G[i][w];if(!g)continue;
           if(out[i]>0)continue;
+          if(++used>15)break; // active roster limit: injured players only count once they come back and take a spot
+          let g=G[i][w];if(!g)continue;
           if(R()<.035){out[i]=1+Math.floor(R()*4);g=Math.floor(g*R());if(!g)continue} // new injury mid-week
           if(left<=0)continue;
           const v=P[i].v*m[i],k=g<left?g:left;mu+=v*k;va+=k*.2025*v*v;left-=k;
@@ -81,7 +82,8 @@ function simCfg(){
   return {teams,cur,last,reg:S.reg,pteams,plen,days:S.days,gpw:S.gpw,slots:D.slots.length,games,curGames,curw,rec};
 }
 function simPlayers(){
-  const ps=D.players.map(p=>({id:p.id,t:p.t,tm:p.tm,v:p.v??p.pa,out:p.inj==="OUT"||p.inj==="INJURY_RESERVE"}));
+  // full-health value (p.v is discounted by availability and is 0 for OUT players); the worker handles time missed
+  const ps=D.players.map(p=>({id:p.id,t:p.t,tm:p.tm,v:p.av>0?(p.v??p.pa)/p.av:p.pa,out:p.inj==="OUT"||p.inj==="INJURY_RESERVE"}));
   for(const f of (D.sim&&D.sim.fa)||[])ps.push({id:f.id,t:0,tm:f.tm,v:f.pa*(f.inj==="OUT"?0:1),out:f.inj==="OUT"});
   return ps;
 }

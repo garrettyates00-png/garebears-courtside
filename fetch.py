@@ -576,6 +576,11 @@ def main():
     with open("data.json", "w") as fh:
         json.dump(data, fh, separators=(",", ":"))
     try:
+        import timeline
+        timeline.update(data, sim)
+    except Exception as e:
+        print("timeline skipped:", e)
+    try:
         season_file(pro_abbr, teams)
     except Exception as e:
         print("season.json skipped:", e)
