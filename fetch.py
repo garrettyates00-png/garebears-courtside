@@ -351,6 +351,18 @@ def main():
         order = sorted(teams.values(), key=lambda t: t["cat"][k] if k != "to" else -t["cat"][k], reverse=True)
         for i, t in enumerate(order): t.setdefault("rank", {})[k] = i + 1
 
+    # Everything pending that ESPN shows us: my own claims/adds, plus league items like trades under review.
+    # (ESPN keeps other teams' waiver claims private, so those can't be seen until they process.)
+    nm_of = {int(k): v for k, v in (mgr.get("names") or {}).items()}
+    nm_of.update({p["id"]: p["n"] for p in players})
+    league_pending = []
+    for tx in lg.get("pendingTransactions", []) or []:
+        if tx.get("status") not in ("PENDING", "ACCEPTED", "PROPOSED"): continue
+        items = tx.get("items", []) or []
+        league_pending.append(dict(type=tx.get("type"), status=tx.get("status"), t=tx.get("teamId"), mine=tx.get("teamId") == MY_TEAM,
+                                   when=dt.datetime.fromtimestamp(tx["processDate"] / 1000, TZ).strftime("%a %b %-d, %-I:%M %p") if tx.get("processDate") else "",
+                                   items=[dict(n=nm_of.get(i.get("playerId"), str(i.get("playerId"))), pid=i.get("playerId"), kind=i.get("type"),
+                                               frm=i.get("fromTeamId"), to=i.get("toTeamId")) for i in items]))
     # Pending waiver claims / adds for my team
     pending, claim_add, claim_drop = [], set(), set()
     for tx in lg.get("pendingTransactions", []) or []:
@@ -368,7 +380,9 @@ def main():
     for x in fa_raw.get("players", []):
         p = x["player"]; pj = next((s for s in p.get("stats", []) if s["id"] == f"10{SEASON}"), {})
         inj = p.get("injuryStatus", "ACTIVE"); gd = games.get(p["proTeamId"], set())
-        fa.append(dict(id=p["id"], claimed=p["id"] in claim_add, n=p["fullName"], pos=POS.get(p["defaultPositionId"], ""), tm=pro_abbr.get(p["proTeamId"], "FA"),
+        wpd = x.get("waiverProcessDate")
+        fa.append(dict(id=p["id"], claimed=p["id"] in claim_add, n=p["fullName"], st=x.get("status") or "FREEAGENT",
+                       wclear=dt.datetime.fromtimestamp(wpd / 1000, TZ).strftime("%a %-I %p") if wpd else "", pos=POS.get(p["defaultPositionId"], ""), tm=pro_abbr.get(p["proTeamId"], "FA"),
                        inj="" if inj == "ACTIVE" else inj, av=AVAIL.get(inj, 1.0), pa=round(pj.get("appliedAverage", 0) or 0, 1),
                        el=[SLOT[s] for s in p.get("eligibleSlots", []) if s in (0, 1, 2, 3, 4)],
                        days=[d.isoformat() for d in days if d in gd], cg=0, ca=None))
@@ -540,10 +554,25 @@ def main():
                cur=cur_mp, days={mp: len(dd) for mp, dd in mp_days.items()},
                sched=[[m["matchupPeriodId"], m["home"]["teamId"], m.get("away", {}).get("teamId")] for m in lg["schedule"] if m.get("away")],
                gpw=gpw, fa=[dict(id=f["id"], n=f["n"], tm=f["tm"], el=f["el"], pa=f["pa"], inj=f["inj"]) for f in fa[:40]])
+    # Recent completed moves around the league (last 4 days), from the transaction history
+    cutoff = (today - dt.timedelta(days=4)).isoformat()
+    recent_moves = []
+    for tx in sorted(mgr.get("tx", []), key=lambda x: x["date"], reverse=True):
+        if tx["date"] < cutoff: continue
+        recent_moves.append(dict(type=tx["type"], date=tx["date"], t=tx["t"],
+                                 items=[dict(n=mgr["names"].get(str(i[0]), str(i[0])), kind=i[1], frm=i[2], to=i[3]) for i in tx["items"]]))
+    # Injury drag: projected points each team loses this week to OUT / day-to-day players, and who
+    inj_drag = {}
+    for tid in teams:
+        hurt = [p for p in players if p["t"] == tid and p["inj"] and p["av"] < 1]
+        lost = [(p["n"], p["inj"], round(p["pa"] * len(p["days"]) * (1 - p["av"]), 1)) for p in hurt]
+        inj_drag[str(tid)] = dict(week=round(sum(x[2] for x in lost), 1), who=sorted(lost, key=lambda x: -x[2]),
+                                  out=[p["n"] for p in hurt if p["inj"] in ("OUT", "INJURY_RESERVE", "SUSPENSION")])
     data = dict(pulled=dt.datetime.now(TZ).strftime("%b %-d, %-I:%M %p CT"), pulled_iso=dt.datetime.now(dt.timezone.utc).isoformat(), pending=pending, league=settings["name"], me=MY_TEAM, opp=opp,
                 plan=[{k: m[k] for k in ("n", "from", "to", "why")} for m in plan], plan_day=plan_day.strftime("%a %b ") + str(plan_day.day), period=cur_mp, week=[wk_start.isoformat(), wk_end.isoformat()], days=[d.isoformat() for d in days],
                 slots=slots, scoring=scoring, teams=teams, sim=sim, mgr=mgr_out, waiver=dict(hours=wait_h, from_day=first_ok.isoformat(), repl=repl), base=wk_base, week_hist=week_hist, act=act, all_days=[d.isoformat() for d in all_days], players=players, sched=sched, moves=top_moves,
-                fa=[{k: f[k] for k in ("n", "pos", "tm", "inj", "pa", "claimed")} | {"g": len(f["days"])} for f in fa[:12]], news=news, feed=feed[:220], yt=bool(os.environ.get("YT_API_KEY")))
+                fa=[{k: f[k] for k in ("id", "n", "pos", "tm", "inj", "pa", "claimed", "st", "wclear")} | {"g": len(f["days"])} for f in fa[:15]],
+                league_pending=league_pending, recent=recent_moves, injury=inj_drag, news=news, feed=feed[:220], yt=bool(os.environ.get("YT_API_KEY")))
     with open("data.json", "w") as fh:
         json.dump(data, fh, separators=(",", ":"))
     try:
