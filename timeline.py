@@ -147,6 +147,7 @@ def events(prev, cur, d_prev, d_cur):
 
 def update(d, sim, path="timeline.json", min_gap_h=2.0):
     """Append a snapshot for every team (always if any roster or injury changed, else at most every couple of hours)."""
+    d = json.loads(json.dumps(d)); sim = json.loads(json.dumps(sim))   # same string keys as the saved file (fetch passes int-keyed dicts)
     try:
         tl = json.load(open(path))
         if "points" in tl and tl["points"] and "m" not in tl["points"][0]: tl = {}   # old single-team format

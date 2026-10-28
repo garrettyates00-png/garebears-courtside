@@ -88,12 +88,15 @@ function simPlayers(ow){
   for(const f of (D.sim&&D.sim.fa)||[])ps.push({id:f.id,t:0,tm:f.tm,v:f.pa*(f.inj==="OUT"?0:1),out:f.inj==="OUT"});
   return ps;
 }
+let simQ=Promise.resolve();
 function simRun(scen,ow){
-  return new Promise(res=>{
+  // one worker, one job at a time: queue calls so overlapping callers each get their own result
+  const job=simQ.then(()=>new Promise(res=>{
     if(!SIMW)SIMW=new Worker(URL.createObjectURL(new Blob([SIM_WORKER],{type:"text/javascript"})));
     SIMW.onmessage=e=>res(e.data);
     SIMW.postMessage({cfg:simCfg(),players:simPlayers(ow),scen,n:SIM_N,seed:20261020});
-  });
+  }));
+  simQ=job.catch(()=>{});return job;
 }
 const pct1=v=>v>=.995?">99%":v<=.005&&v>0?"<1%":Math.round(v*100)+"%";
 async function renderSim(force){

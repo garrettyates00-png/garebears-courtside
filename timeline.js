@@ -35,31 +35,79 @@ async function renderTL(){
     return `<span class="${good?"up":"down"}">${s}</span>`};
   const evList=Object.entries(byPoint).sort((a,b)=>b[0]-a[0]).map(([i,es])=>{const p=P[+i],d=delta(+i);
     return `<li data-i="${i}"><span class="tld">${new Date(p.at).toLocaleDateString("en-US",{month:"short",day:"numeric"})}</span><div>${es.map(e=>`<span class="tlk" style="--c:${EVC[e.kind]}">${esc(e.text)}</span>`).join("")}</div><span class="tlv">${+i>0?`${fmt(val(P[+i-1]))} → <b>${fmt(val(p))}</b> ${dtxt(d)}`:`<b>${fmt(val(p))}</b>`}</span></li>`}).join("");
-  const cur=P.at(-1),first=P[0];
+  const okP=P.filter(p=>val(p)!=null),cur=okP.at(-1)||P.at(-1),first=okP[0]||P[0];
   const teamSel=`<select id="tlTeam" aria-label="Team">${Object.keys(D.teams).sort((a,b)=>(a==D.me?-1:b==D.me?1:D.teams[a].name.localeCompare(D.teams[b].name))).map(t=>`<option value="${t}" ${t===sel?"selected":""}>${esc(D.teams[t].name)}${t==D.me?" (you)":""}</option>`).join("")}</select>`;
   el.innerHTML=`<div class="sec-h"><div><div class="eyebrow">Since the draft · ${P.length} snapshots</div><h2>${mine?"My season timeline":esc(D.teams[sel].name)+" timeline"}</h2><div style="margin-top:8px">${teamSel}</div></div>
     <div class="tlnow"><span class="faint">${M[1]} now</span><b>${fmt(val(cur))}</b><span>${dtxt(val(cur)-val(first))} <span class="faint">since the draft</span></span></div></div>
     <div class="filters tlf">${TLM.map(m=>`<button type="button" class="fchip" data-m="${m[0]}" aria-selected="${m[0]===tlMetric}">${m[1]}</button>`).join("")}</div>
+    <div class="tlread" id="tlRead" aria-live="polite"></div>
     <div class="tlchart"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="${M[1]} over time">
       <defs><linearGradient id="tlg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--a)" stop-opacity=".35"/><stop offset="1" stop-color="var(--a)" stop-opacity="0"/></linearGradient></defs>
       ${ticks.map(v=>`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="rgba(255,255,255,.07)"/><text x="${L-8}" y="${Y(v)+4}" text-anchor="end" class="tlax">${fmt(tlMetric==="prank"?Math.round(v):v)}</text>`).join("")}
       ${days.filter((_,k)=>k%dstep===0).map(d=>`<text x="${X(d.getTime())}" y="${H-8}" text-anchor="middle" class="tlax">${d.toLocaleDateString("en-US",{month:"short",day:"numeric"})}</text>`).join("")}
       ${marks}<path d="${area}" fill="url(#tlg)"/><path d="${line}" fill="none" stroke="var(--a)" stroke-width="2.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
       ${pts.map(x=>`<circle cx="${X(x.t)}" cy="${Y(x.v)}" r="2.5" fill="var(--hi)"/>`).join("")}
-      <circle id="tlDot" r="6" fill="var(--hi)" stroke="#0b0b0d" stroke-width="2" style="display:none"/></svg><div class="tltip" id="tlTip" hidden></div></div>
+      <circle id="tlDot" r="6" fill="var(--hi)" stroke="#0b0b0d" stroke-width="2" style="display:none"/></svg></div>
     <div class="tllegend">${[["add","Added"],["drop","Dropped"],["claim","Claim placed"],["injury","Injury"],["return","Healthy"],["week","New matchup"]].map(([k,l])=>`<span><i style="background:${EVC[k]}"></i>${l}</span>`).join("")}</div>
+    <div class="tlsum" id="tlSum"></div>
     <div id="tlClaims"></div>
     <div class="eyebrow" style="margin:18px 0 8px">What changed · effect on ${M[1].toLowerCase()}</div><ul class="tllist">${evList}</ul>
     <p class="faint" style="font-size:12.5px;margin:10px 0 0">Each snapshot re-runs a 3,000-season simulation with every roster, injury and record at that moment.${mine?"":" Other teams' waiver claims are private on ESPN, so only completed moves show for them."} The change shown is from the snapshot before the event to the one after it, so news that landed at the same time shares the same change.</p>`;
   el.querySelector(".tlf").onclick=e=>{const b=e.target.closest("[data-m]");if(b){tlMetric=b.dataset.m;renderTL()}};
   $("#tlTeam").onchange=e=>{tlTeam=e.target.value;renderTL()};
-  const svg=el.querySelector("svg"),tip=$("#tlTip"),dot=$("#tlDot");
+  const svg=el.querySelector("svg"),rd=$("#tlRead"),dot=$("#tlDot");
+  const read=(q,live)=>{const p=P[q.i],es=byPoint[q.i]||[];
+    rd.innerHTML=`<div class="tlrh"><span class="eyebrow">${live?"Latest":"Snapshot"} · ${esc(p.pulled||new Date(p.at).toLocaleString("en-US",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}))}</span><span><b>${fmt(q.v)}</b> ${dtxt(delta(q.i))}</span></div>${es.length?`<div class="tlre">${es.map(e=>`<span class="tlk" style="--c:${EVC[e.kind]}">${esc(e.text)}</span>`).join("")}</div>`:`<div class="tlre faint">No roster or injury news at this point${live?". Hover or drag on the graph to look back.":"."}</div>`}`};
+  const last=pts.at(-1);read(last,true);
   const show=ev=>{const r=svg.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width*W;let best=pts[0];for(const q of pts)if(Math.abs(X(q.t)-x)<Math.abs(X(best.t)-x))best=q;
-    const p=P[best.i],es=byPoint[best.i]||[];dot.style.display="";dot.setAttribute("cx",X(best.t));dot.setAttribute("cy",Y(best.v));
-    tip.hidden=false;tip.style.left=Math.min(r.width-220,Math.max(0,X(best.t)/W*r.width-110))+"px";
-    tip.innerHTML=`<div class="faint">${esc(p.pulled||new Date(p.at).toLocaleString())}</div><b>${fmt(best.v)}</b> ${dtxt(delta(best.i))}${es.map(e=>`<div class="tlk" style="--c:${EVC[e.kind]}">${esc(e.text)}</div>`).join("")}`};
-  svg.addEventListener("pointermove",show);svg.addEventListener("pointerdown",show);svg.addEventListener("pointerleave",()=>{tip.hidden=true;dot.style.display="none"});
+    dot.style.display="";dot.setAttribute("cx",X(best.t));dot.setAttribute("cy",Y(best.v));read(best,best===last)};
+  const hide=()=>{dot.style.display="none";read(last,true)};
+  svg.addEventListener("pointermove",show);svg.addEventListener("pointerdown",show);svg.addEventListener("pointerleave",hide);svg.addEventListener("pointercancel",hide);
+  tlSummary(sel,P,E,byPoint);
   if(mine)tlPending();
+}
+/* plain-English summary: up or down since the draft, this week, injuries and where the team is once healthy */
+let tlHealthy={};
+function tlSummary(sel,P,E,byPoint){
+  const el=$("#tlSum");if(!el)return;const T=D.teams[sel],me=sel===String(D.me),you=me?"You're":esc(T.name)+" is",your=me?"your":"their";
+  const ok=P.filter(p=>p.po!=null),a=ok[0],b=ok.at(-1);if(!a||!b){el.innerHTML="";return}
+  const pp=v=>Math.round(v*100)+"%",dpo=(b.po-a.po)*100,dr=(a.prank||0)-(b.prank||0);
+  const trend=dpo>3?"up":dpo<-3?"down":"flat";
+  const overall=trend==="up"?`<b class="up">Up since the draft.</b>`:trend==="down"?`<b class="down">Down since the draft.</b>`:`<b>About where ${me?"you":"they"} started.</b>`;
+  // biggest single jump and drop in playoff odds, with what happened then
+  let up=null,dn=null;for(let i=1;i<P.length;i++){const x=P[i-1].po,y=P[i].po;if(x==null||y==null)continue;const d=y-x;if(!up||d>up.d)up={d,i};if(!dn||d<dn.d)dn={d,i}}
+  const why=i=>{const es=(byPoint[i]||[]).filter(e=>e.kind!=="week");return es.length?es.slice(0,2).map(e=>esc(e.text)).join("; "):"game results and projections"};
+  const dateOf=i=>new Date(P[i].at).toLocaleDateString("en-US",{month:"short",day:"numeric"});
+  // this week
+  const m=(D.sched||[]).find(x=>x[0]==D.period&&x[2]&&(String(x[1])===sel||String(x[2])===sel));let wk="";
+  if(m){const o=String(m[1])===sel?m[2]:m[1],sc=t=>typeof liveScore==="function"&&typeof LV!=="undefined"&&LV.ok?liveScore(+t):D.teams[t].live,wp=typeof winProb==="function"?winProb(+sel,+o):null;
+    const mine_=Math.round(sc(sel)),th=Math.round(sc(o)),fin=typeof finalMean==="function"?[finalMean(+sel),finalMean(+o)]:[T.proj,D.teams[o].proj];
+    wk=`${mine_>th?"Leading":mine_<th?"Trailing":"Tied with"} ${esc(D.teams[o].name)} <b>${mine_}–${th}</b>, on pace to finish ${Math.round(fin[0])}–${Math.round(fin[1])}${wp!=null?`. Win chance <b class="${wp>=.5?"up":"down"}">${pc(wp)}%</b>`:""}.`}
+  // injuries
+  const I=(D.injury||{})[sel]||{week:0,who:[],out:[]};
+  const hits=E.filter(e=>e.kind==="injury").map(e=>{const i=e.i,x=i>0?P[i-1].po:null,y=P[i].po;return {e,d:x!=null&&y!=null?y-x:0}}).sort((x,y)=>x.d-y.d);
+  const worst=hits[0]&&hits[0].d<-.005?hits[0]:null;
+  const inj=I.who.length?`${I.who.map(w=>`${esc(w[0])} <span class="faint">(${esc(injWord(w[1]))})</span>`).join(", ")} cost about <b class="down">${Math.round(I.week)}</b> points this week.`:`No one hurt right now.`;
+  const H=tlHealthy[sel];
+  const healthy=!I.out.length?"":H?`If ${I.out.map(esc).join(" and ")} ${I.out.length>1?"were":"was"} healthy today: playoffs <b class="up">${pp(H[1])}</b> instead of ${pp(H[0])}, title ${pp(H[3])} instead of ${pp(H[2])}. <span class="faint">(Simulator, ${H[4]?"using the return weeks you set in the Trade lab":"with injured players back in 1–8 weeks"}.)</span>`:`<span class="faint">Working out where ${me?"you'd":"they'd"} be at full health…</span>`;
+  el.innerHTML=`<div class="tlsg">
+    <div><div class="eyebrow">Overall</div><p>${overall} Playoffs ${pp(a.po)} → <b>${pp(b.po)}</b>, title ${(a.title*100).toFixed(1)}% → <b>${(b.title*100).toFixed(1)}%</b>, power rank #${a.prank} → <b>#${b.prank}</b>${dr?` <span class="${dr>0?"up":"down"}">(${dr>0?"up":"down"} ${Math.abs(dr)})</span>`:""}.</p>
+      ${up&&up.d>.01?`<p class="faint">Best moment: <span class="up">+${(up.d*100).toFixed(1)} pts</span> on ${dateOf(up.i)} (${why(up.i)}).</p>`:""}
+      ${dn&&dn.d<-.01?`<p class="faint">Worst moment: <span class="down">−${Math.abs(dn.d*100).toFixed(1)} pts</span> on ${dateOf(dn.i)} (${why(dn.i)}).</p>`:""}</div>
+    <div><div class="eyebrow">This week</div><p>${wk||"No matchup this week."}</p></div>
+    <div><div class="eyebrow">Injuries</div><p>${inj}</p>${worst?`<p class="faint">Biggest injury hit: ${esc(worst.e.text)}, playoffs <span class="down">−${Math.abs(worst.d*100).toFixed(1)} pts</span> that day.</p>`:""}${healthy?`<p>${healthy}</p>`:""}</div>
+  </div>`;
+  if(I.out.length&&!H&&typeof simRun==="function")tlHealthyRun(sel,P,E,byPoint);
+}
+async function tlHealthyRun(sel,P,E,byPoint){
+  if(tlHealthy[sel+"_busy"])return;tlHealthy[sel+"_busy"]=1;
+  while(typeof simBusy!=="undefined"&&simBusy)await new Promise(r=>setTimeout(r,250));
+  const hurt=D.players.filter(p=>String(p.t)===sel&&(p.inj==="OUT"||p.inj==="INJURY_RESERVE"||p.inj==="SUSPENSION"));
+  let saved={};try{saved=JSON.parse(localStorage.getItem("grindex-ow")||"{}")}catch(e){}
+  const bo={};for(const p of hurt)if(saved[p.id]!=null)bo[p.id]=Math.max(0,+saved[p.id]-1);
+  const base=Object.keys(bo).length?await simRun(null,bo):(SIMR||await simRun(null)),ow={};for(const p of hurt)ow[p.id]=0;const h=await simRun(null,ow);const i=base.teams.indexOf(+sel);
+  tlHealthy[sel]=[base.po[i],h.po[i],base.title[i],h.title[i],Object.keys(bo).length>0];
+  if(tlTeam===sel)tlSummary(sel,P,E,byPoint);
 }
 /* what your pending claims would do, using the full simulator with the same random draws */
 async function tlPending(){
