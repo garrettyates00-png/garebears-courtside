@@ -363,11 +363,14 @@ def main():
                 for x in fj.get("players", []):
                     pp = x["player"]; st = next((q for q in pp.get("stats", []) if q.get("id") == f"00{SEASON}"), None)
                     season_tot[pp["id"]] = round((st or {}).get("appliedTotal", 0) or 0, 1)
+                    if pp.get("fullName"): mgr["names"].setdefault(str(pp["id"]), pp["fullName"])
             except Exception as e:
                 print("dropped-player totals skipped:", e)
         # fallback: last run's season.json carries every player with a game this season (season total in fpt)
         try:
-            sj = {r["id"]: r["fpt"] for r in json.load(open("season.json"))["players"]}
+            sjp = json.load(open("season.json"))["players"]
+            sj = {r["id"]: r["fpt"] for r in sjp}
+            for r in sjp: mgr["names"].setdefault(str(r["id"]), r["n"])
         except Exception:
             sj = None
         for pid in dropped:
