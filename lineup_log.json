@@ -1,5 +1,17 @@
 [
  {
+  "date": "2026-10-29",
+  "status": "saved",
+  "moved": [
+   "Ja Morant: BE to UTIL, plays today (37.5 proj)",
+   "Jakob Poeltl: UTIL to BE, slot needed for a player with a game",
+   "Darryn Peterson: PG to BE, slot needed for a player with a game",
+   "Scotty Pippen Jr.: BE to PG, plays today (30.6 proj)"
+  ],
+  "at": "Oct 29, 3:28 PM CT",
+  "src": "schedule"
+ },
+ {
   "date": "2026-10-28",
   "status": "ok",
   "moved": [],
