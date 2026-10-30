@@ -389,6 +389,7 @@ select option{background:#16171b;color:var(--ink)}
 .bhdet{margin-bottom:16px;padding:16px;border-radius:16px;border:1px solid color-mix(in srgb,var(--a) 40%,var(--line));background:color-mix(in srgb,var(--a) 7%,rgba(255,255,255,.02))}
 .bhcols{display:grid;grid-template-columns:1fr 1fr;gap:16px}.bhcols>div{min-width:0}
 @media (max-width:700px){.bht th:nth-child(4),.bht td:nth-child(4),.bht small{display:none}.bht td,.bht th{padding:8px 4px}.bhtop,.bhcols{grid-template-columns:1fr}.bhcard>b{font-size:28px}.asub button{padding:8px 10px}}
+.dvs{display:inline-block;margin-left:4px;padding:1px 7px;border-radius:999px;font:600 11.5px var(--mono);border:1px solid currentColor}.dvs.up{color:var(--up);background:color-mix(in srgb,var(--up) 12%,transparent)}.dvs.down{color:var(--down);background:color-mix(in srgb,var(--down) 12%,transparent)}.dvs.even{color:var(--mute)}.dvs small{font-size:9.5px;font-weight:500}
 .asub{justify-self:start;display:flex;gap:4px;padding:4px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid color-mix(in srgb,var(--a) 30%,var(--line2));backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
 .asub button{font:500 14px var(--sans);color:var(--mute);background:none;border:0;border-radius:999px;padding:8px 20px;cursor:pointer}
 .asub button[aria-selected="true"]{color:#0b0b0d;background:linear-gradient(135deg,var(--hi),color-mix(in srgb,var(--a) 70%,var(--hi)));box-shadow:0 0 18px color-mix(in srgb,var(--a) 40%,transparent)}
@@ -1120,7 +1121,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1793388834";
+const BUILD="1793404661";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(checkBuild,90000);
 loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
@@ -1166,17 +1167,17 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1793388834"></script>
-<script src="season.js?v=1793388834"></script>
-<script src="bets.js?v=1793388834"></script>
-<script src="trades.js?v=1793388834"></script>
-<script src="tradelab.js?v=1793388834"></script>
-<script src="betshub.js?v=1793388834"></script>
-<script src="sim.js?v=1793388834"></script>
-<script src="overunder.js?v=1793388834"></script>
-<script src="profile.js?v=1793388834"></script>
-<script src="ask.js?v=1793388834"></script>
-<script src="timeline.js?v=1793388834"></script>
-<script src="nav.js?v=1793388834"></script>
-<script src="live.js?v=1793388834"></script>
+<script src="arena.js?v=1793404661"></script>
+<script src="season.js?v=1793404661"></script>
+<script src="bets.js?v=1793404661"></script>
+<script src="trades.js?v=1793404661"></script>
+<script src="tradelab.js?v=1793404661"></script>
+<script src="betshub.js?v=1793404661"></script>
+<script src="sim.js?v=1793404661"></script>
+<script src="overunder.js?v=1793404661"></script>
+<script src="profile.js?v=1793404661"></script>
+<script src="ask.js?v=1793404661"></script>
+<script src="timeline.js?v=1793404661"></script>
+<script src="nav.js?v=1793404661"></script>
+<script src="live.js?v=1793404661"></script>
 </body></html>

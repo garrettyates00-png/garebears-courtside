@@ -188,11 +188,18 @@ function dayTable(h,a){
   const days=D.all_days||(D.teams[h].daily||[]).map(x=>x.iso),today=TODAY();
   const lbl=iso=>{const d=new Date(iso+"T12:00:00");return d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})};
   const cell=(t,iso)=>{const x=dayInfo(t,iso),L=iso===today?lineupCheck(t,iso):null,flag=L&&L.gain>=5?` <span class="bflag" title="${L.benched.length} on the bench with a game; best lineup adds about +${Math.round(L.gain)}">⚠ ${L.benched.length} benched</span>`:"";
-    return x.actual!=null?`<span class="num">${Math.round(x.actual)}</span> <span class="faint">/ ${Math.round(x.proj)}</span>${flag}`:`<span class="num">${Math.round(x.now??x.proj)}</span> <span class="faint">· ${x.starts}</span>${flag}`};
+    if(x.actual!=null){
+      // above or below schedule: finished days against the full projection, today against what should be in by now
+      let exp=x.proj,live=false;
+      if(iso===today){const e=expectedSoFar(t),B=D.base&&D.base.teams[t];if(e!=null&&B){let before=0;for(const [k,d] of Object.entries(B.days))if(k<today)before+=d.pts;exp=Math.max(0,e-before);live=exp<x.proj-.5}}
+      const dl=Math.round(x.actual-exp),dc=Math.abs(dl)<3?"even":dl>0?"up":"down";
+      const badge=`<span class="dvs ${dc}" title="${live?`vs ${Math.round(exp)} expected by now`:`vs ${Math.round(x.proj)} projected`}">${dc==="even"?"±0":(dl>0?"+":"−")+Math.abs(dl)}${live?"<small> pace</small>":""}</span>`;
+      return `<span class="num">${Math.round(x.actual)}</span> <span class="faint">/ ${Math.round(x.proj)}</span> ${badge}${flag}`}
+    return x.actual!=null?"":`<span class="num">${Math.round(x.now??x.proj)}</span> <span class="faint">· ${x.starts}</span>${flag}`};
   return `<div id="dayTbl" data-h="${h}" data-a="${a}"><div class="scroll"><table class="dayt"><thead><tr><th>Day</th><th class="r">${esc(D.teams[h].name)}</th><th class="r">${esc(D.teams[a].name)}</th></tr></thead><tbody>
     ${days.map(iso=>`<tr class="drow ${iso===today?"today":iso<today?"past":""} ${openDay===iso?"open":""}" data-iso="${iso}" tabindex="0" aria-expanded="${openDay===iso}"><td>${lbl(iso)}${iso===today?' <span class="pill" style="padding:1px 7px">Today</span>':""}</td><td class="r">${cell(h,iso)}</td><td class="r">${cell(a,iso)}</td></tr>
       ${openDay===iso?`<tr class="dsub"><td colspan="3"><div class="dsplit">${playersTbl(h,iso)}${playersTbl(a,iso)}</div></td></tr>`:""}`).join("")}
-    </tbody></table></div><p class="faint" style="font-size:12px;margin:8px 0 0">Played days show actual / projected at the start of the week. Upcoming days show the best-lineup projection · starts. ⚠ (today only) means players with a game are sitting on the bench in that team's lineup right now. Tap a day for every player.</p></div>`;
+    </tbody></table></div><p class="faint" style="font-size:12px;margin:8px 0 0">Played days show actual / projected at the start of the week, then how far above or below that they finished (today: against what should be in by now). Upcoming days show the best-lineup projection · starts. ⚠ (today only) means players with a game are sitting on the bench in that team's lineup right now. Tap a day for every player.</p></div>`;
 }
 document.addEventListener("click",e=>{const r=e.target.closest(".drow");if(!r)return;e.stopPropagation();openDay=openDay===r.dataset.iso?null:r.dataset.iso;const t=r.closest("#dayTbl");t.outerHTML=dayTable(+t.dataset.h,+t.dataset.a)},true);
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.classList&&e.target.classList.contains("drow"))e.target.click()});
