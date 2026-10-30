@@ -368,6 +368,17 @@ select option{background:#16171b;color:var(--ink)}
 
 /* Arena sub-tabs + Season */
 .pane{display:grid;gap:22px;min-width:0}.pane[hidden]{display:none}
+.askf{display:grid;gap:10px}.askf textarea{width:100%;box-sizing:border-box;resize:vertical;min-height:72px;font:400 15px/1.45 var(--sans);color:var(--ink);background:rgba(255,255,255,.04);border:1px solid var(--line2);border-radius:14px;padding:12px 14px}
+.askf textarea:focus{outline:none;border-color:color-mix(in srgb,var(--a) 60%,var(--line2))}
+.askrow{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}.askrow .pchip{text-align:left}.askrow .b{flex:none}
+.askprev{font-size:13px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.asklist{display:grid;gap:12px;margin-top:16px}.askcard{padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.035);border:1px solid var(--line)}
+.askq{display:flex;justify-content:space-between;gap:12px;align-items:baseline;font-size:14px}.askq span{font-size:12px;white-space:nowrap}
+.askshort{margin:10px 0 0;font:500 16px/1.5 var(--sans)}
+.askmoves{margin:10px 0 0;padding-left:20px;display:grid;gap:6px;font-size:14px}.askmoves li span{display:block;font-size:12.5px}
+.askmore{margin-top:10px;font-size:14px;line-height:1.55}.askmore summary{cursor:pointer;font:500 13px var(--mono);color:var(--hi)}.askmore p{margin:8px 0 0}
+.askbtns{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:10px}
+@media (max-width:700px){.askrow{flex-direction:column}.askrow .b{align-self:stretch;justify-content:center}}
 .bhtop{display:grid;grid-template-columns:1fr 1fr;gap:12px}.bhcard{padding:16px;border-radius:16px;background:rgba(255,255,255,.035);border:1px solid var(--line);min-width:0}
 .bhcard>b{display:block;font:600 34px var(--sans);letter-spacing:-.02em;margin:4px 0}.bhcard p{margin:8px 0 0;font-size:12.5px;line-height:1.5}
 .bhs{display:flex;flex-wrap:wrap;gap:6px 16px;font:500 13px var(--mono)}
@@ -664,6 +675,7 @@ select option{background:#16171b;color:var(--ink)}
 
   <div id="fantasyView" class="view">
   <section class="g pad hero" id="hero" tabindex="0" role="button" aria-label="Open your matchup"></section>
+  <section class="g pad" id="secAsk"></section>
 
   <section id="secMatchups">
     <div class="sec-h"><div><div class="eyebrow" id="wkLabel">This week</div><h2>Matchups</h2></div><span class="faint" style="font-size:13px">Tap any matchup for the full breakdown</span></div>
@@ -1054,7 +1066,7 @@ function renderAll(){
   const age=D.pulled_iso?(Date.now()-Date.parse(D.pulled_iso))/60000:0;
   if(document.body.dataset.view!=="arena")$("#pulled").textContent="Updated "+D.pulled;$("#dot").classList.toggle("stale",age>75);
   if(!forcing){if(age>75)staleNote(age);else $("#status").textContent=""}
-  renderHero();renderCards();renderDays();renderPower();renderStrength(selTeam);renderWire();renderScoring();renderNewsroom();if(typeof renderTrades==="function")renderTrades();if(typeof renderOU==="function")renderOU();if(typeof renderSim==="function"){SIMR=null;renderSim()}if(typeof tlWhenVisible==="function")tlWhenVisible();
+  renderHero();renderCards();renderDays();renderPower();renderStrength(selTeam);renderWire();renderScoring();renderNewsroom();if(typeof renderTrades==="function")renderTrades();if(typeof renderOU==="function")renderOU();if(typeof renderSim==="function"){SIMR=null;renderSim()}if(typeof tlWhenVisible==="function")tlWhenVisible();if(typeof renderAsk==="function"&&!document.activeElement?.closest?.("#askF"))renderAsk();
 }
 
 
@@ -1108,7 +1120,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1793369109";
+const BUILD="1793388834";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(checkBuild,90000);
 loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
@@ -1154,16 +1166,17 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1793369109"></script>
-<script src="season.js?v=1793369109"></script>
-<script src="bets.js?v=1793369109"></script>
-<script src="trades.js?v=1793369109"></script>
-<script src="tradelab.js?v=1793369109"></script>
-<script src="betshub.js?v=1793369109"></script>
-<script src="sim.js?v=1793369109"></script>
-<script src="overunder.js?v=1793369109"></script>
-<script src="profile.js?v=1793369109"></script>
-<script src="timeline.js?v=1793369109"></script>
-<script src="nav.js?v=1793369109"></script>
-<script src="live.js?v=1793369109"></script>
+<script src="arena.js?v=1793388834"></script>
+<script src="season.js?v=1793388834"></script>
+<script src="bets.js?v=1793388834"></script>
+<script src="trades.js?v=1793388834"></script>
+<script src="tradelab.js?v=1793388834"></script>
+<script src="betshub.js?v=1793388834"></script>
+<script src="sim.js?v=1793388834"></script>
+<script src="overunder.js?v=1793388834"></script>
+<script src="profile.js?v=1793388834"></script>
+<script src="ask.js?v=1793388834"></script>
+<script src="timeline.js?v=1793388834"></script>
+<script src="nav.js?v=1793388834"></script>
+<script src="live.js?v=1793388834"></script>
 </body></html>
