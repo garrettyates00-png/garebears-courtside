@@ -3,9 +3,10 @@
 const NAV={
   fantasy:{label:"Fantasy",items:[["hero","Matchup"],["secMatchups","Matchups"],["secLineup","Lineup"],["secPower","Rankings"],["secOU","Over/under"],["secMoves","Moves"],["secTrades","Trades"],["how","How it works"],["secTL","Timeline"],["secSim","Simulator"],["newsroom","News"]]},
   team:{label:"Arena · Team",items:[["aHero","Team"],["aNext","Next game"],["aGames","Games"],["aShots","Shot chart"],["aImpact","Impact"],["aTeam","Team stats"],["aMedia","Highlights"],["aNews","News"],["aSched","Schedule"]]},
-  season:{label:"Arena · Season",items:[["sMine","Your players"],["sBoard","Scoreboard"],["sBets","My bets"],["sAvg","Averages"]]}
+  season:{label:"Arena · Season",items:[["sMine","Your players"],["sBoard","Scoreboard"],["sAvg","Averages"]]},
+  bets:{label:"Arena · Bets",items:[["bSum","Overview"],["sBets","My bets"],["bTeams","By team"]]}
 };
-const curGroup=()=>document.body.dataset.view!=="arena"?"fantasy":($("#aSeasonPane")&&!$("#aSeasonPane").hidden?"season":"team");
+const curGroup=()=>document.body.dataset.view!=="arena"?"fantasy":($("#aSeasonPane")&&!$("#aSeasonPane").hidden?"season":$("#aBetsPane")&&!$("#aBetsPane").hidden?"bets":"team");
 let navActive=null,navLock=0;
 
 function goSection(group,id){
@@ -56,5 +57,5 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#drawer").hidde
 
 /* rebuild when the view or Arena sub-tab changes */
 new MutationObserver(navBuild).observe(document.body,{attributes:true,attributeFilter:["data-view"]});
-if($("#aSeasonPane"))new MutationObserver(navBuild).observe($("#aSeasonPane"),{attributes:true,attributeFilter:["hidden"]});
+for(const id of ["#aSeasonPane","#aBetsPane"])if($(id))new MutationObserver(navBuild).observe($(id),{attributes:true,attributeFilter:["hidden"]});
 navBuild();

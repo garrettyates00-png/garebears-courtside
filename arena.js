@@ -100,10 +100,11 @@ function aBets(){
   const r=A.record,graded=A.picks.filter(p=>p.result),open=A.picks.filter(p=>!p.result);
   const units=r.w+r.l+r.p,roi=units?r.profit/(units*r.stake):0;
   const row=p=>`<div class="pk"><span class="res ${p.result==="W"?"w":p.result==="L"?"l":""}">${p.result||"•"}</span><div style="min-width:0"><b>${p.kind==="spread"?(p.side==="us"?esc(A.team.abbr):esc(p.opp))+" "+sign(p.line):(p.side==="over"?"Over ":"Under ")+p.line}</b><div class="faint" style="font-size:12px">${cday(p.date)} · ${p.home?"vs":"@"} ${esc(p.opp)}${p.final?" · final "+p.final:""} · edge ${p.edge}</div></div><span class="num ${p.profit>0?"up":p.profit<0?"down":"faint"}">${p.profit!=null?(p.profit>0?"+$":p.profit<0?"−$":"$")+Math.abs(p.profit).toFixed(0):"open"}</span></div>`;
-  $("#aBets").innerHTML=`<div class="sec-h"><div><div class="eyebrow">Model betting record · $100 a pick</div><h2>Picks tracker</h2></div></div>
+  $("#aBets").innerHTML=`<div class="sec-h"><div><div class="eyebrow">Model picks · $100 a pick</div><h2>${esc(A.team.short)} picks</h2></div></div>
     <div class="lines" style="grid-template-columns:repeat(3,1fr)"><div><span class="faint">Record</span><b class="num">${r.w}-${r.l}${r.p?"-"+r.p:""}</b></div><div><span class="faint">Profit</span><b class="num ${r.profit>0?"up":r.profit<0?"down":""}">${r.profit>=0?"+":"−"}$${Math.abs(r.profit).toFixed(0)}</b></div><div><span class="faint">ROI</span><b class="num">${units?(roi*100).toFixed(1)+"%":"–"}</b></div></div>
-    <div class="pks">${[...open,...graded.slice().reverse()].slice(0,10).map(row).join("")||'<div class="mute" style="font-size:14px">The model logs one best bet before every regular-season game and grades it after the final. Preseason isn\'t tracked, so the first pick is the opener.</div>'}</div>
-    <p class="faint" style="font-size:12px;margin:0">Picks are logged before tip and can't be changed after. Standard −110 pricing.</p>`;
+    <div class="pks">${[...open,...graded.slice().reverse()].slice(0,4).map(row).join("")||'<div class="mute" style="font-size:14px">The model logs one best bet before every regular-season game and grades it after the final.</div>'}</div>
+    <button class="b primary" type="button" id="toBets" style="justify-self:start">All bets, your log and every team →</button>`;
+  $("#toBets").onclick=()=>{if(typeof BHteam!=="undefined")BHteam=A.team.abbr.toLowerCase();setSub("bets");scrollTo({top:0,behavior:reduce?"auto":"smooth"})};
 }
 function aGames(){
   const gs=A.games.slice().reverse();

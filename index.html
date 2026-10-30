@@ -368,6 +368,16 @@ select option{background:#16171b;color:var(--ink)}
 
 /* Arena sub-tabs + Season */
 .pane{display:grid;gap:22px;min-width:0}.pane[hidden]{display:none}
+.bhtop{display:grid;grid-template-columns:1fr 1fr;gap:12px}.bhcard{padding:16px;border-radius:16px;background:rgba(255,255,255,.035);border:1px solid var(--line);min-width:0}
+.bhcard>b{display:block;font:600 34px var(--sans);letter-spacing:-.02em;margin:4px 0}.bhcard p{margin:8px 0 0;font-size:12.5px;line-height:1.5}
+.bhs{display:flex;flex-wrap:wrap;gap:6px 16px;font:500 13px var(--mono)}
+.bhchart{margin-top:14px}.bhchart svg{width:100%;height:160px;display:block}
+.bhopen{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(220px,100%),1fr));gap:8px}.bhpk{padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.03);display:grid;gap:2px;font-size:14px}.bhpk small{font-size:12px}
+.bht tr[data-a]{cursor:pointer}.bht tr[data-a]:hover td{background:rgba(255,255,255,.03)}.bht td:not(:first-child),.bht th:not(:first-child){text-align:right}
+.bhsort{all:unset;cursor:pointer;font:inherit;text-transform:inherit;letter-spacing:inherit}.bhsort.on{color:var(--hi)}.bhsort:focus-visible{outline:2px solid var(--hi)}
+.bhdet{margin-bottom:16px;padding:16px;border-radius:16px;border:1px solid color-mix(in srgb,var(--a) 40%,var(--line));background:color-mix(in srgb,var(--a) 7%,rgba(255,255,255,.02))}
+.bhcols{display:grid;grid-template-columns:1fr 1fr;gap:16px}.bhcols>div{min-width:0}
+@media (max-width:700px){.bht th:nth-child(4),.bht td:nth-child(4),.bht small{display:none}.bht td,.bht th{padding:8px 4px}.bhtop,.bhcols{grid-template-columns:1fr}.bhcard>b{font-size:28px}.asub button{padding:8px 10px}}
 .asub{justify-self:start;display:flex;gap:4px;padding:4px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid color-mix(in srgb,var(--a) 30%,var(--line2));backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
 .asub button{font:500 14px var(--sans);color:var(--mute);background:none;border:0;border-radius:999px;padding:8px 20px;cursor:pointer}
 .asub button[aria-selected="true"]{color:#0b0b0d;background:linear-gradient(135deg,var(--hi),color-mix(in srgb,var(--a) 70%,var(--hi)));box-shadow:0 0 18px color-mix(in srgb,var(--a) 40%,transparent)}
@@ -723,13 +733,18 @@ select option{background:#16171b;color:var(--ink)}
   <p class="foot">Pulled from ESPN every 30 minutes by GitHub Actions. Owner names are shortened for privacy.</p>
   </div>
   <div id="arenaView" class="view" hidden>
-    <div class="asub" role="tablist" aria-label="Arena sections"><button type="button" role="tab" data-sub="team" aria-selected="true">Team</button><button type="button" role="tab" data-sub="season" aria-selected="false">Season</button></div>
+    <div class="asub" role="tablist" aria-label="Arena sections"><button type="button" role="tab" data-sub="team" aria-selected="true">Team</button><button type="button" role="tab" data-sub="season" aria-selected="false">Season</button><button type="button" role="tab" data-sub="bets" aria-selected="false">Bets</button></div>
     <div id="aSeasonPane" class="pane" hidden>
       <section class="g pad" id="sMine"></section>
       <section class="g pad" id="sBoard"></section>
-      <section class="g pad" id="sBets"></section>
       <section class="g pad" id="sAvg"></section>
       <p class="foot">Scores and box scores live from ESPN. Fantasy points use the Angel Reese Invitational scoring (technical fouls aren't in box scores, so they show up only in season totals). Owners and season averages refresh every 30 minutes.</p>
+    </div>
+    <div id="aBetsPane" class="pane" hidden>
+      <section class="g pad" id="bSum"></section>
+      <section class="g pad" id="sBets"></section>
+      <section class="g pad" id="bTeams"></section>
+      <p class="foot">Lines are DraftKings via ESPN. Model picks are for fun, not financial advice. 21+.</p>
     </div>
     <div id="aTeamPane" class="pane">
     <section class="g pad ahero" id="aHero"></section>
@@ -1093,7 +1108,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1793211217";
+const BUILD="1793369109";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(checkBuild,90000);
 loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
@@ -1139,15 +1154,16 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1793211217"></script>
-<script src="season.js?v=1793211217"></script>
-<script src="bets.js?v=1793211217"></script>
-<script src="trades.js?v=1793211217"></script>
-<script src="tradelab.js?v=1793211217"></script>
-<script src="sim.js?v=1793211217"></script>
-<script src="overunder.js?v=1793211217"></script>
-<script src="profile.js?v=1793211217"></script>
-<script src="timeline.js?v=1793211217"></script>
-<script src="nav.js?v=1793211217"></script>
-<script src="live.js?v=1793211217"></script>
+<script src="arena.js?v=1793369109"></script>
+<script src="season.js?v=1793369109"></script>
+<script src="bets.js?v=1793369109"></script>
+<script src="trades.js?v=1793369109"></script>
+<script src="tradelab.js?v=1793369109"></script>
+<script src="betshub.js?v=1793369109"></script>
+<script src="sim.js?v=1793369109"></script>
+<script src="overunder.js?v=1793369109"></script>
+<script src="profile.js?v=1793369109"></script>
+<script src="timeline.js?v=1793369109"></script>
+<script src="nav.js?v=1793369109"></script>
+<script src="live.js?v=1793369109"></script>
 </body></html>

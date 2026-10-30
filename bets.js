@@ -1,4 +1,4 @@
-/* My bets: a personal bet log on the Season tab. Saved in this browser (localStorage), graded automatically
+/* My bets: a personal bet log on the Bets tab. Saved in this browser (localStorage), graded automatically
    from ESPN final scores for spreads, moneylines and totals; props are marked won/lost by hand. */
 const BK="grindex-bets";
 let BETS=[];try{BETS=JSON.parse(localStorage.getItem(BK)||"[]")}catch(e){BETS=[]}

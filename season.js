@@ -7,14 +7,16 @@ const SUB_K="grindex-asub";
 
 /* ---------- sub-tab switching ---------- */
 function setSub(v){
+  if(!["team","season","bets"].includes(v))v="team";
   const season=v==="season";
-  $("#aSeasonPane").hidden=!season;$("#aTeamPane").hidden=season;
+  $("#aSeasonPane").hidden=!season;$("#aTeamPane").hidden=v!=="team";$("#aBetsPane").hidden=v!=="bets";
+  if(v==="bets"&&typeof renderBetsTab==="function"){renderBetsTab();if(typeof sBets==="function"&&!betForm)sBets();if(typeof gradeBets==="function")gradeBets()}
   document.querySelectorAll(".asub [data-sub]").forEach(b=>b.setAttribute("aria-selected",b.dataset.sub===v));
   try{localStorage.setItem(SUB_K,v)}catch(e){}
   if(season&&document.body.dataset.view==="arena")loadSeason();else stopSeason();
 }
 document.querySelector(".asub").addEventListener("click",e=>{const b=e.target.closest("[data-sub]");if(b)setSub(b.dataset.sub)});
-(()=>{let v="team";try{v=localStorage.getItem(SUB_K)||"team"}catch(e){}if(location.hash==="#season")v="season";
+(()=>{let v="team";try{v=localStorage.getItem(SUB_K)||"team"}catch(e){}if(location.hash==="#season")v="season";if(location.hash==="#bets")v="bets";
   // apply once Arena opens
   setSub(v);
   new MutationObserver(()=>{if(document.body.dataset.view==="arena"&&!$("#aSeasonPane").hidden)loadSeason();else if(document.body.dataset.view!=="arena")stopSeason()}).observe(document.body,{attributes:true,attributeFilter:["data-view"]});
