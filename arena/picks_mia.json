@@ -73,5 +73,17 @@
   "result": "L",
   "profit": -100,
   "final": "129-117"
+ },
+ {
+  "id": "401909282",
+  "date": "2026-10-31T00:00Z",
+  "opp": "IND",
+  "home": true,
+  "kind": "spread",
+  "side": "them",
+  "line": 7.5,
+  "edge": 1.6,
+  "price": -110,
+  "made": "2026-10-30T07:14:03.808660+00:00"
  }
 ]
