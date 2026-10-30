@@ -1,0 +1,31 @@
+{
+ "id": "q-mvvdkwoe-8d9u",
+ "q": "What should I do with Ja Morant, how is my roster construction? In order to make the playoffs, how should I look to improve?",
+ "at": "2026-10-30T19:40:28.232029+00:00",
+ "short": "Hold Morant but move him to your open second IR spot, then add Kevin Porter Jr. (33.0 FP/game, free agent, instant) with the active spot it frees. You are 0-1 and 8th of 10 in power score, so the playoff path is stacking wins from depth and getting Edwards back.",
+ "answer": "Ja Morant: ESPN lists him OUT but he is sitting in a UTIL slot, which wastes a lineup spot. Your roster has 15 active players plus Anthony Edwards on IR, so IR is 1 of 2 used and you have a free IR spot. Move Morant there. That does not open a drop, it opens an active spot, so your 15 active spots become 14 and you can add a free agent without cutting anyone.\n\nHow sure am I about his status? Not very. My searches found his trade to Portland (June 29, 2026) and the elbow UCL sprain that cost him most of last season, plus preseason reports that he looked healthy. I found nothing explaining the current OUT tag or a return date, so treat his timeline as unknown. He projects 37.5 FP per game, well above replacement level (32.0), so he is worth holding on IR rather than dropping, as long as the return looks like weeks and not months. If the news turns bad, he is the first IR spot to give up.\n\nWho to add: Kevin Porter Jr. is a free agent at 33.0 projected FP per game (PG/SG), so the claim is instant. Andrew Wiggins (32.0, SF/PF) is another instant option. Mikal Bridges (32.8) is on waivers until Sunday 2 AM, and a claim takes about 24 hours, so he is not worth chasing for this week.\n\nRoster construction: your top end is strong (Edwards 47.2, Mitchell 46.5, Bam 39.6, Brown 38.6, Randle 37.0, Allen 36.9 per game), but you are guard heavy. You have seven PG/SG eligible players (Mitchell, Rollins, Peterson, Pippen, Pritchard, Grimes, Morant) and only Allen, Poeltl, Sarr and Bam at center or big. Bench is deep: Sarr 36.6, Poeltl 31.7, Pritchard 31.6, Peterson 29.1.\n\nPlayoff outlook: 4 of 10 teams make the playoffs after 19 regular season weeks. You are 0-1 and your power score is 401.2, 8th of 10, behind Angel Reese (488.9), Commode Chokers (448.3) and Shake and Blake (433.2). Injuries are hurting you most: you lose about 143.5 projected points this week, mostly Edwards (94.4) and Morant (37.5). This week you project 1505.2 against Jacob's Globetrotters at 1314.7, a good chance to get to 1-1.\n\nHow to improve: first, stream the best free agents into the open spot and onto the bench, since replacement is 32.0 and many of your bench players are near it. Second, consolidate. You have surplus mid-tier guards, so package two of them (for example Rollins and Pritchard) for one higher-end player, since starter quality matters more than bench depth. Third, set lineups daily for games played: Poeltl and Pritchard each have 2 games left this week. Fourth, watch Edwards closely; his return is the biggest swing in your season.",
+ "moves": [
+  {
+   "do": "Move Ja Morant to your second IR spot",
+   "why": "He is OUT but taking a UTIL slot; IR is 1 of 2 used, so this frees one of your 15 active spots."
+  },
+  {
+   "do": "Add Kevin Porter Jr. (free agent, instant)",
+   "why": "He projects 33.0 FP per game against replacement of 32.0 and fills the spot Morant freed."
+  },
+  {
+   "do": "Explore a 2-for-1 trade of surplus guards (e.g. Rollins, Pritchard) for a higher-end starter",
+   "why": "You carry 7 PG/SG players, and your power score of 401.2 ranks 8th of 10 with only 4 playoff spots."
+  }
+ ],
+ "sources": [
+  {
+   "title": "Rotowire: Ja Morant traded to Portland",
+   "url": "https://www.rotowire.com/basketball/headlines/ja-morant-injury-traded-to-portland-531234"
+  },
+  {
+   "title": "Grizzlies: Ja Morant shut down for season with elbow injury",
+   "url": "https://www.clickorlando.com/gallery/sports/2026/03/25/grizzlies-ja-morant-shut-down-for-the-season-due-elbow-injury/"
+  }
+ ]
+}
