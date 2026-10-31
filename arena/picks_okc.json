@@ -73,5 +73,17 @@
   "result": "L",
   "profit": -100,
   "final": "96-120"
+ },
+ {
+  "id": "401909902",
+  "date": "2026-11-01T00:30Z",
+  "opp": "HOU",
+  "home": false,
+  "kind": "total",
+  "side": "under",
+  "line": 218.5,
+  "edge": 3.7,
+  "price": -110,
+  "made": "2026-10-31T15:23:02.380370+00:00"
  }
 ]
