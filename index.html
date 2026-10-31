@@ -655,6 +655,17 @@ select option{background:#16171b;color:var(--ink)}
 .tlpend{margin-top:14px;padding:12px 14px;border-radius:14px;background:color-mix(in srgb,var(--a) 10%,transparent);border:1px solid color-mix(in srgb,var(--a) 35%,var(--line));display:grid;gap:6px;font-size:13.5px}
 .tlpn{display:flex;flex-wrap:wrap;gap:6px 20px;font:500 13px var(--mono)}
 @media (max-width:700px){.tlchart svg{height:200px}.tllist li{grid-template-columns:44px 1fr;}.tlv{grid-column:2;text-align:left}}
+
+/* phones: same look, far less GPU work. No live backdrop blur (the background behind it is already soft),
+   no drifting glow blobs, no endlessly pulsing dots. */
+@media (max-width:820px),(pointer:coarse){
+  .amb i{animation:none!important;filter:none;will-change:auto;transition:none}
+  .g,.card,.panel,.tpop,.asub,.sheet,.modal,.drawer,.drawer.open{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  .bar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:linear-gradient(180deg,rgb(28,29,33),rgb(18,19,22))}
+  .panel{background:rgb(14,15,18)}.tpop{background:rgb(18,19,23)}
+  .dot,.lvdot.on,.lgm .st .live::before{animation:none!important}
+  .card{transition:none}
+}
 </style></head><body>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div>
 
@@ -785,6 +796,7 @@ select option{background:#16171b;color:var(--ink)}
 const navRO=new ResizeObserver(([e])=>document.documentElement.style.setProperty("--navh",Math.ceil(e.target.getBoundingClientRect().height)+"px"));navRO.observe(document.querySelector(".bar"));
 let D=null,LOG=[],day=0,forcing=false;
 const $=s=>document.querySelector(s);
+const PHONE=matchMedia("(max-width:820px),(pointer:coarse)").matches;
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const last=n=>n.split(" ").slice(-1)[0];
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -1067,7 +1079,7 @@ function renderAll(){
   const age=D.pulled_iso?(Date.now()-Date.parse(D.pulled_iso))/60000:0;
   if(document.body.dataset.view!=="arena")$("#pulled").textContent="Updated "+D.pulled;$("#dot").classList.toggle("stale",age>75);
   if(!forcing){if(age>75)staleNote(age);else $("#status").textContent=""}
-  renderHero();renderCards();renderDays();renderPower();renderStrength(selTeam);renderWire();renderScoring();renderNewsroom();if(typeof renderTrades==="function")renderTrades();if(typeof renderOU==="function")renderOU();if(typeof renderSim==="function"){SIMR=null;renderSim()}if(typeof tlWhenVisible==="function")tlWhenVisible();if(typeof renderAsk==="function"&&!document.activeElement?.closest?.("#askF"))renderAsk();
+  renderHero();renderCards();renderDays();renderPower();renderStrength(selTeam);renderWire();renderScoring();renderNewsroom();if(typeof renderTrades==="function")renderTrades();if(typeof renderOU==="function")renderOU();if(typeof renderSim==="function"){SIMR=null;if(PHONE)simWhenVisible();else renderSim()}if(typeof tlWhenVisible==="function")tlWhenVisible();if(typeof renderAsk==="function"&&!document.activeElement?.closest?.("#askF"))renderAsk();
 }
 
 
@@ -1087,7 +1099,7 @@ const CK="courtside-colors";
 const PRESETS=[["Mono",220,0,40],["Ice",200,80,40],["Mint",158,70,50],["Court",24,85,30],["Gold",44,85,-30],["Rose",340,75,40],["Violet",265,70,60],["Miami",190,85,140],["Sunset",330,85,60],["Aurora",150,75,120]];
 const BLENDS=[["Solo",0],["Duo",40],["Split",140],["Neon",180]];
 let C={h:220,s:0,g:.75,o:40,flow:false,team:true};try{Object.assign(C,JSON.parse(localStorage.getItem(CK)||"{}"))}catch(e){}
-let flowT=null,flowH=null;const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
+let flowT=null,flowH=null;const RM=matchMedia("(prefers-reduced-motion: reduce)").matches||PHONE;  // phones: no colour-flow timer (it repaints the whole page every 2 s)
 function applyColors(){const r=document.documentElement.style;r.setProperty("--ah",flowH??C.h);r.setProperty("--ao",C.o);document.documentElement.classList.toggle("flow",!!C.flow&&!RM);
   if(C.flow&&!RM&&!flowT){flowH=C.h;flowT=setInterval(()=>{flowH=(flowH+3);r.setProperty("--ah",flowH)},2000)}if((!C.flow||RM)&&flowT){clearInterval(flowT);flowT=null;flowH=null;r.setProperty("--ah",C.h)}
 r.setProperty("--as",C.s+"%");r.setProperty("--glow",C.g);document.body.classList.toggle("mycolors",!C.team);try{localStorage.setItem(CK,JSON.stringify(C))}catch(e){}}
@@ -1121,10 +1133,11 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1793404661";
+const BUILD="1793415286";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
-setInterval(checkBuild,90000);
-loadLog().then(()=>load(true));setInterval(()=>loadLog().then(()=>load(false)),120000);
+setInterval(()=>{if(!document.hidden)checkBuild()},90000);
+loadLog().then(()=>load(true));setInterval(()=>{if(!document.hidden)loadLog().then(()=>load(false))},120000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&D)loadLog().then(()=>load(false))});
 function toast(m){const t=document.createElement("div");t.className="toast";t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),4000)}
 $("#refresh").onclick=async()=>{await loadLog();await load(true);toast("Showing the newest published data · "+D.pulled)};
 const REPO="garrettyates00-png/garebears-courtside",TK="courtside-gh-token";
@@ -1167,17 +1180,17 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1793404661"></script>
-<script src="season.js?v=1793404661"></script>
-<script src="bets.js?v=1793404661"></script>
-<script src="trades.js?v=1793404661"></script>
-<script src="tradelab.js?v=1793404661"></script>
-<script src="betshub.js?v=1793404661"></script>
-<script src="sim.js?v=1793404661"></script>
-<script src="overunder.js?v=1793404661"></script>
-<script src="profile.js?v=1793404661"></script>
-<script src="ask.js?v=1793404661"></script>
-<script src="timeline.js?v=1793404661"></script>
-<script src="nav.js?v=1793404661"></script>
-<script src="live.js?v=1793404661"></script>
+<script src="arena.js?v=1793415286"></script>
+<script src="season.js?v=1793415286"></script>
+<script src="bets.js?v=1793415286"></script>
+<script src="trades.js?v=1793415286"></script>
+<script src="tradelab.js?v=1793415286"></script>
+<script src="betshub.js?v=1793415286"></script>
+<script src="sim.js?v=1793415286"></script>
+<script src="overunder.js?v=1793415286"></script>
+<script src="profile.js?v=1793415286"></script>
+<script src="ask.js?v=1793415286"></script>
+<script src="timeline.js?v=1793415286"></script>
+<script src="nav.js?v=1793415286"></script>
+<script src="live.js?v=1793415286"></script>
 </body></html>

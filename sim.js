@@ -3,7 +3,7 @@
    then plays every remaining week of the real league schedule using each NBA team's real games per week,
    capped by lineup slots. Regular season -> seeds -> playoff bracket -> champion.
    What-if mode re-runs with the same random numbers so the difference is the move, not luck. */
-const SIM_N=10000;
+const SIM_N=typeof PHONE!=="undefined"&&PHONE?4000:10000;  // phones: fewer seasons, same answer within a point or two
 let SIMR=null,SIMW=null,simBusy=false,sbGive=new Set(),sbGet=new Set(),sbTeam=null,sbRes=null;
 
 const SIM_WORKER=`
@@ -169,3 +169,10 @@ function sbResHTML(r){const d=(x,y)=>{const v=Math.round((y-x)*1000)/10;return `
 function simTrade(giveIds,getIds,team){sbGive=new Set(giveIds);sbGet=new Set(getIds);sbTeam=team;sbRes=null;
   const go=()=>{renderSandbox();const sb=$("#sandbox");sb.scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"});setTimeout(()=>$("#sbRun")&&$("#sbRun").click(),500)};
   if(!SIMR)renderSim().then(go);else go()}
+
+/* phones: only simulate once the simulator section is about to scroll into view */
+let simIO=null;
+function simWhenVisible(){const el=$("#secSim");if(!el)return;if(!("IntersectionObserver" in window)){renderSim();return}
+  if(simIO)simIO.disconnect();
+  if(!el.innerHTML)el.innerHTML=`<div class="eyebrow">Season outlook</div><h2>Season simulator</h2><p class="mute">Runs when you scroll here.</p>`;
+  simIO=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){simIO.disconnect();simIO=null;renderSim(true)}},{rootMargin:"300px"});simIO.observe(el)}
