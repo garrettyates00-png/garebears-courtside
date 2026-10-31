@@ -52,7 +52,7 @@ async function renderTL(){
     <div class="tlsum" id="tlSum"></div>
     <div id="tlClaims"></div>
     <div class="eyebrow" style="margin:18px 0 8px">What changed · effect on ${M[1].toLowerCase()}</div><ul class="tllist">${evList}</ul>
-    <p class="faint" style="font-size:12.5px;margin:10px 0 0">Each snapshot re-runs a 3,000-season simulation with every roster, injury and record at that moment.${mine?"":" Other teams' waiver claims are private on ESPN, so only completed moves show for them."} The change shown is from the snapshot before the event to the one after it, so news that landed at the same time shares the same change.</p>`;
+    <p class="faint" style="font-size:12.5px;margin:10px 0 0">Each snapshot runs the same 10,000-season simulator as the Season simulator below, with every roster, injury and record at that moment. Injured players come back after a random 1 to 8 weeks, and healthy players can get hurt along the way.${mine?"":" Other teams' waiver claims are private on ESPN, so only completed moves show for them."} The change shown is from the snapshot before the event to the one after it, so news that landed at the same time shares the same change.</p>`;
   el.querySelector(".tlf").onclick=e=>{const b=e.target.closest("[data-m]");if(b){tlMetric=b.dataset.m;renderTL()}};
   $("#tlTeam").onchange=e=>{tlTeam=e.target.value;renderTL()};
   const svg=el.querySelector("svg"),rd=$("#tlRead"),dot=$("#tlDot");

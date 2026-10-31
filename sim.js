@@ -3,7 +3,7 @@
    then plays every remaining week of the real league schedule using each NBA team's real games per week,
    capped by lineup slots. Regular season -> seeds -> playoff bracket -> champion.
    What-if mode re-runs with the same random numbers so the difference is the move, not luck. */
-const SIM_N=typeof PHONE!=="undefined"&&PHONE?4000:10000;  // phones: fewer seasons, same answer within a point or two
+const SIM_N=10000;  // same count and seed as the timeline snapshots (simcli.js), so the numbers match
 let SIMR=null,SIMW=null,simBusy=false,sbGive=new Set(),sbGet=new Set(),sbTeam=null,sbRes=null;
 
 const SIM_WORKER=`

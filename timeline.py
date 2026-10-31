@@ -106,13 +106,31 @@ def simulate(d, sim, n=N_SIMS, seed=7):
     return {str(t): dict(po=round(float(po[i]), 4), title=round(float(champ[i]) / n, 4), wins=round(float(mw[i]), 2)) for i, t in enumerate(teams)}
 
 
+def simulate_js(d):
+    """The page's own simulator (sim.js via simcli.js): same model and random draws as the Season simulator."""
+    import tempfile, os
+    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as fh:
+        json.dump(d, fh); tmp = fh.name
+    try:
+        here = os.path.dirname(os.path.abspath(__file__))
+        r = subprocess.run(["node", os.path.join(here, "simcli.js"), tmp, "10000"], capture_output=True, text=True, timeout=180)
+        if r.returncode != 0: raise RuntimeError(r.stderr[-300:])
+        return json.loads(r.stdout)
+    finally:
+        os.remove(tmp)
+
+
 def point(d, sim):
     T = d["teams"]
     pw = sorted(T, key=lambda t: -(T[t].get("power") or 0))
     try:
-        sims = simulate(d, sim)
+        sims = simulate_js(d)
     except Exception as e:
-        print("timeline sim skipped:", e); sims = {}
+        print("timeline: page simulator unavailable, using the numpy fallback:", e)
+        try:
+            sims = simulate(d, sim)
+        except Exception as e2:
+            print("timeline sim skipped:", e2); sims = {}
     m = {}
     for t in T:
         m[t] = dict(wk=round(T[t].get("proj") or 0, 1), core=round(T[t].get("core") or 0, 1), power=round(T[t].get("power") or 0, 1),
@@ -170,7 +188,9 @@ def update(d, sim, path="timeline.json", min_gap_h=2.0):
     if any(e["kind"] == "week" for e in ev):
         for e in ev:
             if e["kind"] == "week": e["t"] = "*"
-    lastp = tl["points"][-1] if tl["points"] else None
+    # the newest snapshot may be a rolling one (refreshed in place); spacing is measured from the last fixed one
+    P_ = tl["points"]
+    lastp = (P_[-2] if len(P_) > 1 and P_[-1].get("roll") else P_[-1]) if P_ else None
     import datetime as _dt
     gap = 99
     if lastp and lastp.get("at") and d.get("pulled_iso"):
@@ -178,8 +198,15 @@ def update(d, sim, path="timeline.json", min_gap_h=2.0):
             gap = (_dt.datetime.fromisoformat(d["pulled_iso"]) - _dt.datetime.fromisoformat(lastp["at"])).total_seconds() / 3600
         except Exception:
             pass
-    if not ev and gap < min_gap_h and lastr:
+    if not ev and gap < min_gap_h and lastr and tl["points"]:
+        # nothing happened: keep a rolling latest snapshot fresh, so "now" always matches the page's simulator
+        p = point(d, sim); p["roll"] = True
+        if tl["points"][-1].get("roll"): tl["points"][-1] = p
+        else: tl["points"].append(p)
+        tl["last"] = dict(rosters=cur, meta=meta)
+        json.dump(tl, open(path, "w"), separators=(",", ":"))
         return tl
+    if tl["points"] and tl["points"][-1].get("roll"): tl["points"][-1].pop("roll", None)   # becomes a fixed snapshot
     p = point(d, sim)
     if not tl["points"]: ev = [dict(kind="draft", n="", text="Draft complete", t="*")] + ev
     tl["points"].append(p)
@@ -204,6 +231,7 @@ if __name__ == "__main__":
             continue
         if "snapshot" in str(d.get("pulled", "")): continue   # the pre-login sample data, not the real league
         if not d.get("pulled_iso"): d["pulled_iso"] = when
+        if not (d.get("sim") or {}).get("sched"): d["sim"] = dict(sim, cur=d.get("period") or sim.get("cur"))
         update(d, sim)
     tl = json.load(open("timeline.json"))
     print(len(tl["points"]), "points,", len(tl["events"]), "events")
