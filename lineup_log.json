@@ -1,6 +1,14 @@
 [
  {
   "date": "2026-10-31",
+  "status": "ok",
+  "moved": [],
+  "note": "Lineup was already optimal.",
+  "at": "Oct 31, 11:43 AM CT",
+  "src": "button"
+ },
+ {
+  "date": "2026-10-31",
   "status": "saved",
   "moved": [
    "Jarrett Allen: BE to UTIL, plays today (36.9 proj)",
