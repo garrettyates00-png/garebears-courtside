@@ -1,0 +1,31 @@
+{
+ "id": "q-mvzh6pvj-cz6h",
+ "q": "How can I beat the matchup this week and flip any projections?\n\nIs it possible?",
+ "at": "2026-11-02T16:32:03.062827+00:00",
+ "short": "Possible but an underdog: you project 1581.3 vs 1675.5 (down 94.2) for the Commode Chokers. Smart streaming and lineup use can close roughly 40 to 60 points, so you also need some help from their injuries.",
+ "answer": "You trail Rob Y. (The Commode Chokers) 1581.3 to 1675.5 this week, a gap of 94.2 points. Your two best sources of lost value are Anthony Edwards (about 188.8 points) and Ja Morant (about 150), both OUT in your IR slots. Together that is the biggest reason you are behind, and neither is likely to be back in time to matter.\n\nYour roster is full: 15 active players plus 2 on IR, so every add needs a drop. The easiest drops are bench players who will not start anyway, like Scotty Pippen Jr. (day to day, 3 games, 30.6 per game) or Quentin Grimes (28.1 per game).\n\nBest upgrade: Andrew Wiggins (MIA, free agent, instant add, 4 games, 32.0 per game, about 128 points) in place of Aaron Gordon (3 games, 28.9 per game, about 85). That is roughly +43 points. Mikal Bridges (3 games, 32.8 per game, about 98) is a smaller gain, about +13 over Gordon. Check that Darryn Peterson (4 games, 29.1 per game) is slotted over any 3 game starter whose per game number is close, since games played matter more than small per game differences. Alex Sarr and Jakob Poeltl are day to day, so check them before lineups lock each day and swap in a bench player if they sit.\n\nThe other swing is on their side. Curry, Kyrie Irving and Reed Sheppard are all day to day, and they carry about 112, 149 and 25 projected points this week. If one or two of them miss games, a lot of that 94 point gap disappears. Their projection also assumes everyone plays, so it is somewhat optimistic.\n\nHonest read: with the Wiggins swap and clean lineup management you get to maybe 40 to 60 points of the 94 back by projection, so you are still an underdog, but it is well within normal weekly variance. Flipping the projection outright needs either a hot week from your core (Mitchell, Bam, Brown) or an injury hit to their stars. I did not run a win probability simulation, so treat that as a rough estimate.\n\nOn injury news: my web searches for Edwards and Morant returned mostly old or mixed up articles and nothing I could confirm for this week, so reporting certainty is low. Your data lists both as OUT, and I would not count on either returning before the week ends.",
+ "moves": [
+  {
+   "do": "Add Andrew Wiggins (free agent, instant), drop Scotty Pippen Jr., and start Wiggins over Aaron Gordon",
+   "why": "Wiggins has 4 games at 32.0 (about 128) vs Gordon 3 games at 28.9 (about 85), roughly +43 toward the 94.2 point gap."
+  },
+  {
+   "do": "Check lineup daily and replace Sarr or Poeltl with a bench player if either is ruled out",
+   "why": "Both are day to day; Sarr projects about 116 points this week and a missed game costs about 29 each."
+  },
+  {
+   "do": "Keep Edwards and Morant on IR and do not spend a drop on them",
+   "why": "They are OUT with about 339 combined projected points that cannot be recovered this week."
+  }
+ ],
+ "sources": [
+  {
+   "title": "Anthony Edwards injury search results (Bleacher Report, unclear date)",
+   "url": "https://bleacherreport.com/articles/25407975-anthony-edwards-timeline-injury-return-updated-t-wolves-after-imaging-knee"
+  },
+  {
+   "title": "Ja Morant injury search results (Eurohoops, unclear date)",
+   "url": "https://www.eurohoops.net/en/nba-news/2028651/ja-morant-sidelined-for-at-least-four-weeks-with-a-left-hamstring-strain/"
+  }
+ ]
+}
