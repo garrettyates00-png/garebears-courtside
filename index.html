@@ -905,7 +905,8 @@ function renderCards(){setTimeout(()=>{if(openCard){const [h,a]=openCard.split("
 function detailHTML(h,a,withHead){
   const T=D.teams,A=analyze(h,a),newsBy=Object.fromEntries(D.news.map(n=>[n.n,n]));
   const pr=id=>Object.values(T).sort((x,y)=>y.power-x.power).indexOf(T[id])+1;
-  const side=(id,win)=>`<div class="side ${id==a?"r":""}"><div class="tn">${esc(T[id].name)}</div><div class="ow">${esc(T[id].owner)} · ${T[id].w}-${T[id].l} · power #${pr(id)}</div><div class="big num ${win?"":"faint"}" style="font-size:clamp(40px,7vw,72px)">${Math.round(T[id].proj)}</div><div class="sub">${T[id].live.toFixed(0)} scored · ${T[id].starts} starts left</div></div>`;
+  const LIVE=typeof isLiveWeek==="function"&&isLiveWeek();  // once the week has points, show the real score, not the projection
+  const side=(id,win)=>`<div class="side ${id==a?"r":""}"><div class="tn">${esc(T[id].name)}</div><div class="ow">${esc(T[id].owner)} · ${T[id].w}-${T[id].l} · power #${pr(id)}</div><div class="big num ${win?"":"faint"}" style="font-size:clamp(40px,7vw,72px)">${Math.round(LIVE?liveScore(+id):T[id].proj)}</div><div class="sub">${LIVE?(()=>{const e=expectedSoFar(+id),d=e==null?null:liveScore(+id)-e;return `scored · proj ${Math.round(finalMean(id))}${d==null?"":` · <span class="${d>=0?"up":"down"}">${d>=0?"+":""}${Math.round(d)}</span> vs pace`} · ${T[id].starts} starts left`})():`projected · ${T[id].starts} starts`}</div></div>`;
   const reasons=id=>`<div class="col"><div class="rbox"><h4 class="up">How ${esc(T[id].name)} wins</h4><ul>${A.why[id].w.map(x=>`<li>${x}</li>`).join("")}</ul></div><div class="rbox"><h4 class="down">How they lose</h4><ul>${A.why[id].l.map(x=>`<li>${x}</li>`).join("")}</ul></div></div>`;
   const roster=id=>{const ps=P(id).slice().sort((x,y)=>(y.wk||0)-(x.wk||0)||y.v-x.v);const five=ps.slice(0,5),rot=ps.slice(5).filter(p=>p.st>0),bench=ps.slice(5).filter(p=>!p.st);
     const pl=p=>{const nw=newsBy[p.n];return `<div class="pl" tabindex="0"><span class="nm">${esc(p.n)}${injTag(p.inj)}</span><span class="pt">${p.wk?Math.round(p.wk):"–"}</span><span class="ln">${esc(p.tm)} · ${p.el.join("/")} · ${p.st||0} G · ${p.v.toFixed(1)}/g${nw?" · news ▾":""}</span>${nw?`<span class="nw">${esc(nw.text)} <span class="faint">${nw.date.slice(5)}</span></span>`:""}</div>`};
@@ -1133,7 +1134,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1793421477";
+const BUILD="1793811604";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(()=>{if(!document.hidden)checkBuild()},90000);
 loadLog().then(()=>load(true));setInterval(()=>{if(!document.hidden)loadLog().then(()=>load(false))},120000);
@@ -1180,17 +1181,17 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1793421477"></script>
-<script src="season.js?v=1793421477"></script>
-<script src="bets.js?v=1793421477"></script>
-<script src="trades.js?v=1793421477"></script>
-<script src="tradelab.js?v=1793421477"></script>
-<script src="betshub.js?v=1793421477"></script>
-<script src="sim.js?v=1793421477"></script>
-<script src="overunder.js?v=1793421477"></script>
-<script src="profile.js?v=1793421477"></script>
-<script src="ask.js?v=1793421477"></script>
-<script src="timeline.js?v=1793421477"></script>
-<script src="nav.js?v=1793421477"></script>
-<script src="live.js?v=1793421477"></script>
+<script src="arena.js?v=1793811604"></script>
+<script src="season.js?v=1793811604"></script>
+<script src="bets.js?v=1793811604"></script>
+<script src="trades.js?v=1793811604"></script>
+<script src="tradelab.js?v=1793811604"></script>
+<script src="betshub.js?v=1793811604"></script>
+<script src="sim.js?v=1793811604"></script>
+<script src="overunder.js?v=1793811604"></script>
+<script src="profile.js?v=1793811604"></script>
+<script src="ask.js?v=1793811604"></script>
+<script src="timeline.js?v=1793811604"></script>
+<script src="nav.js?v=1793811604"></script>
+<script src="live.js?v=1793811604"></script>
 </body></html>
