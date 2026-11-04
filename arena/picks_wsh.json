@@ -88,5 +88,17 @@
   "result": "W",
   "profit": 90.91,
   "final": "95-79"
+ },
+ {
+  "id": "401909923",
+  "date": "2026-11-05T00:00Z",
+  "opp": "ATL",
+  "home": true,
+  "kind": "total",
+  "side": "under",
+  "line": 232.5,
+  "edge": 2.2,
+  "price": -110,
+  "made": "2026-11-04T16:23:04.383654+00:00"
  }
 ]
