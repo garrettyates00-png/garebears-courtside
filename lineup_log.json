@@ -1,6 +1,14 @@
 [
  {
   "date": "2026-11-04",
+  "status": "ok",
+  "moved": [],
+  "note": "Lineup was already optimal.",
+  "at": "Nov 4, 3:26 PM CT",
+  "src": "schedule"
+ },
+ {
+  "date": "2026-11-04",
   "status": "saved",
   "moved": [
    "Darryn Peterson: BE to PG, plays today (29.1 proj)",
