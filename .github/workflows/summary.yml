@@ -89,4 +89,4 @@ jobs:
           git config user.name "courtside-bot"
           git config user.email "courtside-bot@users.noreply.github.com"
           git add "$FILE"
-          git diff --cached --quiet || (git commit -m "Summary: ${{ inputs.target }}" && git pull --rebase --autostash -q && git push)
+          git diff --cached --quiet || (git commit -m "Summary: ${{ inputs.target }}" && git pull --rebase -X theirs --autostash -q && git push)

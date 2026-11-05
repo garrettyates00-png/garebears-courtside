@@ -67,4 +67,4 @@ jobs:
           git config user.name "courtside-bot"
           git config user.email "courtside-bot@users.noreply.github.com"
           for f in data.json roster_log.json highlights.json season.json weekbase.json mgr.json timeline.json; do [ -f "$f" ] && git add "$f"; done
-          git diff --cached --quiet || (git commit -m "Roster move and refresh" && git pull --rebase --autostash -q && git push)
+          git diff --cached --quiet || (git commit -m "Roster move and refresh" && git pull --rebase -X theirs --autostash -q && git push)

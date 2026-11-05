@@ -231,6 +231,21 @@ svg .mk{fill:var(--tcText)}svg .ms{stroke:rgba(255,255,255,.5);stroke-width:2}
 .tab{font:500 13px var(--sans);color:var(--mute);background:transparent;border:1px solid var(--line);border-radius:12px;padding:8px 12px;cursor:pointer;white-space:nowrap;text-align:left}
 .tab small{display:block;font:500 11px var(--mono);color:var(--faint);margin-top:2px}
 .tab[aria-selected="true"]{background:var(--hi);color:#0b0b0d;border-color:transparent}.tab[aria-selected="true"] small{color:#55555c}
+.rmwrap{display:grid;gap:10px;align-content:start}
+.rmroom{display:flex;flex-wrap:wrap;gap:6px 14px;font:500 12.5px var(--mono);color:var(--mute)}.rmroom b{color:var(--ink)}
+.rmnote{font-size:13px;line-height:1.5;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--a) 8%,rgba(255,255,255,.02));border:1px solid var(--line)}
+.rmcard{display:grid;gap:8px;padding:14px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+.rmhead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.rmsub{font-size:13px;margin-top:3px;color:var(--mute)}
+.rmgain{font:600 20px var(--mono)}.rmwhy{font-size:13px;line-height:1.5}
+.rmbtns{display:flex;gap:8px;justify-content:flex-end}
+.rmadd{padding:4px 12px;font-size:12.5px}
+.rmbox{max-width:520px;width:100%;display:grid;gap:12px;max-height:88vh;overflow:auto}
+.rmstate{font-size:13.5px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+.rmopts{display:grid;gap:6px}.rmscroll{max-height:40vh;overflow:auto;padding-right:2px}
+.rmopt{all:unset;box-sizing:border-box;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.03);font-size:14px}
+.rmopt small{display:block;font:500 11px var(--mono);color:var(--faint);margin-top:2px}.rmopt .tag{margin-left:6px}
+.rmopt.on{border-color:var(--hi);background:color-mix(in srgb,var(--a) 14%,transparent);box-shadow:inset 3px 0 0 var(--hi)}.rmopt:focus-visible{outline:2px solid var(--hi)}
+.rmsum{display:flex;flex-wrap:wrap;gap:6px 14px;font:600 13px var(--mono);min-height:18px}
 .luwrap{display:grid;gap:10px}
 .lustats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .lustat{display:grid;gap:2px;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
@@ -689,7 +704,7 @@ select option{background:#16171b;color:var(--ink)}
   .amb i{animation:none!important;filter:none;will-change:auto;transition:none}
   .g,.card,.panel,.tpop,.asub,.sheet,.modal,.drawer,.drawer.open{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
   .bar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:linear-gradient(180deg,rgb(28,29,33),rgb(18,19,22))}
-  .panel{background:rgb(14,15,18)}.tpop{background:rgb(18,19,23)}
+  .panel{background:rgb(14,15,18)}.tpop{background:rgb(18,19,23)}.modal .box{background:rgb(20,21,25)}.modal{background:rgba(0,0,0,.75)}
   .dot,.lvdot.on,.lgm .st .live::before{animation:none!important}
   .card{transition:none}
 }
@@ -1162,7 +1177,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1793890097";
+const BUILD="1793890820";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(()=>{if(!document.hidden)checkBuild()},90000);
 loadLog().then(()=>load(true));setInterval(()=>{if(!document.hidden)loadLog().then(()=>load(false))},120000);
@@ -1209,18 +1224,19 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1793890097"></script>
-<script src="season.js?v=1793890097"></script>
-<script src="bets.js?v=1793890097"></script>
-<script src="trades.js?v=1793890097"></script>
-<script src="tradelab.js?v=1793890097"></script>
-<script src="betshub.js?v=1793890097"></script>
-<script src="sim.js?v=1793890097"></script>
-<script src="overunder.js?v=1793890097"></script>
-<script src="profile.js?v=1793890097"></script>
-<script src="ask.js?v=1793890097"></script>
-<script src="timeline.js?v=1793890097"></script>
-<script src="nav.js?v=1793890097"></script>
-<script src="lineupedit.js?v=1793890097"></script>
-<script src="live.js?v=1793890097"></script>
+<script src="arena.js?v=1793890820"></script>
+<script src="season.js?v=1793890820"></script>
+<script src="bets.js?v=1793890820"></script>
+<script src="trades.js?v=1793890820"></script>
+<script src="tradelab.js?v=1793890820"></script>
+<script src="betshub.js?v=1793890820"></script>
+<script src="sim.js?v=1793890820"></script>
+<script src="overunder.js?v=1793890820"></script>
+<script src="profile.js?v=1793890820"></script>
+<script src="ask.js?v=1793890820"></script>
+<script src="timeline.js?v=1793890820"></script>
+<script src="nav.js?v=1793890820"></script>
+<script src="rostermoves.js?v=1793890820"></script>
+<script src="lineupedit.js?v=1793890820"></script>
+<script src="live.js?v=1793890820"></script>
 </body></html>
