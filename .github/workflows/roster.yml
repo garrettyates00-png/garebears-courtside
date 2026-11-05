@@ -1,0 +1,70 @@
+name: Roster move
+
+# Add / drop / IR from the dashboard's Moves section. Uses the same ESPN cookie secrets as the lineup.
+on:
+  workflow_dispatch:
+    inputs:
+      req:
+        description: "Request id from the dashboard"
+        type: string
+        default: ""
+      add:
+        description: "ESPN player id to add (free agent or waiver claim)"
+        type: string
+        default: ""
+      drop:
+        description: "ESPN player id to drop"
+        type: string
+        default: ""
+      ir:
+        description: "ESPN player id (listed OUT) to move to IR first"
+        type: string
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh
+  cancel-in-progress: false
+
+jobs:
+  move:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the request
+        env:
+          A: ${{ inputs.add }}
+          B: ${{ inputs.drop }}
+          C: ${{ inputs.ir }}
+          R: ${{ inputs.req }}
+        run: |
+          for v in "$A" "$B" "$C"; do [[ -z "$v" || "$v" =~ ^[0-9]{3,12}$ ]] || { echo "Bad player id"; exit 1; }; done
+          [[ -z "$R" || "$R" =~ ^[a-z0-9-]{3,40}$ ]] || { echo "Bad request id"; exit 1; }
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests numpy scipy
+      - name: Make the move on ESPN
+        env:
+          ESPN_S2: ${{ secrets.ESPN_S2 }}
+          ESPN_SWID: ${{ secrets.ESPN_SWID }}
+          ADD_ID: ${{ inputs.add }}
+          DROP_ID: ${{ inputs.drop }}
+          IR_ID: ${{ inputs.ir }}
+          REQ_ID: ${{ inputs.req }}
+        run: python setroster.py
+      - name: Refresh dashboard data
+        if: always()
+        env:
+          ESPN_S2: ${{ secrets.ESPN_S2 }}
+          ESPN_SWID: ${{ secrets.ESPN_SWID }}
+        run: python fetch.py
+      - name: Commit
+        if: always()
+        run: |
+          git config user.name "courtside-bot"
+          git config user.email "courtside-bot@users.noreply.github.com"
+          for f in data.json roster_log.json highlights.json season.json weekbase.json mgr.json timeline.json; do [ -f "$f" ] && git add "$f"; done
+          git diff --cached --quiet || (git commit -m "Roster move and refresh" && git pull --rebase --autostash -q && git push)

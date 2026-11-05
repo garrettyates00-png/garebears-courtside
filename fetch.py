@@ -451,44 +451,71 @@ def main():
     wait_h = acq.get("waiverHours") or 24
     delay = max(1, -(-int(wait_h) // 24))
     first_ok = today + dt.timedelta(days=delay)
-    mine = [p for p in players if p["t"] == MY_TEAM]
-    base = teams[MY_TEAM]["rest"]
+    mine_all = [p for p in players if p["t"] == MY_TEAM]
+    fa_by_id = {f["id"]: f for f in fa}
+    # Roster room. Active spots = starting slots + bench; IR spots only hold OUT players.
+    counts = {int(k): v for k, v in settings["rosterSettings"]["lineupSlotCounts"].items()}
+    ir_max = counts.get(13, 0)
+    active_max = sum(v for k, v in counts.items() if k != 13)
+    on_ir = [p for p in mine_all if p["slot"] == "IR"]
+    # Judge every move against the roster as it will be once my pending claims go through
+    mine = [p for p in mine_all if p["id"] not in claim_drop]
+    mine += [dict(fa_by_id[i], t=MY_TEAM, slot="BE", la=None, days=[x for x in fa_by_id[i]["days"] if x >= first_ok.isoformat()])
+             for i in claim_add if i in fa_by_id]
+    active_after = len([p for p in mine if p.get("slot") != "IR"])
+    room = max(0, active_max - active_after)
+    ir_free = max(0, ir_max - len(on_ir))
+    ir_cands = sorted([p for p in mine if p.get("slot") != "IR" and p["inj"] in ("OUT", "INJURY_RESERVE") and p["id"] not in claim_add],
+                      key=lambda p: -p["pa"])
+    base = week_plan(mine)[0] if pending else teams[MY_TEAM]["rest"]
     healthy_fa = sorted((f["pa"] for f in fa if f["av"] >= 0.85 and not f["claimed"]), reverse=True)
     repl = healthy_fa[min(2, len(healthy_fa) - 1)] if healthy_fa else 0  # ~3rd best free agent
     weeks_left = max(0, (ss_reg := settings["scheduleSettings"].get("matchupPeriodCount", cur_mp)) - cur_mp)
     moves = []
     TECH = {"Draymond Green", "Dillon Brooks"}
+    def mv(f, f2, gain, drop=None, ir=None, ros=0.0):
+        return dict(add=f["n"], add_id=f["id"], addtm=f["tm"], add_inj=f["inj"], add_st=f["st"], add_clear=f["wclear"],
+                    drop=drop["n"] if drop else None, drop_id=drop["id"] if drop else None, drop_inj=drop["inj"] if drop else "",
+                    ir=ir["n"] if ir else None, ir_id=ir["id"] if ir else None,
+                    gain=round(gain, 1), net=round(gain - ros, 1), ros=round(ros, 1), games=len(f2["days"]),
+                    dropgames=len([x for x in drop["days"] if x >= first_ok.isoformat()]) if drop else 0,
+                    dropval=round(drop["pa"], 1) if drop else None, addval=round(f["pa"], 1), from_day=first_ok.strftime("%a"))
     for f in fa[:40]:
+        # never suggest an injured pickup or one I've already claimed
         if f["n"] in TECH or f["av"] < 0.85 or f["claimed"]: continue
         f2 = dict(f, days=[x for x in f["days"] if x >= first_ok.isoformat()])
         if not f2["days"]: continue
+        # an open spot (or an OUT player who can go to IR) means no drop is needed
+        if room > 0 or (ir_free > 0 and ir_cands):
+            ir = None if room > 0 else ir_cands[0]
+            gain = week_plan(mine + [f2])[0] - base
+            if gain > 4: moves.append(mv(f, f2, gain, ir=ir))
         for d in mine:
-            if d["inj"] == "OUT" or d["id"] in claim_drop: continue
+            # don't cut injured players (stash or IR them), players already in a pending drop, or ones I just claimed
+            if d["inj"] in ("OUT", "INJURY_RESERVE") or d["id"] in claim_drop or d["id"] in claim_add or d.get("slot") == "IR": continue
             keep = max(d["pa"], d.get("la") or 0, d["ca"] if (d.get("ca") is not None and d.get("cg", 0) >= 2) else 0)
             if keep > repl: continue                     # better than what's on waivers: you'd never get him back
             d2 = dict(d, days=[x for x in d["days"] if x < first_ok.isoformat()])
             trial = [p for p in mine if p is not d] + [d2, f2]
             gain = week_plan(trial)[0] - base
             ros = max(0.0, d["pa"] - f["pa"]) * 3.4 * min(weeks_left, 4)  # what the downgrade costs after this week
-            net = gain - ros
-            if net > 4:
-                moves.append(dict(add=f["n"], addtm=f["tm"], drop=d["n"], gain=round(gain, 1), net=round(net, 1), ros=round(ros, 1),
-                                  games=len(f2["days"]), dropgames=len([x for x in d["days"] if x >= first_ok.isoformat()]),
-                                  dropval=round(d["pa"], 1), addval=round(f["pa"], 1), from_day=first_ok.strftime("%a")))
+            if gain - ros > 4: moves.append(mv(f, f2, gain, drop=d, ros=ros))
     moves.sort(key=lambda m: -m["net"])
     seen, top_moves = set(), []
     for m in moves:
-        if m["add"] in seen or m["drop"] in {x["drop"] for x in top_moves}: continue
+        if m["add"] in seen or (m["drop"] and m["drop"] in {x["drop"] for x in top_moves}): continue
         seen.add(m["add"]); top_moves.append(m)
         if len(top_moves) == 3: break
+    roster_info = dict(active_max=active_max, ir_max=ir_max, active_now=len([p for p in mine_all if p["slot"] != "IR"]),
+                       active_after=active_after, room=room, ir_used=len(on_ir), ir_free=ir_free,
+                       ir_cands=[p["id"] for p in ir_cands], claim_add=sorted(claim_add), claim_drop=sorted(claim_drop))
 
-    fa_by_id = {f["id"]: f for f in fa}
     if pending:
-        after = [p for p in mine if p["id"] not in claim_drop] + [fa_by_id[i] for i in claim_add if i in fa_by_id]
+        after = [p for p in mine_all if p["id"] not in claim_drop] + [fa_by_id[i] for i in claim_add if i in fa_by_id]
         teams[MY_TEAM]["if_claims"] = week_plan(after)[0]
         for c in pending:
             c["add"] = [fa_by_id[i]["n"] if i in fa_by_id else str(i) for i in c["add"]]
-            c["drop"] = [next((p["n"] for p in mine if p["id"] == i), str(i)) for i in c["drop"]]
+            c["drop"] = [next((p["n"] for p in mine_all if p["id"] == i), str(i)) for i in c["drop"]]
 
     # Latest news for my team and this week's opponent (public ESPN feed)
     my_m = next((m for m in sched if m[0] == cur_mp and MY_TEAM in m[1:]), None)
@@ -625,8 +652,8 @@ def main():
                                   out=[p["n"] for p in hurt if p["inj"] in ("OUT", "INJURY_RESERVE", "SUSPENSION")])
     data = dict(pulled=dt.datetime.now(TZ).strftime("%b %-d, %-I:%M %p CT"), pulled_iso=dt.datetime.now(dt.timezone.utc).isoformat(), pending=pending, league=settings["name"], me=MY_TEAM, opp=opp,
                 plan=[{k: m[k] for k in ("n", "from", "to", "why")} for m in plan], plan_day=plan_day.strftime("%a %b ") + str(plan_day.day), period=cur_mp, week=[wk_start.isoformat(), wk_end.isoformat()], days=[d.isoformat() for d in days],
-                slots=slots, scoring=scoring, teams=teams, sim=sim, mgr=mgr_out, waiver=dict(hours=wait_h, from_day=first_ok.isoformat(), repl=repl), base=wk_base, week_hist=week_hist, act=act, all_days=[d.isoformat() for d in all_days], players=players, sched=sched, moves=top_moves,
-                fa=[{k: f[k] for k in ("id", "n", "pos", "tm", "inj", "pa", "claimed", "st", "wclear")} | {"g": len(f["days"])} for f in fa[:15]],
+                slots=slots, scoring=scoring, teams=teams, sim=sim, mgr=mgr_out, waiver=dict(hours=wait_h, from_day=first_ok.isoformat(), repl=repl), base=wk_base, week_hist=week_hist, act=act, all_days=[d.isoformat() for d in all_days], players=players, sched=sched, moves=top_moves, roster=roster_info,
+                fa=[{k: f[k] for k in ("id", "n", "pos", "tm", "inj", "pa", "claimed", "st", "wclear", "el")} | {"g": len(f["days"])} for f in fa[:40]],
                 league_pending=league_pending, recent=recent_moves, injury=inj_drag, news=news, feed=feed[:220], yt=bool(os.environ.get("YT_API_KEY")))
     with open("data.json", "w") as fh:
         json.dump(data, fh, separators=(",", ":"))
