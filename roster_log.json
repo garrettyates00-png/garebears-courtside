@@ -1,1 +1,16 @@
-[]
+[
+ {
+  "req": "r-mw3p441c",
+  "add": 4351852,
+  "drop": 3064290,
+  "ir": null,
+  "names": {
+   "add": "Mitchell Robinson",
+   "drop": "Aaron Gordon"
+  },
+  "status": "error",
+  "kind": "FREEAGENT",
+  "error": "ESPN said 409: {\"messages\":[\"Too many players with default position C (maximum 4).\"],\"details\":[{\"message\":\"Too many players with default position C (maximum 4).\",\"shortMessage\":\"Too many players with default position C (maximum 4).\",\"resolution\":\"You must drop a player with default position C to clear your roster",
+  "at": "Nov 5, 9:24 AM CT"
+ }
+]
