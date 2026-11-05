@@ -10,19 +10,23 @@ const luP=id=>D.players.find(p=>p.id===+id);
 
 function luInit(){
   const d=D.teams[D.me].daily[day];if(!d)return null;
-  const mine=P(D.me),byName=Object.fromEntries(mine.map(p=>[p.n,p]));
-  // the suggested starters for that day, kept in their current ESPN slot where possible so only real moves show
-  const want=d.start.map(([,n])=>byName[n]).filter(Boolean),starters=D.slots.map(()=>null),used=new Set(want.map(p=>p.id));
-  for(const p of want){const i=D.slots.findIndex((s,k)=>s===p.slot&&starters[k]==null);if(i>=0)starters[i]=p.id}
-  // everyone else: bipartite matching into the open slots (augmenting paths)
-  const rest=want.filter(p=>!starters.includes(p.id));
-  const tryPlace=(p,seen)=>{for(let k=0;k<D.slots.length;k++){if(seen.has(k)||!luElig(p,D.slots[k]))continue;seen.add(k);
-    const cur=starters[k];const fixed=cur!=null&&want.find(q=>q.id===cur&&q.slot===D.slots[k]&&!rest.includes(q));
-    if(cur==null||(!fixed&&tryPlace(luP(cur),seen))){starters[k]=p.id;return true}}return false};
-  for(const p of rest)if(!tryPlace(p,new Set())){const k=D.slots.findIndex((s,i)=>starters[i]==null&&luElig(p,s));if(k>=0)starters[k]=p.id}
+  const mine=P(D.me),byName=Object.fromEntries(mine.map(p=>[p.n,p])),pp=d.pp||{};
+  const plays=id=>pp[id]!=null;
+  // start from the lineup ESPN has now and change only what the suggestion needs:
+  // players with a game who should start go in, players with a game who shouldn't go to the bench,
+  // and starters with no game that day stay where they are unless their slot is needed
+  const want=d.start.map(([,n])=>byName[n]).filter(Boolean),wantS=new Set(want.map(p=>p.id));
+  const starters=D.slots.map(()=>null);
+  for(const p of mine){if(p.slot==="IR"||p.slot==="BE")continue;if(!wantS.has(p.id)&&plays(p.id))continue;
+    const k=D.slots.findIndex((s,i)=>s===p.slot&&starters[i]==null);if(k>=0)starters[k]=p.id}
+  const tryPlace=(p,seen,evict)=>{for(let k=0;k<D.slots.length;k++){if(seen.has(k)||!luElig(p,D.slots[k]))continue;seen.add(k);
+    const cur=starters[k];
+    if(cur==null||(wantS.has(cur)&&tryPlace(luP(cur),seen,evict))||(evict&&!wantS.has(cur))){starters[k]=p.id;return true}}return false};
+  for(const p of want){if(starters.includes(p.id))continue;if(!tryPlace(p,new Set(),false))tryPlace(p,new Set(),true)}
   const ir=mine.filter(p=>p.slot==="IR").map(p=>p.id);
-  const bench=mine.filter(p=>!used.has(p.id)&&!ir.includes(p.id)).map(p=>p.id);
-  return {iso:d.iso,day:d.day,pp:d.pp||{},locked:new Set((d.locked||[]).map(Number)),starters,bench,ir,base:null,dirty:false,sug:d.pts};
+  const bench=mine.filter(p=>!starters.includes(p.id)&&!ir.includes(p.id)).map(p=>p.id);
+  return {iso:d.iso,day:d.day,pp,locked:new Set((d.locked||[]).map(Number)),starters,bench,ir,dirty:false,sug:d.pts,
+    nPlay:mine.filter(p=>plays(p.id)&&p.slot!=="IR").length,nStart:want.length};
 }
 const luPts=L=>L.starters.reduce((s,id)=>s+(id?(L.pp[id]||0):0),0);
 function luWhere(L,id){let i=L.starters.indexOf(id);if(i>=0)return {z:"S",i};if(L.bench.includes(id))return {z:"BE"};if(L.ir.includes(id))return {z:"IR"};return null}
@@ -74,11 +78,15 @@ function renderLU(){
       <span class="lud ${pp?"":"faint"}" ${pp?"":'title="No game this day"'}>${pp?r1(pp):"–"}</span><span class="luw">${p.wk?Math.round(p.wk):"–"}</span></div>`};
   const changes=luChanges();
   el.className="luwrap";
-  el.innerHTML=`<div class="luhead"><div><span class="faint">${esc(d.day)} starters</span><b class="num">${Math.round(pts)}</b>${Math.abs(pts-L.sug)>.5?`<span class="${pts>=L.sug?"up":"down"}">${pts>=L.sug?"+":"−"}${Math.round(Math.abs(pts-L.sug))} vs suggested</span>`:`<span class="faint">suggested lineup</span>`}</div>
+  const noGame=L.starters.filter(id=>id&&!L.pp[id]).length,openS=L.starters.filter(x=>!x).length;
+  el.innerHTML=`<div class="luexp"><b>${esc(d.day)}: ${L.nPlay} of your players have a game.</b> ${L.nStart>=L.nPlay?"All of them start.":`The best ${L.nStart} start; ${L.nPlay-L.nStart} sit because the slots are full.`}
+      ${noGame?` ${noGame} starter${noGame>1?"s have":" has"} no game that day and ${noGame>1?"stay":"stays"} put (they score 0 wherever they are).`:""}
+      This is your current ESPN lineup with the suggested changes applied; outlined rows are the changes.</div>
+    <div class="luhead"><div><span class="faint">${esc(d.day)} points</span><b class="num">${Math.round(pts)}</b>${Math.abs(pts-L.sug)>.5?`<span class="${pts>=L.sug?"up":"down"}">${pts>=L.sug?"+":"−"}${Math.round(Math.abs(pts-L.sug))} vs suggested</span>`:`<span class="faint">best possible</span>`}</div>
       <div><span class="faint">Week projection</span><b class="num">${Math.round(wk)}</b>${Math.abs(wk-T.proj)>.5?`<span class="down">was ${Math.round(T.proj)}</span>`:""}</div></div>
     <div class="lucols"><span></span><span>Slot</span><span>Player</span><span>${esc(d.day.split(" ")[0])}</span><span>Week</span></div>
     <div class="luzone">${D.slots.map((s,i)=>row(L.starters[i],s,{z:"S",i})).join("")}</div>
-    <div class="luz" data-tgt="${JSON.stringify({z:"BE"}).replace(/"/g,"&quot;")}"><div class="eyebrow">Bench · drop here</div>${L.bench.map(id=>row(id,"BE",{z:"BE"})).join("")||`<div class="faint lue">Empty</div>`}</div>
+    <div class="luz" data-tgt="${JSON.stringify({z:"BE"}).replace(/"/g,"&quot;")}"><div class="eyebrow">Bench · ${L.bench.length} · ${L.bench.filter(id=>L.pp[id]).length} with a game</div>${L.bench.map(id=>row(id,"BE",{z:"BE"})).join("")||`<div class="faint lue">Empty</div>`}</div>
     <div class="luz" data-tgt="${JSON.stringify({z:"IR"}).replace(/"/g,"&quot;")}"><div class="eyebrow">IR · ${L.ir.length}/${LU_IR} · OUT players only</div>${L.ir.map(id=>row(id,"IR",{z:"IR"})).join("")||`<div class="faint lue">Empty</div>`}</div>
     <div class="luact">${changes.length?`<span>${changes.length} change${changes.length>1?"s":""} from your ESPN lineup</span>`:`<span class="faint">Matches your ESPN lineup</span>`}
       <button class="b" type="button" id="luReset" ${L.dirty?"":"disabled"}>Reset to suggested</button>

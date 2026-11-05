@@ -231,7 +231,7 @@ svg .mk{fill:var(--tcText)}svg .ms{stroke:rgba(255,255,255,.5);stroke-width:2}
 .tab{font:500 13px var(--sans);color:var(--mute);background:transparent;border:1px solid var(--line);border-radius:12px;padding:8px 12px;cursor:pointer;white-space:nowrap;text-align:left}
 .tab small{display:block;font:500 11px var(--mono);color:var(--faint);margin-top:2px}
 .tab[aria-selected="true"]{background:var(--hi);color:#0b0b0d;border-color:transparent}.tab[aria-selected="true"] small{color:#55555c}
-.luwrap{display:grid;gap:10px}
+.luwrap{display:grid;gap:10px}.luexp{font-size:13.5px;line-height:1.5;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.035);border:1px solid var(--line)}
 .luhead{display:flex;gap:10px 28px;flex-wrap:wrap;align-items:baseline}.luhead>div{display:flex;gap:8px;align-items:baseline}.luhead b{font:600 26px var(--sans)}.luhead span{font-size:13px}
 .lucols,.lurow{display:grid;grid-template-columns:26px 48px minmax(0,1fr) 64px 52px;gap:8px;align-items:center}
 .lucols{font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--faint);padding:0 10px}.lucols span:nth-child(n+4){text-align:right}
@@ -961,8 +961,8 @@ function renderDays(){
   $("#slots").innerHTML=D.slots.map((s,i)=>{const n=(pool[s]||[]).shift();if(!n)return `<div class="slot empty" style="animation-delay:${i*30}ms"><div class="s">${s}</div><div class="p">Open</div><div class="m">no game</div></div>`;
     const p=by[n];return `<div class="slot" style="animation-delay:${i*30}ms"><div class="s">${s}</div><div class="p">${esc(n)}${injTag(p.inj)}</div><div class="m">${esc(p.tm)} · ${p.v.toFixed(1)}</div></div>`}).join("");
   const why=[];
-  why.push(x.bench.length?`<b>Sitting with a game:</b> ${x.bench.map(esc).join(", ")}. Lowest projections of today's players.`:`All ${x.start.length} players with a game start. ${D.slots.length-x.start.length} slots are open.`);
-  if(x.start.length<6) why.push(`<b>Light day.</b> A streamer who plays today adds free points.`);
+  if(typeof renderLU!=="function")why.push(x.bench.length?`<b>Sitting with a game:</b> ${x.bench.map(esc).join(", ")}. Lowest projections of today's players.`:`All ${x.start.length} players with a game start. ${D.slots.length-x.start.length} slots are open.`);
+  if(x.start.length<6) why.push(`<b>Light day.</b> Only ${x.start.length} of your players have a game, so a pickup who plays that day adds free points.`);
   P(D.me).filter(p=>p.inj&&x.start.some(s=>s[1]===p.n)).forEach(p=>why.push(`<b>${esc(p.n)}</b> is ${injWord(p.inj)} and counted at a reduced projection. Check before tip-off.`));
   $("#why").innerHTML=why.map(w=>`<li>${w}</li>`).join("");
   renderLineupAct();
@@ -1152,7 +1152,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1793888141";
+const BUILD="1793890044";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(()=>{if(!document.hidden)checkBuild()},90000);
 loadLog().then(()=>load(true));setInterval(()=>{if(!document.hidden)loadLog().then(()=>load(false))},120000);
@@ -1199,18 +1199,18 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1793888141"></script>
-<script src="season.js?v=1793888141"></script>
-<script src="bets.js?v=1793888141"></script>
-<script src="trades.js?v=1793888141"></script>
-<script src="tradelab.js?v=1793888141"></script>
-<script src="betshub.js?v=1793888141"></script>
-<script src="sim.js?v=1793888141"></script>
-<script src="overunder.js?v=1793888141"></script>
-<script src="profile.js?v=1793888141"></script>
-<script src="ask.js?v=1793888141"></script>
-<script src="timeline.js?v=1793888141"></script>
-<script src="nav.js?v=1793888141"></script>
-<script src="lineupedit.js?v=1793888141"></script>
-<script src="live.js?v=1793888141"></script>
+<script src="arena.js?v=1793890044"></script>
+<script src="season.js?v=1793890044"></script>
+<script src="bets.js?v=1793890044"></script>
+<script src="trades.js?v=1793890044"></script>
+<script src="tradelab.js?v=1793890044"></script>
+<script src="betshub.js?v=1793890044"></script>
+<script src="sim.js?v=1793890044"></script>
+<script src="overunder.js?v=1793890044"></script>
+<script src="profile.js?v=1793890044"></script>
+<script src="ask.js?v=1793890044"></script>
+<script src="timeline.js?v=1793890044"></script>
+<script src="nav.js?v=1793890044"></script>
+<script src="lineupedit.js?v=1793890044"></script>
+<script src="live.js?v=1793890044"></script>
 </body></html>
