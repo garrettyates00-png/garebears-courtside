@@ -79,11 +79,13 @@ function renderLU(){
   const changes=luChanges();
   el.className="luwrap";
   const noGame=L.starters.filter(id=>id&&!L.pp[id]).length,openS=L.starters.filter(x=>!x).length;
-  el.innerHTML=`<div class="luexp"><b>${esc(d.day)}: ${L.nPlay} of your players have a game.</b> ${L.nStart>=L.nPlay?"All of them start.":`The best ${L.nStart} start; ${L.nPlay-L.nStart} sit because the slots are full.`}
-      ${noGame?` ${noGame} starter${noGame>1?"s have":" has"} no game that day and ${noGame>1?"stay":"stays"} put (they score 0 wherever they are).`:""}
-      This is your current ESPN lineup with the suggested changes applied; outlined rows are the changes.</div>
-    <div class="luhead"><div><span class="faint">${esc(d.day)} points</span><b class="num">${Math.round(pts)}</b>${Math.abs(pts-L.sug)>.5?`<span class="${pts>=L.sug?"up":"down"}">${pts>=L.sug?"+":"−"}${Math.round(Math.abs(pts-L.sug))} vs suggested</span>`:`<span class="faint">best possible</span>`}</div>
-      <div><span class="faint">Week projection</span><b class="num">${Math.round(wk)}</b>${Math.abs(wk-T.proj)>.5?`<span class="down">was ${Math.round(T.proj)}</span>`:""}</div></div>
+  const dShort=d.day.split(" ")[0],dd=pts-L.sug,wd=wk-T.proj;
+  const chip=(v,txt)=>Math.abs(v)>.5?`<span class="luchip ${v>0?"up":"down"}">${v>0?"+":"−"}${Math.round(Math.abs(v))} ${txt}</span>`:"";
+  el.innerHTML=`<div class="lustats">
+      <div class="lustat"><span class="lul">${esc(d.day)}</span><b class="num">${Math.round(pts)}</b><span class="lusub">${chip(dd,"vs best")||'<span class="luchip ok">Best lineup</span>'}</span></div>
+      <div class="lustat"><span class="lul">Week projection</span><b class="num">${Math.round(wk)}</b><span class="lusub">${chip(wd,"from edits")||`<span class="faint">${L.nPlay} playing ${dShort}</span>`}</span></div>
+    </div>
+    <p class="luexp">${L.nPlay} of your players have a game ${dShort}${L.nStart>=L.nPlay?", and all of them start":`; the best ${L.nStart} start`}.${noGame?` ${noGame} starter${noGame>1?"s":""} without a game ${noGame>1?"stay":"stays"} put, since ${noGame>1?"they":"he"} score${noGame>1?"":"s"} 0 either way.`:""} Highlighted rows are changes from your ESPN lineup.</p>
     <div class="lucols"><span></span><span>Slot</span><span>Player</span><span>${esc(d.day.split(" ")[0])}</span><span>Week</span></div>
     <div class="luzone">${D.slots.map((s,i)=>row(L.starters[i],s,{z:"S",i})).join("")}</div>
     <div class="luz" data-tgt="${JSON.stringify({z:"BE"}).replace(/"/g,"&quot;")}"><div class="eyebrow">Bench · ${L.bench.length} · ${L.bench.filter(id=>L.pp[id]).length} with a game</div>${L.bench.map(id=>row(id,"BE",{z:"BE"})).join("")||`<div class="faint lue">Empty</div>`}</div>
