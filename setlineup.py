@@ -46,22 +46,26 @@ def plan_moves(roster, slots):
     """Fewest moves that give the best lineup for today.
 
     roster: dicts with id, n, slot (slot name), el (set of eligible slot names), v (today's value), plays, locked.
-    Starters with no game stay put unless a playing bench player needs their slot.
+    Starters with no game stay put unless a playing bench player needs their slot. Starting slots nobody with a
+    game needs are filled with the best healthy players who don't play (cosmetic: they score 0 either way, but
+    your best players stay in the starting lineup instead of a lineup of nine empty slots).
     Returns moves: dicts with id, n, from, to, why.
     """
     free = list(slots)
     for p in roster:
         if p["locked"] and p["slot"] in free:
             free.remove(p["slot"])
-    cands = [p for p in roster if not p["locked"] and p["slot"] != "IR" and ((p["plays"] and p["v"] > 0) or p["slot"] not in ("BE", "IR"))]
+    cands = [p for p in roster if not p["locked"] and p["slot"] != "IR"]
     target = {}
     if cands and free:
         M = np.full((len(cands), len(free)), -1e6)
         for i, p in enumerate(cands):
-            val = p["v"] if p["plays"] else 0.0
+            # a game always wins; without one, a tiny value by season strength (0 when OUT) and a bigger
+            # stay-put bonus, so idle starters keep their slots and only empty slots get filled
+            val = p["v"] if p["plays"] else 0.001 * p["v"]
             for j, s in enumerate(free):
-                if s in p["el"]:
-                    M[i, j] = val + (0.01 if s == p["slot"] else 0.0)
+                if s in p["el"] and val > 0:
+                    M[i, j] = val + ((0.01 if p["plays"] else 0.2) if s == p["slot"] else 0.0)
         r, c = linear_sum_assignment(-M)
         for i, j in zip(r, c):
             if M[i, j] > 0:
@@ -74,9 +78,9 @@ def plan_moves(roster, slots):
         if want == p["slot"]:
             continue
         if want == "BE":
-            why = "out" if p["plays"] and p["v"] == 0 else "slot needed for a player with a game" if not p["plays"] else "lower projection than today's starters"
+            why = "out" if p["v"] == 0 else "slot needed for a player with a game" if not p["plays"] else "lower projection than today's starters"
         else:
-            why = f"plays today ({p['v']:.1f} proj)" if p["plays"] else "shifted to open a slot"
+            why = f"plays today ({p['v']:.1f} proj)" if p["plays"] else ("no game today, fills an open starting slot" if p["slot"] == "BE" else "shifted to open a slot")
         moves.append(dict(id=p["id"], n=p["n"], **{"from": p["slot"], "to": want}, why=why))
     return moves
 

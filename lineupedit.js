@@ -24,6 +24,11 @@ function luInit(){
     if(cur==null||(wantS.has(cur)&&tryPlace(luP(cur),seen,evict))||(evict&&!wantS.has(cur))){starters[k]=p.id;return true}}return false};
   for(const p of want){if(starters.includes(p.id))continue;if(!tryPlace(p,new Set(),false))tryPlace(p,new Set(),true)}
   const ir=mine.filter(p=>p.slot==="IR").map(p=>p.id);
+  // starting slots nobody with a game needs: fill with your best healthy players who don't play that day
+  // (0 points either way, but the starting lineup keeps your best players instead of empty slots)
+  const idle=mine.filter(p=>!starters.includes(p.id)&&!ir.includes(p.id)&&!plays(p.id)&&!/OUT|RESERVE|SUSP/.test(p.inj||"")).sort((a,b)=>b.pa-a.pa);
+  const order=D.slots.map((s,i)=>i).sort((a,b)=>({UTIL:3,G:2,F:2}[D.slots[a]]||1)-({UTIL:3,G:2,F:2}[D.slots[b]]||1));
+  for(const k of order){if(starters[k]!=null)continue;const j=idle.findIndex(p=>luElig(p,D.slots[k]));if(j>=0){starters[k]=idle[j].id;idle.splice(j,1)}}
   const bench=mine.filter(p=>!starters.includes(p.id)&&!ir.includes(p.id)).map(p=>p.id);
   return {iso:d.iso,day:d.day,pp,locked:new Set((d.locked||[]).map(Number)),starters,bench,ir,dirty:false,sug:d.pts,
     nPlay:mine.filter(p=>plays(p.id)&&p.slot!=="IR").length,nStart:want.length};
@@ -85,7 +90,7 @@ function renderLU(){
       <div class="lustat"><span class="lul">${esc(d.day)}</span><b class="num">${Math.round(pts)}</b><span class="lusub">${chip(dd,"vs best")||'<span class="luchip ok">Best lineup</span>'}</span></div>
       <div class="lustat"><span class="lul">Week projection</span><b class="num">${Math.round(wk)}</b><span class="lusub">${chip(wd,"from edits")||`<span class="faint">${L.nPlay} playing ${dShort}</span>`}</span></div>
     </div>
-    <p class="luexp">${L.nPlay} of your players have a game ${dShort}${L.nStart>=L.nPlay?", and all of them start":`; the best ${L.nStart} start`}.${noGame?` ${noGame} starter${noGame>1?"s":""} without a game ${noGame>1?"stay":"stays"} put, since ${noGame>1?"they":"he"} score${noGame>1?"":"s"} 0 either way.`:""} Highlighted rows are changes from your ESPN lineup.</p>
+    <p class="luexp">${L.nPlay} of your players have a game ${dShort}${L.nStart>=L.nPlay?", and all of them start":`; the best ${L.nStart} start`}.${noGame?` The other ${noGame>1?noGame+" starting spots go to your best players":"starting spot goes to your best player"} without a game (0 points either way).`:""} Highlighted rows are changes from your ESPN lineup.</p>
     <div class="lucols"><span></span><span>Slot</span><span>Player</span><span>${esc(d.day.split(" ")[0])}</span><span>Week</span></div>
     <div class="luzone">${D.slots.map((s,i)=>row(L.starters[i],s,{z:"S",i})).join("")}</div>
     <div class="luz" data-tgt="${JSON.stringify({z:"BE"}).replace(/"/g,"&quot;")}"><div class="eyebrow">Bench · ${L.bench.length} · ${L.bench.filter(id=>L.pp[id]).length} with a game</div>${L.bench.map(id=>row(id,"BE",{z:"BE"})).join("")||`<div class="faint lue">Empty</div>`}</div>
