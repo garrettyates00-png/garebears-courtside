@@ -1,6 +1,23 @@
 [
  {
   "date": "2026-11-05",
+  "status": "saved",
+  "moved": [
+   "Donovan Mitchell: BE to PG, no game today, fills an open starting slot",
+   "Jaylen Brown: BE to G, no game today, fills an open starting slot",
+   "Jarrett Allen: BE to UTIL, no game today, fills an open starting slot",
+   "Julius Randle: BE to PF, no game today, fills an open starting slot",
+   "Norman Powell: BE to SG, no game today, fills an open starting slot",
+   "Ryan Rollins: BE to UTIL, no game today, fills an open starting slot",
+   "Ausar Thompson: BE to SF, no game today, fills an open starting slot",
+   "Alex Sarr: BE to F, no game today, fills an open starting slot",
+   "Ivica Zubac: BE to UTIL, no game today, fills an open starting slot"
+  ],
+  "at": "Nov 5, 5:01 PM CT",
+  "src": "button"
+ },
+ {
+  "date": "2026-11-05",
   "status": "ok",
   "moved": [],
   "note": "Lineup was already optimal.",
