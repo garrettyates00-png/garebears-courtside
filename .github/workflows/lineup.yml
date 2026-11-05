@@ -18,6 +18,14 @@ on:
         description: "Plan only, do not save to ESPN"
         type: boolean
         default: false
+      lineup:
+        description: "Exact lineup from the dashboard editor: JSON {playerId: slot}. Empty = automatic best lineup."
+        type: string
+        default: ""
+      day:
+        description: "Day for that lineup, YYYY-MM-DD (default today)"
+        type: string
+        default: ""
 
 permissions:
   contents: write
@@ -54,6 +62,8 @@ jobs:
           ESPN_SWID: ${{ secrets.ESPN_SWID }}
           DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
           RUN_SRC: ${{ github.event_name }}
+          CUSTOM_LINEUP: ${{ inputs.lineup }}
+          LINEUP_DAY: ${{ inputs.day }}
         run: python setlineup.py
       - name: Refresh dashboard data
         if: always() && steps.gate.outputs.go == '1'

@@ -231,6 +231,23 @@ svg .mk{fill:var(--tcText)}svg .ms{stroke:rgba(255,255,255,.5);stroke-width:2}
 .tab{font:500 13px var(--sans);color:var(--mute);background:transparent;border:1px solid var(--line);border-radius:12px;padding:8px 12px;cursor:pointer;white-space:nowrap;text-align:left}
 .tab small{display:block;font:500 11px var(--mono);color:var(--faint);margin-top:2px}
 .tab[aria-selected="true"]{background:var(--hi);color:#0b0b0d;border-color:transparent}.tab[aria-selected="true"] small{color:#55555c}
+.luwrap{display:grid;gap:10px}
+.luhead{display:flex;gap:10px 28px;flex-wrap:wrap;align-items:baseline}.luhead>div{display:flex;gap:8px;align-items:baseline}.luhead b{font:600 26px var(--sans)}.luhead span{font-size:13px}
+.lucols,.lurow{display:grid;grid-template-columns:26px 48px minmax(0,1fr) 64px 52px;gap:8px;align-items:center}
+.lucols{font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--faint);padding:0 10px}.lucols span:nth-child(n+4){text-align:right}
+.luzone,.luz{display:grid;gap:6px}.luz{padding:10px;border-radius:14px;border:1px dashed var(--line2);min-height:44px}.luz.over{border-color:var(--hi);background:color-mix(in srgb,var(--a) 10%,transparent)}
+.lurow{padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.035);border:1px solid var(--line);cursor:pointer;user-select:none;-webkit-user-select:none}
+.lurow.empty{border-style:dashed;cursor:default}.lurow.chg{border-color:color-mix(in srgb,var(--a) 55%,var(--line))}
+.lurow.sel{outline:2px solid var(--hi);background:color-mix(in srgb,var(--a) 14%,transparent)}.lurow.over{outline:2px dashed var(--hi)}
+.lurow.lk{opacity:.6;cursor:not-allowed}.lurow.dragging{opacity:.35}
+.luh{font:600 14px var(--mono);color:var(--faint);cursor:grab;touch-action:none;text-align:center;padding:6px 0}.lurow.lk .luh{cursor:not-allowed;font-size:12px}
+.lus{font:600 11px var(--mono);letter-spacing:.06em;color:var(--hi)}
+.lun{min-width:0}.lnl{display:flex;gap:6px;align-items:center;min-width:0}.lnl b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}.lnl .tag{flex:none}.lun small{display:block;font:500 11px var(--mono);color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lud,.luw{text-align:right;font:500 14px var(--mono)}.luw{color:var(--mute)}.lud.faint{font-size:11px}
+.lue{font-size:12.5px;padding:4px 2px}
+.lughost{position:fixed;left:0;top:0;z-index:90;pointer-events:none;box-shadow:0 18px 40px -10px rgba(0,0,0,.8);background:rgb(30,31,36)!important}
+.luact{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.luact>span{margin-right:auto;font-size:13.5px}
+@media (max-width:700px){.lucols,.lurow{grid-template-columns:22px 40px minmax(0,1fr) 46px 38px;gap:6px}.lurow{padding:8px}.lud,.luw{font-size:13px}.luact .b{flex:1;justify-content:center}}
 .slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(160px,100%),1fr));gap:8px}
 .slot{padding:11px 12px;border-radius:12px;background:rgba(255,255,255,.035);border:1px solid var(--line);min-width:0;animation:rise .45s cubic-bezier(.2,.8,.2,1) both}
 @keyframes rise{from{opacity:0;transform:translateY(6px)}}
@@ -956,6 +973,7 @@ function renderLineupAct(){
   const el=$("#lineupAct");if(day!==0){el.innerHTML="";return}
   const mv=D.plan||[],pday=D.plan_day||"today",L=LOG[0];
   const lastTxt=L?`<div class="faint" style="font-size:12.5px;margin-top:10px">Last lineup run ${esc(L.at)} · ${L.status==="saved"?"saved "+L.moved.length+" move"+(L.moved.length==1?"":"s"):L.status==="ok"?"already optimal":L.status==="error"?'<span class="down">'+esc(L.error)+"</span>":esc(L.status)}</div>`:"";
+  if(typeof renderLU==="function"){el.innerHTML=lastTxt;return}
   if(!mv.length){el.innerHTML=`<div class="act"><span>Your ESPN lineup is already the best one for ${esc(pday)}.</span></div>${lastTxt}`;return}
   el.innerHTML=`<div class="act"><div class="eyebrow">${mv.length} move${mv.length>1?"s":""} for ${esc(pday)}</div>
     <ul class="notes" style="margin:0">${mv.map(m=>`<li><b>${esc(m.n)}</b> ${m.from} → ${m.to} <span class="faint">· ${esc(m.why)}</span></li>`).join("")}</ul>
@@ -1134,7 +1152,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1793811604";
+const BUILD="1793888141";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(()=>{if(!document.hidden)checkBuild()},90000);
 loadLog().then(()=>load(true));setInterval(()=>{if(!document.hidden)loadLog().then(()=>load(false))},120000);
@@ -1181,17 +1199,18 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1793811604"></script>
-<script src="season.js?v=1793811604"></script>
-<script src="bets.js?v=1793811604"></script>
-<script src="trades.js?v=1793811604"></script>
-<script src="tradelab.js?v=1793811604"></script>
-<script src="betshub.js?v=1793811604"></script>
-<script src="sim.js?v=1793811604"></script>
-<script src="overunder.js?v=1793811604"></script>
-<script src="profile.js?v=1793811604"></script>
-<script src="ask.js?v=1793811604"></script>
-<script src="timeline.js?v=1793811604"></script>
-<script src="nav.js?v=1793811604"></script>
-<script src="live.js?v=1793811604"></script>
+<script src="arena.js?v=1793888141"></script>
+<script src="season.js?v=1793888141"></script>
+<script src="bets.js?v=1793888141"></script>
+<script src="trades.js?v=1793888141"></script>
+<script src="tradelab.js?v=1793888141"></script>
+<script src="betshub.js?v=1793888141"></script>
+<script src="sim.js?v=1793888141"></script>
+<script src="overunder.js?v=1793888141"></script>
+<script src="profile.js?v=1793888141"></script>
+<script src="ask.js?v=1793888141"></script>
+<script src="timeline.js?v=1793888141"></script>
+<script src="nav.js?v=1793888141"></script>
+<script src="lineupedit.js?v=1793888141"></script>
+<script src="live.js?v=1793888141"></script>
 </body></html>

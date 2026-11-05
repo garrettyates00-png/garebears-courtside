@@ -5,6 +5,8 @@ Skips any player whose game has already tipped (ESPN locks them).
 Writes lineup_log.json so the dashboard can show what changed and why.
 
 Env: ESPN_S2, ESPN_SWID (secrets). DRY_RUN=1 to plan without saving.
+CUSTOM_LINEUP = JSON {playerId: slot} from the dashboard's lineup editor (slots PG SG SF PF C G F UTIL BE IR),
+with LINEUP_DAY = YYYY-MM-DD: saves exactly that lineup for that day instead of the automatic plan.
 """
 import json, os, sys, datetime as dt
 from zoneinfo import ZoneInfo
@@ -82,10 +84,17 @@ def plan_moves(roster, slots):
 def main():
     now = dt.datetime.now(TZ)
     today = now.date()
+    custom = json.loads(os.environ.get("CUSTOM_LINEUP") or "null")
+    day = os.environ.get("LINEUP_DAY") or ""
+    if custom and day:
+        d = dt.date.fromisoformat(day)
+        if d < today:
+            log(dict(date=day, status="error", moved=[], error="That day has already passed.")); return
+        today = d   # lineup for a later day: ESPN keeps it from that scoring period on
     period = (today - OPENING).days + 1
     if period < 1:
         period = 1; today = OPENING
-    lg = requests.get(f"{READ}/segments/0/leagues/{LEAGUE}", params=[("view", "mRoster"), ("view", "mSettings")],
+    lg = requests.get(f"{READ}/segments/0/leagues/{LEAGUE}", params=[("view", "mRoster"), ("view", "mSettings"), ("scoringPeriodId", period)],
                       cookies=COOKIES, headers=HDR, timeout=30).json()
     pro = requests.get(READ, params={"view": "proTeamSchedules_wl"}, headers=HDR, cookies=COOKIES, timeout=30).json()
     counts = lg["settings"]["rosterSettings"]["lineupSlotCounts"]
@@ -121,6 +130,8 @@ def main():
                            v=v * AVAIL.get(inj, 1.0), inj=inj, plays=t0 is not None,
                            locked=t0 is not None and now >= t0 - dt.timedelta(minutes=5)))
 
+    if custom:
+        return save_custom(custom, roster, slots, today, period)
     plan = plan_moves([dict(id=p["id"], n=p["n"], slot=ID_SLOT[p["slot"]], el=p["el"], v=p["v"], plays=p["plays"], locked=p["locked"]) for p in roster], slots)
     items = [{"playerId": m["id"], "type": "LINEUP", "fromLineupSlotId": SLOT_ID[m["from"]], "toLineupSlotId": SLOT_ID[m["to"]]} for m in plan]
     notes = [f"{m['n']}: {m['from']} to {m['to']}, {m['why']}" for m in plan]
@@ -140,6 +151,42 @@ def main():
         msg = r.text[:300]
         log(dict(date=today.isoformat(), status="error", moved=notes, error=f"ESPN said {r.status_code}: {msg}"))
         sys.exit(1)
+
+
+def save_custom(custom, roster, slots, day, period):
+    """Save the exact lineup picked in the dashboard editor. Checks slot counts, eligibility, IR and locks first."""
+    want = {int(k): v for k, v in custom.items()}
+    by_id = {p["id"]: p for p in roster}
+    problems = []
+    for pid, s in want.items():
+        p = by_id.get(pid)
+        if not p: problems.append(f"player {pid} is no longer on the roster"); continue
+        if s not in SLOT_ID: problems.append(f"{p['n']}: unknown slot {s}"); continue
+        if s == "IR" and p["inj"] not in ("OUT", "INJURY_RESERVE", "SUSPENSION"): problems.append(f"{p['n']} isn't OUT, so he can't go on IR")
+        elif s not in ("BE", "IR") and s not in p["el"]: problems.append(f"{p['n']} can't play {s}")
+    for s in set(want.values()) - {"BE", "IR"}:
+        if list(want.values()).count(s) > slots.count(s): problems.append(f"too many players in {s}")
+    items, notes = [], []
+    for p in roster:
+        s = want.get(p["id"])
+        cur = ID_SLOT.get(p["slot"], "BE")
+        if not s or s == cur: continue
+        if p["locked"]: problems.append(f"{p['n']}'s game has started, so he can't move"); continue
+        items.append({"playerId": p["id"], "type": "LINEUP", "fromLineupSlotId": p["slot"], "toLineupSlotId": SLOT_ID[s]})
+        notes.append(f"{p['n']}: {cur} to {s}")
+    if problems:
+        log(dict(date=day.isoformat(), status="error", moved=notes, error="; ".join(problems)[:300])); return  # the dashboard reads the reason from lineup_log.json
+    if not items:
+        log(dict(date=day.isoformat(), status="ok", moved=[], note="ESPN already had that lineup.")); return
+    if DRY:
+        log(dict(date=day.isoformat(), status="dry-run", moved=notes)); return
+    body = {"isLeagueManager": False, "teamId": TEAM, "type": "ROSTER", "memberId": SWID,
+            "scoringPeriodId": period, "executionType": "EXECUTE", "items": items}
+    r = requests.post(WRITE, json=body, cookies=COOKIES, headers=dict(HDR, **{"Content-Type": "application/json"}), timeout=30)
+    if r.ok:
+        log(dict(date=day.isoformat(), status="saved", moved=notes, custom=True))
+    else:
+        log(dict(date=day.isoformat(), status="error", moved=notes, error=f"ESPN said {r.status_code}: {r.text[:300]}")); return  # the dashboard reads the reason from lineup_log.json
 
 
 if __name__ == "__main__":
