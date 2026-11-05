@@ -1,5 +1,23 @@
 [
  {
+  "date": "2026-11-05",
+  "status": "saved",
+  "moved": [
+   "Donovan Mitchell: G to BE",
+   "Jaylen Brown: SF to BE",
+   "Jarrett Allen: UTIL to BE",
+   "Julius Randle: PF to BE",
+   "Norman Powell: F to BE",
+   "Ryan Rollins: SG to BE",
+   "Ausar Thompson: UTIL to BE",
+   "Darryn Peterson: PG to BE",
+   "Alex Sarr: UTIL to BE"
+  ],
+  "custom": true,
+  "at": "Nov 5, 8:53 AM CT",
+  "src": "button"
+ },
+ {
   "date": "2026-11-04",
   "status": "ok",
   "moved": [],
