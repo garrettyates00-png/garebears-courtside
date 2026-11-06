@@ -1,5 +1,5 @@
 /* Arena tab: deep live view of the favorite team. Shares $, esc, toast, reduce from the main script. */
-let GR={},A=null, aTeam=null, aGame="all", aPlayer="all", aMetric="impact";
+let GR={},A=null, aTeam=null, aGame="all", aPlayer="all", aMetric="impact", aShotMode="shots";
 const ATK="courtside-team";
 const getFav=()=>{try{return localStorage.getItem(ATK)||"mem"}catch(e){return "mem"}};
 const setFav=v=>{try{localStorage.setItem(ATK,v)}catch(e){}};
@@ -123,6 +123,31 @@ function courtSVG(){const L='stroke="rgba(255,255,255,.28)" stroke-width="2" fil
   <path d="M30 1 V140 A237.5 237.5 0 0 0 470 140 V1" ${L}/><path d="M190 469 A60 60 0 0 1 310 469" ${L}/>`}
 /* ESPN shot coordinates are in feet: x across the court (0-50), y out from the rim (rim at 0). */
 function zoneOf(x,y,is3){const d=Math.hypot(x-25,y);if(is3||(y<8.75&&(x<3.5||x>46.5))||d>=23.25)return"three";return d<8?"paint":"mid"}
+/* 14 shot zones (NBA style): restricted area, paint, five midrange, five threes (corners, wings, top).
+   Coordinates in feet with the rim at (25, 0). */
+const ZONES=[["ra","Restricted area",.64],["paint","Paint",.42],["midLB","Left baseline mid",.41],["midL","Left elbow mid",.41],["midC","Top mid",.41],["midR","Right elbow mid",.41],["midRB","Right baseline mid",.41],
+  ["c3L","Left corner 3",.385],["w3L","Left wing 3",.355],["t3","Top 3",.355],["w3R","Right wing 3",.355],["c3R","Right corner 3",.385],["deep","Deep 3",.30]];
+function zone14(x,y,is3){
+  const d=Math.hypot(x-25,y),ang=Math.atan2(x-25,Math.max(y,.01))*180/Math.PI;
+  const three=is3===true||(is3==null&&((y<8.75&&(x<3.5||x>46.5))||d>=23.75));
+  if(three){if(d>=30)return"deep";if(y<8.75)return x<25?"c3L":"c3R";return ang<-22?"w3L":ang>22?"w3R":"t3"}
+  if(d<4)return"ra";
+  if(x>=17&&x<=33&&y<=14.75)return"paint";
+  if(y<9)return x<25?"midLB":"midRB";
+  return ang<-30?"midL":ang>30?"midR":"midC";
+}
+let ZMAP=null;   // pixel -> zone id, computed once (court is 500x470, sampled at half resolution)
+function zoneMap(){if(ZMAP)return ZMAP;const W=500,H=470,m=new Uint8Array(W*H),ids=ZONES.map(z=>z[0]);
+  for(let j=0;j<H;j++)for(let i=0;i<W;i++){const x=i/10,y=j/10-5.25;m[j*W+i]=y<-4.9?255:ids.indexOf(zone14(x,y,null))}
+  const cen=ZONES.map(()=>[0,0,0]);for(let j=0;j<H;j++)for(let i=0;i<W;i++){const k=m[j*W+i];if(k===255)continue;cen[k][0]+=i;cen[k][1]+=j;cen[k][2]++}
+  ZMAP={W,H,m,cen:cen.map(([a,b,n])=>n?[a/n,b/n]:null)};return ZMAP}
+function drawZones(cv,stat){
+  const Z=zoneMap(),x=cv.getContext("2d"),img=x.createImageData(Z.W,Z.H);
+  const col=ZONES.map((z,k)=>{const [m,a]=stat[k];if(!a)return[255,255,255,10];const diff=m/a-z[2],t=Math.max(-1,Math.min(1,diff/.15)),al=Math.round((z[0]==="deep"?.4:1)*(60+Math.min(1,a/12)*120));
+    return t>=0?[90+ -40*t,200+40*t,140+20*t,al]:[230,110-40*(-t),110-40*(-t),al]});
+  for(let p=0;p<Z.m.length;p++){const k=Z.m[p];const c=k===255?[0,0,0,0]:col[k];img.data.set(c,p*4)}
+  cv.width=Z.W;cv.height=Z.H;x.putImageData(img,0,0);
+}
 function aShots(){
   const games=aGame==="all"?A.games:A.games.filter(g=>g.id===aGame);
   let shots=games.flatMap(g=>g.shots);
@@ -130,15 +155,25 @@ function aShots(){
   if(aPlayer!=="all")shots=shots.filter(s=>s[0]===aPlayer);
   const z={paint:[0,0],mid:[0,0],three:[0,0]};shots.forEach(s=>{const k=zoneOf(s[1],s[2],s.length>6?s[6]===1:null);z[k][1]++;if(s[3])z[k][0]++});
   const made=shots.filter(s=>s[3]).length;
+  const zs=ZONES.map(()=>[0,0]);shots.forEach(s=>{const k=ZONES.findIndex(z=>z[0]===zone14(s[1],s[2],s.length>6?s[6]===1:null));if(k>=0){zs[k][1]++;if(s[3])zs[k][0]++}});
+  const ZM=zoneMap();
+  const zl=ZONES.map((zz,k)=>{const c=ZM.cen[k];if(!c||!zs[k][1])return"";const pos={deep:[250,445,"middle"],c3L:[8,30,"start"],c3R:[492,30,"end"],ra:[250,72,"middle"],paint:[250,160,"middle"]}[zz[0]]||[c[0],c[1],"middle"];
+    return `<text x="${pos[0]}" y="${pos[1]}" class="zpct" text-anchor="${pos[2]}">${Math.round(100*zs[k][0]/zs[k][1])}%</text><text x="${pos[0]}" y="${pos[1]+17}" class="zn" text-anchor="${pos[2]}">${zs[k][0]}/${zs[k][1]}</text>`}).join("");
   const dots=shots.map(s=>{const x=s[1]*10,y=(s[2]+5.25)*10;return s[3]?`<circle cx="${x}" cy="${y}" r="6.5" class="mk"/>`:`<path d="M${x-5} ${y-5}L${x+5} ${y+5}M${x+5} ${y-5}L${x-5} ${y+5}" class="ms"/>`}).join("");
   const g=A.games.find(x=>x.id===aGame);
   $("#aShots").innerHTML=`<div class="sec-h"><div><div class="eyebrow">${g?`${cday(g.date)} ${g.home?"vs":"@"} ${esc(g.opp)}`:`Last ${A.games.length} games`}</div><h2>Shot chart</h2></div>
     <select id="aPl" aria-label="Player"><option value="all">All players</option>${ppl.map(([id,n])=>`<option value="${id}" ${id===aPlayer?"selected":""}>${esc(n)}</option>`).join("")}</select></div>
     ${aPlayer!=="all"?gradeWhy(aPlayer):""}
-    <svg class="court" viewBox="0 0 500 470" role="img" aria-label="Shot chart: ${made} makes of ${shots.length} shots">${courtSVG()}${dots}</svg>
+    <div class="shmode" role="tablist" aria-label="Chart type"><button type="button" class="fchip" data-sm="shots" aria-selected="${aShotMode==="shots"}">Shots</button><button type="button" class="fchip" data-sm="zones" aria-selected="${aShotMode==="zones"}">Zones</button></div>
+    ${aShotMode==="zones"?`<div class="zwrap"><canvas class="zcv" aria-hidden="true"></canvas><svg class="court zov" viewBox="0 0 500 470" role="img" aria-label="Shooting by zone">${courtSVG()}${zl}</svg></div>
+      <div class="zleg faint"><span><i class="zg"></i>Above league average</span><span><i class="zr"></i>Below</span><span>Fainter = fewer shots</span></div>
+      <div class="ztbl">${ZONES.map((zz,k)=>zs[k][1]?`<div><span>${zz[1]}</span><b class="num ${zs[k][0]/zs[k][1]>=zz[2]?"up":"down"}">${Math.round(100*zs[k][0]/zs[k][1])}%</b><small class="faint num">${zs[k][0]}/${zs[k][1]}</small></div>`:"").join("")}</div>`
+    :`<svg class="court" viewBox="0 0 500 470" role="img" aria-label="Shot chart: ${made} makes of ${shots.length} shots">${courtSVG()}${dots}</svg>`}
     <div class="zones">${[["paint","Paint"],["mid","Midrange"],["three","Three"]].map(([k,l])=>`<div><span class="faint">${l}</span><b class="num">${z[k][1]?Math.round(100*z[k][0]/z[k][1])+"%":"–"}</b><span class="faint num" style="font-size:11.5px">${z[k][0]}/${z[k][1]}</span></div>`).join("")}<div><span class="faint">Total</span><b class="num">${shots.length?Math.round(100*made/shots.length)+"%":"–"}</b><span class="faint num" style="font-size:11.5px">${made}/${shots.length}</span></div></div>
     <div class="faint" style="font-size:12px;display:flex;gap:14px"><span><svg width="10" height="10"><circle cx="5" cy="5" r="4.5" class="mk"/></svg> Make</span><span><svg width="10" height="10"><path d="M1 1L9 9M9 1L1 9" class="ms"/></svg> Miss</span>${aGame!=="all"?'<button class="b" type="button" id="aAll" style="padding:3px 10px;font-size:12px">Show all games</button>':""}</div>`;
   $("#aPl").onchange=e=>{aPlayer=e.target.value;aShots()};
+  $("#aShots").querySelectorAll("[data-sm]").forEach(b=>b.onclick=()=>{aShotMode=b.dataset.sm;aShots()});
+  const zc=$("#aShots .zcv");if(zc)drawZones(zc,zs);
   const all=$("#aAll");if(all)all.onclick=()=>{aGame="all";aGames();aShots()};
 }
 /* impact */
