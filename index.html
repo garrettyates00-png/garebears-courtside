@@ -1193,7 +1193,12 @@ function renderAll(){
   const age=D.pulled_iso?(Date.now()-Date.parse(D.pulled_iso))/60000:0;
   if(document.body.dataset.view!=="arena")$("#pulled").textContent="Updated "+D.pulled;$("#dot").classList.toggle("stale",age>75);
   if(!forcing){if(age>75)staleNote(age);else $("#status").textContent=""}
-  renderHero();renderCards();renderDays();renderPower();renderStrength(selTeam);renderWire();renderScoring();renderNewsroom();if(typeof renderTrades==="function")renderTrades();if(typeof renderOU==="function")renderOU();if(typeof renderInsights==="function")renderInsights();if(typeof renderSim==="function"){SIMR=null;if(PHONE)simWhenVisible();else renderSim()}if(typeof tlWhenVisible==="function")tlWhenVisible();if(typeof renderAsk==="function"&&!document.activeElement?.closest?.("#askF"))renderAsk();
+  // each part renders on its own, so one failing section can't blank out the ones after it
+  const parts=[()=>renderHero(),()=>renderCards(),()=>renderDays(),()=>renderPower(),()=>renderStrength(selTeam),()=>renderWire(),()=>renderScoring(),()=>renderNewsroom(),
+    ()=>typeof renderAsk==="function"&&!document.activeElement?.closest?.("#askF")&&renderAsk(),
+    ()=>typeof renderTrades==="function"&&renderTrades(),()=>typeof renderOU==="function"&&renderOU(),()=>typeof renderInsights==="function"&&renderInsights(),
+    ()=>{if(typeof renderSim==="function"){SIMR=null;if(PHONE)simWhenVisible();else renderSim()}},()=>typeof tlWhenVisible==="function"&&tlWhenVisible()];
+  for(const f of parts){try{f()}catch(e){console.error("render failed:",e)}}
 }
 
 
@@ -1247,7 +1252,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1794000569";
+const BUILD="1794001073";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(()=>{if(!document.hidden)checkBuild()},90000);
 loadLog().then(()=>load(true));setInterval(()=>{if(!document.hidden)loadLog().then(()=>load(false))},120000);
@@ -1294,20 +1299,20 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1794000569"></script>
-<script src="season.js?v=1794000569"></script>
-<script src="bets.js?v=1794000569"></script>
-<script src="trades.js?v=1794000569"></script>
-<script src="tradelab.js?v=1794000569"></script>
-<script src="betshub.js?v=1794000569"></script>
-<script src="sim.js?v=1794000569"></script>
-<script src="overunder.js?v=1794000569"></script>
-<script src="profile.js?v=1794000569"></script>
-<script src="ask.js?v=1794000569"></script>
-<script src="timeline.js?v=1794000569"></script>
-<script src="nav.js?v=1794000569"></script>
-<script src="insights.js?v=1794000569"></script>
-<script src="rostermoves.js?v=1794000569"></script>
-<script src="lineupedit.js?v=1794000569"></script>
-<script src="live.js?v=1794000569"></script>
+<script src="arena.js?v=1794001073"></script>
+<script src="season.js?v=1794001073"></script>
+<script src="bets.js?v=1794001073"></script>
+<script src="trades.js?v=1794001073"></script>
+<script src="tradelab.js?v=1794001073"></script>
+<script src="betshub.js?v=1794001073"></script>
+<script src="sim.js?v=1794001073"></script>
+<script src="overunder.js?v=1794001073"></script>
+<script src="profile.js?v=1794001073"></script>
+<script src="ask.js?v=1794001073"></script>
+<script src="timeline.js?v=1794001073"></script>
+<script src="nav.js?v=1794001073"></script>
+<script src="insights.js?v=1794001073"></script>
+<script src="rostermoves.js?v=1794001073"></script>
+<script src="lineupedit.js?v=1794001073"></script>
+<script src="live.js?v=1794001073"></script>
 </body></html>

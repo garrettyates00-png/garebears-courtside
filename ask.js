@@ -32,7 +32,7 @@ function renderAsk(){
         <button class="b primary" type="submit" id="askGo">Ask</button></div>
       <p class="faint" style="margin:0;font-size:12.5px">Claude reads your roster, the free agents, injuries and the schedule, checks the latest injury news, and answers in about 1 to 3 minutes. Answers are saved in the site's GitHub repo, which is public.</p>
     </form>
-    <div class="asklist">${list.map(a=>askCard(a)).join("")}</div>`;
+    <div class="asklist">${list.map(a=>{try{return askCard(a)}catch(e){console.error(e);return `<div class="askcard"><b>${esc(a.q||"")}</b><p class="faint">This answer couldn't be shown.</p></div>`}}).join("")}</div>`;
   const f=$("#askF"),q=$("#askQ");q.value=keep;
   el.querySelectorAll("[data-sq]").forEach(b=>b.onclick=()=>{q.value=b.dataset.sq;q.focus()});
   f.onsubmit=e=>{e.preventDefault();askSend(q.value.trim())};
