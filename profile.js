@@ -81,6 +81,7 @@ async function openProfile(pid){
   const close=()=>{sh.remove();document.removeEventListener("keydown",esc1)};const esc1=e=>{if(e.key==="Escape")close()};
   document.addEventListener("keydown",esc1);sh.addEventListener("click",e=>{if(e.target===sh)close()});
   let S=await loadSummary("player",pid);
+  let pMode=typeof aShotMode!=="undefined"?aShotMode:"shots";
   const draw=()=>{
     const G=GR[pid],T=A.team;
     const log=A.games.map(g=>({g,b:g.box.find(b=>String(b.pid)===pid)})).filter(x=>x.b).reverse();
@@ -99,8 +100,9 @@ async function openProfile(pid){
       <div class="ptiles">${tile("PTS",p.pts)}${tile("REB",p.reb)}${tile("AST",p.ast)}${tile("STL",p.stl)}${tile("BLK",p.blk)}${tile("TO",p.to)}
         ${tile("FG%",pct(p.fg))}${tile("3P%",pct(p.tp))}${tile("FT%",pct(p.ft))}${tile("TS%",pct(p.ts))}${tile("USG",pct(p.usg))}${tile("+/-",sign(+(+p.pm).toFixed(1)))}</div>
       <div class="ptwo">
-        <div><div class="eyebrow" style="margin-bottom:8px">Shots · last ${A.games.length} games</div>
-          <svg class="court" viewBox="0 0 500 470" role="img" aria-label="Shot chart">${courtSVG()}${dots}</svg>
+        <div><div class="row" style="margin-bottom:8px"><div class="eyebrow">Shots · last ${A.games.length} games</div>
+          <div class="shmode" role="tablist" aria-label="Chart type" style="margin:0"><button type="button" class="fchip" data-pm="shots" aria-selected="${pMode==="shots"}">Shots</button><button type="button" class="fchip" data-pm="zones" aria-selected="${pMode==="zones"}">Zones</button></div></div>
+          ${pMode==="zones"?zoneChartHTML(zoneStats(shots)):`<svg class="court" viewBox="0 0 500 470" role="img" aria-label="Shot chart">${courtSVG()}${dots}</svg>`}
           <div class="zones">${[["paint","Paint"],["mid","Mid"],["three","Three"]].map(([k,l])=>`<div><span class="faint">${l}</span><b class="num">${z[k][1]?Math.round(100*z[k][0]/z[k][1])+"%":"–"}</b><span class="faint num" style="font-size:11.5px">${z[k][0]}/${z[k][1]}</span></div>`).join("")}</div></div>
         <div><div class="eyebrow" style="margin-bottom:8px">Game log</div><div class="scroll"><table class="tbl plog"><thead><tr><th>Game</th><th>MIN</th><th>PTS</th><th>REB</th><th>AST</th><th>FG</th><th>+/-</th></tr></thead><tbody>
           ${log.map(({g,b})=>`<tr><td><span class="nm">${cday(g.date)} ${g.home?"vs":"@"} ${esc(g.opp)}<small class="${g.res==="W"?"up":"down"}">${g.res} ${g.us}-${g.them}</small></span></td><td>${b.min}</td><td><b>${b.pts}</b></td><td>${b.reb}</td><td>${b.ast}</td><td>${b.fgm}-${b.fga}</td><td class="${b.pm>0?"up":b.pm<0?"down":""}">${sign(b.pm)}</td></tr>`).join("")}</tbody></table></div></div>
@@ -108,6 +110,8 @@ async function openProfile(pid){
       <p class="faint" style="font-size:12px;margin:4px 0 0">Advanced offense and defense breakdowns coming later.</p>`;
     pane.querySelector(".x").onclick=close;
     pane.querySelectorAll("[data-sum]").forEach(b=>b.onclick=()=>requestSummary(b.dataset.sum,async()=>{S=await loadSummary("player",pid);if(sh.isConnected)draw()}));
+    pane.querySelectorAll("[data-pm]").forEach(b=>b.onclick=()=>{pMode=b.dataset.pm;const st=pane.scrollTop;draw();pane.scrollTop=st});
+    const zc=pane.querySelector(".zcv");if(zc)drawZones(zc,zoneStats(shots));
   };
   draw();
 }

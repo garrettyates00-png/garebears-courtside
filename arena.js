@@ -148,6 +148,15 @@ function drawZones(cv,stat){
   for(let p=0;p<Z.m.length;p++){const k=Z.m[p];const c=k===255?[0,0,0,0]:col[k];img.data.set(c,p*4)}
   cv.width=Z.W;cv.height=Z.H;x.putImageData(img,0,0);
 }
+function zoneStats(shots){const zs=ZONES.map(()=>[0,0]);shots.forEach(s=>{const k=ZONES.findIndex(z=>z[0]===zone14(s[1],s[2],s.length>6?s[6]===1:null));if(k>=0){zs[k][1]++;if(s[3])zs[k][0]++}});return zs}
+function zoneChartHTML(zs,table=true){
+  const ZM=zoneMap();
+  const zl=ZONES.map((zz,k)=>{const c=ZM.cen[k];if(!c||!zs[k][1])return"";const pos={deep:[250,445,"middle"],c3L:[8,30,"start"],c3R:[492,30,"end"],ra:[250,72,"middle"],paint:[250,160,"middle"]}[zz[0]]||[c[0],c[1],"middle"];
+    return `<text x="${pos[0]}" y="${pos[1]}" class="zpct" text-anchor="${pos[2]}">${Math.round(100*zs[k][0]/zs[k][1])}%</text><text x="${pos[0]}" y="${pos[1]+17}" class="zn" text-anchor="${pos[2]}">${zs[k][0]}/${zs[k][1]}</text>`}).join("");
+  return `<div class="zwrap"><canvas class="zcv" aria-hidden="true"></canvas><svg class="court zov" viewBox="0 0 500 470" role="img" aria-label="Shooting by zone">${courtSVG()}${zl}</svg></div>
+    <div class="zleg faint"><span><i class="zg"></i>Above league average</span><span><i class="zr"></i>Below</span><span>Fainter = fewer shots</span></div>
+    ${table?`<div class="ztbl">${ZONES.map((zz,k)=>zs[k][1]?`<div><span>${zz[1]}</span><b class="num ${zs[k][0]/zs[k][1]>=zz[2]?"up":"down"}">${Math.round(100*zs[k][0]/zs[k][1])}%</b><small class="faint num">${zs[k][0]}/${zs[k][1]}</small></div>`:"").join("")}</div>`:""}`;
+}
 function aShots(){
   const games=aGame==="all"?A.games:A.games.filter(g=>g.id===aGame);
   let shots=games.flatMap(g=>g.shots);
@@ -155,19 +164,14 @@ function aShots(){
   if(aPlayer!=="all")shots=shots.filter(s=>s[0]===aPlayer);
   const z={paint:[0,0],mid:[0,0],three:[0,0]};shots.forEach(s=>{const k=zoneOf(s[1],s[2],s.length>6?s[6]===1:null);z[k][1]++;if(s[3])z[k][0]++});
   const made=shots.filter(s=>s[3]).length;
-  const zs=ZONES.map(()=>[0,0]);shots.forEach(s=>{const k=ZONES.findIndex(z=>z[0]===zone14(s[1],s[2],s.length>6?s[6]===1:null));if(k>=0){zs[k][1]++;if(s[3])zs[k][0]++}});
-  const ZM=zoneMap();
-  const zl=ZONES.map((zz,k)=>{const c=ZM.cen[k];if(!c||!zs[k][1])return"";const pos={deep:[250,445,"middle"],c3L:[8,30,"start"],c3R:[492,30,"end"],ra:[250,72,"middle"],paint:[250,160,"middle"]}[zz[0]]||[c[0],c[1],"middle"];
-    return `<text x="${pos[0]}" y="${pos[1]}" class="zpct" text-anchor="${pos[2]}">${Math.round(100*zs[k][0]/zs[k][1])}%</text><text x="${pos[0]}" y="${pos[1]+17}" class="zn" text-anchor="${pos[2]}">${zs[k][0]}/${zs[k][1]}</text>`}).join("");
+  const zs=zoneStats(shots);
   const dots=shots.map(s=>{const x=s[1]*10,y=(s[2]+5.25)*10;return s[3]?`<circle cx="${x}" cy="${y}" r="6.5" class="mk"/>`:`<path d="M${x-5} ${y-5}L${x+5} ${y+5}M${x+5} ${y-5}L${x-5} ${y+5}" class="ms"/>`}).join("");
   const g=A.games.find(x=>x.id===aGame);
   $("#aShots").innerHTML=`<div class="sec-h"><div><div class="eyebrow">${g?`${cday(g.date)} ${g.home?"vs":"@"} ${esc(g.opp)}`:`Last ${A.games.length} games`}</div><h2>Shot chart</h2></div>
     <select id="aPl" aria-label="Player"><option value="all">All players</option>${ppl.map(([id,n])=>`<option value="${id}" ${id===aPlayer?"selected":""}>${esc(n)}</option>`).join("")}</select></div>
     ${aPlayer!=="all"?gradeWhy(aPlayer):""}
     <div class="shmode" role="tablist" aria-label="Chart type"><button type="button" class="fchip" data-sm="shots" aria-selected="${aShotMode==="shots"}">Shots</button><button type="button" class="fchip" data-sm="zones" aria-selected="${aShotMode==="zones"}">Zones</button></div>
-    ${aShotMode==="zones"?`<div class="zwrap"><canvas class="zcv" aria-hidden="true"></canvas><svg class="court zov" viewBox="0 0 500 470" role="img" aria-label="Shooting by zone">${courtSVG()}${zl}</svg></div>
-      <div class="zleg faint"><span><i class="zg"></i>Above league average</span><span><i class="zr"></i>Below</span><span>Fainter = fewer shots</span></div>
-      <div class="ztbl">${ZONES.map((zz,k)=>zs[k][1]?`<div><span>${zz[1]}</span><b class="num ${zs[k][0]/zs[k][1]>=zz[2]?"up":"down"}">${Math.round(100*zs[k][0]/zs[k][1])}%</b><small class="faint num">${zs[k][0]}/${zs[k][1]}</small></div>`:"").join("")}</div>`
+    ${aShotMode==="zones"?zoneChartHTML(zs)
     :`<svg class="court" viewBox="0 0 500 470" role="img" aria-label="Shot chart: ${made} makes of ${shots.length} shots">${courtSVG()}${dots}</svg>`}
     <div class="zones">${[["paint","Paint"],["mid","Midrange"],["three","Three"]].map(([k,l])=>`<div><span class="faint">${l}</span><b class="num">${z[k][1]?Math.round(100*z[k][0]/z[k][1])+"%":"–"}</b><span class="faint num" style="font-size:11.5px">${z[k][0]}/${z[k][1]}</span></div>`).join("")}<div><span class="faint">Total</span><b class="num">${shots.length?Math.round(100*made/shots.length)+"%":"–"}</b><span class="faint num" style="font-size:11.5px">${made}/${shots.length}</span></div></div>
     <div class="faint" style="font-size:12px;display:flex;gap:14px"><span><svg width="10" height="10"><circle cx="5" cy="5" r="4.5" class="mk"/></svg> Make</span><span><svg width="10" height="10"><path d="M1 1L9 9M9 1L1 9" class="ms"/></svg> Miss</span>${aGame!=="all"?'<button class="b" type="button" id="aAll" style="padding:3px 10px;font-size:12px">Show all games</button>':""}</div>`;
