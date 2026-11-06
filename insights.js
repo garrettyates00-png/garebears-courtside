@@ -2,6 +2,7 @@
    with everyone healthy), moves (most active, most and least points gained), and lineups (bench points,
    efficiency, points left on the bench). Each card names the leader and ranks every team; your team is marked. */
 let INS_OPEN={};
+const insLast=n=>String(n).replace(/\s+(Jr\.?|Sr\.?|II|III|IV)$/,"").split(" ").pop();
 function insFull(p){return p.av>0?(p.v??p.pa)/p.av:p.pa}
 function insHealthyPower(){
   // power with every injured player healthy: same formula as the rankings (core + a quarter of the bench),
@@ -26,11 +27,11 @@ function renderInsights(){
   const mvTxt=m=>m?`${m.add.map(a=>"+"+esc(a.n)).concat(m.drop.map(d=>"−"+esc(d.n))).join(", ")}`:"";
   const cards=[
     {k:"inj",eye:"Injuries",title:"Points lost to missed games",val:t=>M[t].inj_lost||0,fmt:v=>num(v),hi:true,
-      sub:t=>`${M[t].inj_games||0} missed games${(M[t].inj_who||[]).length?": "+M[t].inj_who.slice(0,2).map(w=>`${esc(last(w[0]))} ${w[1]}`).join(", "):""}`,
+      sub:t=>`${M[t].inj_games||0} missed games${(M[t].inj_who||[]).length?": "+M[t].inj_who.slice(0,2).map(w=>`${esc(insLast(w[0]))} ${w[1]}`).join(", "):""}`,
       lead:t=>`${nm(t)} have lost about <b>${num(M[t].inj_lost)}</b> points to players sitting out${(M[t].inj_who||[])[0]?`, most of it ${esc(M[t].inj_who[0][0])} (${M[t].inj_who[0][1]} games)`:""}.`,
       note:"A rostered player whose NBA team played but who scored nothing (injury, illness or rest), valued at his season average."},
     {k:"injwk",eye:"Injuries",title:"Hurt the most this week",val:t=>((D.injury||{})[t]||{}).week||0,fmt:v=>num(v),hi:true,
-      sub:t=>(((D.injury||{})[t]||{}).who||[]).slice(0,2).map(w=>`${esc(last(w[0]))} ${injWord(w[1]).toLowerCase()}`).join(", ")||"healthy",
+      sub:t=>(((D.injury||{})[t]||{}).who||[]).slice(0,2).map(w=>`${esc(insLast(w[0]))} ${injWord(w[1]).toLowerCase()}`).join(", ")||"healthy",
       lead:t=>`${nm(t)} lose about <b>${num(((D.injury||{})[t]||{}).week)}</b> projected points this week to injuries.`},
     {k:"sway",eye:"Power rankings",title:"Rank with everyone healthy",val:t=>-sway[t],fmt:v=>v>0?`↑${v}`:v<0?`↓${-v}`:"–",hi:true,signed:true,
       sub:t=>`#${curRank.indexOf(t)+1} now · #${hRank.indexOf(t)+1} healthy`,

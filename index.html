@@ -765,6 +765,18 @@ body[data-view="fantasy"] .inslead,body[data-view="fantasy"] .rmwhy,body[data-vi
 .btmfade{position:fixed;left:0;right:0;bottom:0;height:calc(56px + env(safe-area-inset-bottom,0px));z-index:30;pointer-events:none;
   background:linear-gradient(180deg,rgba(11,11,13,0),rgba(11,11,13,.92))}
 @media (max-width:700px),(pointer:coarse){.bar{background:rgb(18,19,22)!important}}
+
+/* wide screens: section links in a fixed column on the left instead of a scrolling row in the header */
+@media (min-width:1100px){
+  .bar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgb(18,19,22)!important}
+  .snav{position:fixed;left:0;top:calc(var(--navh,64px) + 8px);bottom:0;width:188px;margin:0;padding:18px 12px 30px 18px;
+    flex-direction:column;gap:2px;overflow-y:auto;overflow-x:hidden;z-index:29}
+  .snav a{padding:8px 14px;border-radius:10px;font-size:14px;color:var(--mute)}
+  .snav a::after{left:0;right:auto;top:8px;bottom:8px;width:3px;height:auto}
+  .snav a:hover{background:rgba(255,255,255,.04)}
+  .snav a.on{background:rgba(255,255,255,.06);color:var(--ink)}
+  .wrap{margin-left:max(214px,calc((100vw - 1180px) / 2));margin-right:auto;max-width:min(1180px,calc(100vw - 230px))}
+}
 </style></head><body>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div><div class="btmfade" aria-hidden="true"></div>
 
@@ -1235,7 +1247,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1794000501";
+const BUILD="1794000569";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(()=>{if(!document.hidden)checkBuild()},90000);
 loadLog().then(()=>load(true));setInterval(()=>{if(!document.hidden)loadLog().then(()=>load(false))},120000);
@@ -1282,20 +1294,20 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1794000501"></script>
-<script src="season.js?v=1794000501"></script>
-<script src="bets.js?v=1794000501"></script>
-<script src="trades.js?v=1794000501"></script>
-<script src="tradelab.js?v=1794000501"></script>
-<script src="betshub.js?v=1794000501"></script>
-<script src="sim.js?v=1794000501"></script>
-<script src="overunder.js?v=1794000501"></script>
-<script src="profile.js?v=1794000501"></script>
-<script src="ask.js?v=1794000501"></script>
-<script src="timeline.js?v=1794000501"></script>
-<script src="nav.js?v=1794000501"></script>
-<script src="insights.js?v=1794000501"></script>
-<script src="rostermoves.js?v=1794000501"></script>
-<script src="lineupedit.js?v=1794000501"></script>
-<script src="live.js?v=1794000501"></script>
+<script src="arena.js?v=1794000569"></script>
+<script src="season.js?v=1794000569"></script>
+<script src="bets.js?v=1794000569"></script>
+<script src="trades.js?v=1794000569"></script>
+<script src="tradelab.js?v=1794000569"></script>
+<script src="betshub.js?v=1794000569"></script>
+<script src="sim.js?v=1794000569"></script>
+<script src="overunder.js?v=1794000569"></script>
+<script src="profile.js?v=1794000569"></script>
+<script src="ask.js?v=1794000569"></script>
+<script src="timeline.js?v=1794000569"></script>
+<script src="nav.js?v=1794000569"></script>
+<script src="insights.js?v=1794000569"></script>
+<script src="rostermoves.js?v=1794000569"></script>
+<script src="lineupedit.js?v=1794000569"></script>
+<script src="live.js?v=1794000569"></script>
 </body></html>
