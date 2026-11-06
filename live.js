@@ -116,9 +116,10 @@ function renderLive(){
   const liveG=Object.values(LV.games).filter((g,i,a)=>a.indexOf(g)===i&&g.state==="in").length;
   $("#liveBox").innerHTML=`<div class="lvstrip">
       <div><span class="lvdot ${liveG?"on":""}"></span><b>${lead===0?"Tied":lead>0?`Up ${lead}`:`Down ${-lead}`}</b> <span class="faint">${liveG?`· ${liveG} game${liveG>1?"s":""} live`:"· live score"}</span></div>
-      ${em!=null?`<div>You: ${Math.round(sm)} vs ${Math.round(em)} expected by now, ${pace(sm,em)}</div>`:""}
-      ${eo!=null?`<div>${esc(T[op].name)}: ${Math.round(so)} vs ${Math.round(eo)} expected, ${pace(so,eo)}</div>`:""}
-      ${bm!=null?`<div>Final projection ${Math.round(fm)} vs ${Math.round(bm)} at the start of the week (${fm-bm>=0?"+":""}${Math.round(fm-bm)})</div>`:""}
+      <div class="lvst">${(()=>{const pv=(s_,e_)=>{const d=Math.round(s_-e_);return `<b class="${d>=0?"up":"down"}">${d>=0?"+":"−"}${Math.abs(d)}</b>`};
+        return [em!=null?`<span title="${Math.round(sm)} scored vs ${Math.round(em)} expected by now">You ${pv(sm,em)} <small>vs pace</small></span>`:"",
+          eo!=null?`<span title="${Math.round(so)} scored vs ${Math.round(eo)} expected by now">${esc(last(T[op].name))} ${pv(so,eo)} <small>vs pace</small></span>`:"",
+          bm!=null?`<span>Final <b>${Math.round(fm)}</b> <small>(${fm-bm>=0?"+":"−"}${Math.abs(Math.round(fm-bm))} since Monday)</small></span>`:""].join("")})()}</div>
     </div>
     ${mine.length||theirs.length?`<div class="lvnotes"><div><div class="eyebrow">Your guys tonight</div><ul>${mine.map(n=>`<li>${n.t}</li>`).join("")||"<li class='faint'>None of your starters have tipped yet.</li>"}</ul></div>
       <div><div class="eyebrow">${esc(T[op].name)}</div><ul>${theirs.map(n=>`<li>${n.t}</li>`).join("")||"<li class='faint'>None of their starters have tipped yet.</li>"}</ul></div></div>`:""}

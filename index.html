@@ -721,6 +721,41 @@ select option{background:#16171b;color:var(--ink)}
   .dot,.lvdot.on,.lgm .st .live::before{animation:none!important}
   .card{transition:none}
 }
+
+/* ===== Calm layout (Nov 2026): fewer lines, more air =====
+   No viewport frame or curved header corners: the header is a plain full-width bar with one hairline.
+   In Fantasy, sections are open space with a divider instead of boxes inside boxes, inner cards use a soft
+   fill instead of outlines, and secondary text is quieter. */
+:root{--fi:0px!important;--fr:0px!important}
+.frame,.bar .edge,.bar .cnr{display:none!important}
+.bar{border-radius:0;left:0!important;right:0!important;top:0!important;padding-top:calc(14px + env(safe-area-inset-top,0px));padding-left:max(26px,env(safe-area-inset-left,0px));padding-right:max(26px,env(safe-area-inset-right,0px));
+  box-shadow:0 1px 0 rgba(255,255,255,.07),0 18px 30px -24px rgba(0,0,0,.9)}
+.wrap{padding-top:calc(var(--navh,84px) + 26px)!important;gap:0}
+#fantasyView>section.g:not(#hero){background:none;border:0;border-radius:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;
+  padding:44px 4px;border-top:1px solid rgba(255,255,255,.06)}
+#fantasyView>section.g:empty{display:none}
+#fantasyView{gap:0}#fantasyView>#hero{margin-bottom:18px}#fantasyView>section:not(.g){padding:44px 4px;border-top:1px solid rgba(255,255,255,.06)}#fantasyView>#secAsk{border-top:0}
+#fantasyView>section.g:not(#hero) .sec-h{margin-bottom:22px}
+#fantasyView>section.g:not(#hero) h2{font-size:clamp(26px,3.4vw,34px)}
+body[data-view="fantasy"] .card,body[data-view="fantasy"] .rmcard,body[data-view="fantasy"] .inscard,body[data-view="fantasy"] .lurow,body[data-view="fantasy"] .lustat,
+body[data-view="fantasy"] .askcard,body[data-view="fantasy"] .tlsg>div,body[data-view="fantasy"] .txlab,body[data-view="fantasy"] .bhcard{border-color:transparent;background:rgba(255,255,255,.035);backdrop-filter:none;-webkit-backdrop-filter:none}
+body[data-view="fantasy"] .card:hover{background:rgba(255,255,255,.055)}
+body[data-view="fantasy"] .lurow.chg{border-color:transparent}
+body[data-view="fantasy"] .luz{border-color:rgba(255,255,255,.08)}
+body[data-view="fantasy"] .tbl td,body[data-view="fantasy"] .tbl th{border-color:rgba(255,255,255,.05)}
+body[data-view="fantasy"] .inslead,body[data-view="fantasy"] .rmwhy,body[data-view="fantasy"] .luexp{color:var(--mute)}
+.lvst{display:flex;flex-wrap:wrap;gap:6px 18px;font:400 13.5px var(--sans);color:var(--mute);margin-top:4px}.lvst b{font:600 14px var(--mono)}.lvst small{font-size:12px;color:var(--faint)}.lvst b.up{color:var(--up)}.lvst b.down{color:var(--down)}
+#fantasyView section.g:not(#hero){background:none;border:0;border-radius:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+#fantasyView>.two{padding:44px 4px;border-top:1px solid rgba(255,255,255,.06);gap:44px}
+#fantasyView>.two>section.g{padding:0}
+/* the method write-up is reference material: folded until asked for */
+#how.fold .how{display:none}
+.howbtn{margin-top:4px}
+@media (max-width:700px){
+  .bar{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .wrap{padding-top:calc(var(--navh,84px) + 16px)!important}
+  #fantasyView>section.g:not(#hero){padding:34px 2px}
+}
 </style></head><body>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div>
 
@@ -781,8 +816,8 @@ select option{background:#16171b;color:var(--ink)}
 
   <section class="g pad" id="secTrades"></section>
 
-  <section class="g pad" id="how">
-    <div class="sec-h"><div><div class="eyebrow">Method</div><h2>How the numbers work</h2></div></div>
+  <section class="g pad fold" id="how">
+    <div class="sec-h"><div><div class="eyebrow">Method</div><h2>How the numbers work</h2></div><button class="b howbtn" type="button" onclick="const s=this.closest('section');s.classList.toggle('fold');this.textContent=s.classList.contains('fold')?'Show':'Hide'">Show</button></div>
     <div class="how">
       <div>
         <div class="eyebrow" style="margin-bottom:10px">League scoring</div>
@@ -1191,7 +1226,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1793997262";
+const BUILD="1794000396";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(()=>{if(!document.hidden)checkBuild()},90000);
 loadLog().then(()=>load(true));setInterval(()=>{if(!document.hidden)loadLog().then(()=>load(false))},120000);
@@ -1238,20 +1273,20 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1793997262"></script>
-<script src="season.js?v=1793997262"></script>
-<script src="bets.js?v=1793997262"></script>
-<script src="trades.js?v=1793997262"></script>
-<script src="tradelab.js?v=1793997262"></script>
-<script src="betshub.js?v=1793997262"></script>
-<script src="sim.js?v=1793997262"></script>
-<script src="overunder.js?v=1793997262"></script>
-<script src="profile.js?v=1793997262"></script>
-<script src="ask.js?v=1793997262"></script>
-<script src="timeline.js?v=1793997262"></script>
-<script src="nav.js?v=1793997262"></script>
-<script src="insights.js?v=1793997262"></script>
-<script src="rostermoves.js?v=1793997262"></script>
-<script src="lineupedit.js?v=1793997262"></script>
-<script src="live.js?v=1793997262"></script>
+<script src="arena.js?v=1794000396"></script>
+<script src="season.js?v=1794000396"></script>
+<script src="bets.js?v=1794000396"></script>
+<script src="trades.js?v=1794000396"></script>
+<script src="tradelab.js?v=1794000396"></script>
+<script src="betshub.js?v=1794000396"></script>
+<script src="sim.js?v=1794000396"></script>
+<script src="overunder.js?v=1794000396"></script>
+<script src="profile.js?v=1794000396"></script>
+<script src="ask.js?v=1794000396"></script>
+<script src="timeline.js?v=1794000396"></script>
+<script src="nav.js?v=1794000396"></script>
+<script src="insights.js?v=1794000396"></script>
+<script src="rostermoves.js?v=1794000396"></script>
+<script src="lineupedit.js?v=1794000396"></script>
+<script src="live.js?v=1794000396"></script>
 </body></html>
