@@ -1,12 +1,13 @@
-/* Mini hoop: arcade shooting in the Arena. Each shot is two taps: lock the aim (a marker sweeps left and right),
-   then press and hold to fill the shot meter and let go in the green. Aim and release each get a grade
-   (perfect, good, bad, horrible); the combination decides the shot. 30 or 60 seconds, best scores kept on this device. */
-const HG={mode:30,state:"idle",t0:0,left:0,makes:0,att:0,pts:0,streak:0,best:0,aimT:0,aim:0,pow:0,powT:0,shot:null,msg:null,raf:0,last:0};
+/* Mini hoop: arcade shooting. The hoop slides side to side; aim with the cursor (or your finger), press and hold
+   to fill the shot meter, and let go in the green. Aim (how close the cursor is to the rim when you let go) and
+   release each get a grade (perfect, good, bad, horrible); the combination decides the shot.
+   30 or 60 seconds, best scores kept on this device. */
+const HG={mode:30,state:"idle",t0:0,left:0,makes:0,att:0,pts:0,streak:0,best:0,aim:0,powT:0,shot:null,msg:null,raf:0,cx:.5,hx:.5,ht:0,hold:0};
 const HG_K="grindex-hoops";
 const HG_GR=["horrible","bad","good","perfect"];
 const hgLoad=()=>{try{return JSON.parse(localStorage.getItem(HG_K)||"{}")}catch(e){return {}}};
 const hgSave=o=>{try{localStorage.setItem(HG_K,JSON.stringify(o))}catch(e){}};
-const aimGrade=e=>{e=Math.abs(e);return e<.06?3:e<.16?2:e<.32?1:0};          // aim error: -1..1 across the bar
+const aimGrade=e=>{e=Math.abs(e);return e<.14?3:e<.38?2:e<.75?1:0};          // aim error in rim widths
 const relGrade=r=>{const e=Math.abs(r-.9);return e<.025?3:e<.065?2:e<.14?1:0};  // release point on the meter: 0..1.15, green at .9
 const MAKE=[0,.03,.12,.38,.68,.9,1];  // make chance by aim+release grade total (0..6)
 
@@ -19,16 +20,19 @@ function renderHoops(){
     <div class="hgwrap"><canvas id="hgC" aria-label="Mini hoop game. Tap to lock aim, then hold and release to shoot." role="img"></canvas>
       <div class="hghud"><span><b id="hgPts">0</b> pts</span><span><b id="hgMk">0</b>/<span id="hgAt">0</span></span><span class="hgtime"><b id="hgT">30</b>s</span></div>
       <div class="hgover" id="hgOver"></div></div>
-    <p class="faint" style="font-size:12.5px;margin:10px 0 0">Tap (or space) to lock your aim, then press and hold to fill the meter and let go in the green. Make = 2, perfect aim and release = 3. High scores stay on this device.</p>`;
+    <p class="faint" style="font-size:12.5px;margin:10px 0 0">Aim with your cursor or finger over the moving hoop, press and hold to fill the meter, let go in the green. Arrow keys and space work too. Make = 2, perfect aim and release = 3. High scores stay on this device.</p>`;
   el.querySelectorAll(".hgm").forEach(b=>b.onclick=()=>{if(HG.state!=="idle"&&HG.state!=="over")return;HG.mode=+b.dataset.m;el.querySelectorAll(".hgm").forEach(x=>x.classList.toggle("on",x===b));$("#hgT").textContent=HG.mode;hgOverlay()});
   const c=$("#hgC");
   const fit=()=>{const w=c.clientWidth;if(!w)return;const h=Math.round(Math.min(460,Math.max(320,w*.62)));c.style.height=h+"px";const d=Math.min(2,devicePixelRatio||1);c.width=w*d;c.height=h*d;hgDraw()};
   new ResizeObserver(fit).observe(c);
-  c.addEventListener("pointerdown",e=>{e.preventDefault();hgDown()});
-  addEventListener("pointerup",()=>hgUp());
-  c.tabIndex=0;
-  c.addEventListener("keydown",e=>{if(e.code==="Space"||e.key==="Enter"){e.preventDefault();if(!e.repeat)hgDown()}});
-  c.addEventListener("keyup",e=>{if(e.code==="Space"||e.key==="Enter"){e.preventDefault();hgUp()}});
+  const setX=e=>{const r=c.getBoundingClientRect();HG.cx=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width))};
+  c.addEventListener("pointermove",setX);
+  c.addEventListener("pointerdown",e=>{e.preventDefault();setX(e);try{c.setPointerCapture(e.pointerId)}catch(_){}hgDown()});
+  c.addEventListener("pointerup",e=>{setX(e);hgUp()});c.addEventListener("pointercancel",()=>hgUp());
+  c.tabIndex=0;const keys={};
+  c.addEventListener("keydown",e=>{if(e.code==="Space"){e.preventDefault();if(!e.repeat)hgDown()}else if(e.key==="ArrowLeft"||e.key==="ArrowRight"){e.preventDefault();keys[e.key]=1}});
+  c.addEventListener("keyup",e=>{if(e.code==="Space"){e.preventDefault();hgUp()}keys[e.key]=0});
+  HG.keys=keys;
   hgOverlay();
 }
 function hgOverlay(){
@@ -41,29 +45,30 @@ function hgOverlay(){
   }else o.hidden=true;
 }
 function hgStart(){
-  Object.assign(HG,{state:"aim",t0:performance.now(),left:HG.mode,makes:0,att:0,pts:0,streak:0,best:0,aimT:performance.now(),shot:null,msg:null,newHigh:false});
+  Object.assign(HG,{state:"aim",t0:performance.now(),left:HG.mode,makes:0,att:0,pts:0,streak:0,best:0,shot:null,msg:null,newHigh:false,ht:0,last:performance.now()});
   hgHud();hgOverlay();$("#hgC").focus({preventScroll:true});cancelAnimationFrame(HG.raf);HG.raf=requestAnimationFrame(hgLoop);
 }
-function hgDown(){
-  if(HG.state==="aim"){HG.aim=hgAimPos(performance.now());HG.state="lock"}   // aim locked; next press fills the meter
-  else if(HG.state==="lock"){HG.state="power";HG.powT=performance.now()}
-}
+function hgDown(){if(HG.state==="aim"){HG.state="power";HG.powT=performance.now()}}
 function hgUp(){if(HG.state==="power")hgShoot(hgPow(performance.now()))}
-const hgAimPos=t=>Math.sin((t-HG.aimT)/1000*(2.4+Math.min(HG.streak,8)*.18))*1;   // sweeps faster on a streak
 const hgPow=t=>Math.min(1.15,(t-HG.powT)/780);
 function hgShoot(r){
-  const ag=aimGrade(HG.aim),rg=relGrade(r),q=ag+rg,made=Math.random()<MAKE[q];
+  HG.aim=(HG.cx-HG.hx)/HG.rimW;   // cursor vs the rim when you let go, in rim widths
+  const ag=aimGrade(HG.aim),rg=relGrade(r),q=ag+rg,made=Math.random()<MAKE[q]*(ag===0||rg===0?.3:1);   // a horrible aim or release rarely drops
   const swish=made&&ag===3&&rg===3;
   const kind=made?(q>=5?"swish":"rim in"):(q>=2?"rim out":q===1?"brick":"airball");
   HG.att++;if(made){HG.makes++;HG.pts+=swish?3:2;HG.streak++;HG.best=Math.max(HG.best,HG.streak)}else HG.streak=0;
-  HG.shot={t:performance.now(),aim:HG.aim,rel:r,made,kind,ag,rg};
-  HG.msg={t:performance.now(),top:made?(swish?"SWISH!":"BUCKET"):kind.toUpperCase(),sub:`${HG_GR[ag]} aim · ${HG_GR[rg]} release${r<.9-.065?" (early)":r>.9+.065?" (late)":""}`,good:made,fire:HG.streak>=3};
+  HG.shot={t:performance.now(),aim:HG.aim,rel:r,made,kind,ag,rg,bx:HG.cx};
+  HG.msg={t:performance.now(),top:made?(swish?"SWISH!":"BUCKET"):kind.toUpperCase(),sub:`${HG_GR[ag]} aim${ag<3?` (${HG.aim<0?"left":"right"})`:""} · ${HG_GR[rg]} release${r<.9-.065?" (early)":r>.9+.065?" (late)":""}`,good:made,fire:HG.streak>=3};
   HG.state="fly";hgHud();
 }
 function hgHud(){$("#hgPts").textContent=HG.pts;$("#hgMk").textContent=HG.makes;$("#hgAt").textContent=HG.att;$("#hgT").textContent=Math.ceil(HG.left)}
 function hgLoop(now){
+  const dt=Math.min(.05,(now-(HG.last||now))/1000);HG.last=now;
   HG.left=Math.max(0,HG.mode-(now-HG.t0)/1000);
-  if(HG.state==="fly"&&now-HG.shot.t>950){HG.state=HG.left>0?"aim":"over";HG.aimT=now}
+  // the hoop slides while you aim (paused mid-flight), a little faster on a streak
+  if(HG.state!=="fly"){HG.ht+=dt*(.9+Math.min(HG.streak,8)*.12);HG.hx=.5+Math.sin(HG.ht)*.3}
+  if(HG.keys){if(HG.keys.ArrowLeft)HG.cx=Math.max(0,HG.cx-dt*.7);if(HG.keys.ArrowRight)HG.cx=Math.min(1,HG.cx+dt*.7)}
+  if(HG.state==="fly"&&now-HG.shot.t>950)HG.state=HG.left>0?"aim":"over";
   if(HG.left<=0&&HG.state!=="fly"&&HG.state!=="over")HG.state="over";
   if(HG.state==="power"&&hgPow(now)>=1.15)hgShoot(1.15);   // held too long: late
   hgHud();hgDraw(now);
@@ -85,7 +90,7 @@ function hgDraw(now=performance.now()){
   const g=x.createLinearGradient(0,0,0,Hh);g.addColorStop(0,"#15161a");g.addColorStop(.72,"#1b1c21");g.addColorStop(.721,"#2a2018");g.addColorStop(1,"#3a2a1c");x.fillStyle=g;x.fillRect(0,0,W,Hh);
   x.strokeStyle="rgba(255,255,255,.06)";x.lineWidth=2*d;x.beginPath();x.ellipse(W/2,Hh*.98,W*.34,Hh*.1,0,Math.PI,2*Math.PI);x.stroke();
   // backboard, rim, net
-  const rx=W/2,ry=Hh*.34,rr=Math.min(W*.075,46*d);
+  const rr=Math.min(W*.075,46*d),rx=HG.hx*W,ry=Hh*.34;HG.rimW=rr*2/W;
   x.fillStyle="rgba(255,255,255,.92)";x.fillRect(rx-rr*2.4,ry-rr*2.5,rr*4.8,rr*2.7);
   x.strokeStyle=acc;x.lineWidth=3*d;x.strokeRect(rx-rr*.8,ry-rr*1.5,rr*1.6,rr*1.25);
   x.fillStyle="#555";x.fillRect(rx-3*d,ry-rr*.2,6*d,rr*.25);
@@ -94,12 +99,12 @@ function hgDraw(now=performance.now()){
   for(let i=0;i<=6;i++){const t=i/6,top=rx-rr+t*rr*2,bot=rx-rr*.55+t*rr*1.1+(sw?Math.sin(now/40+i)*3*d:0);x.beginPath();x.moveTo(top,ry);x.lineTo(bot,ry+rr*1.15+(sw?6*d:0));x.stroke()}
   for(let k=1;k<=2;k++){const yy=ry+rr*.4*k,w=rr*(1-.22*k);x.beginPath();x.moveTo(rx-w,yy);x.lineTo(rx+w,yy);x.stroke()}
   // ball
-  let bx=rx,by=Hh*.86,bs=rr*.62,front=true;
+  let bx=HG.state==="fly"?HG.shot.bx*W:HG.cx*W,by=Hh*.86,bs=rr*.62,front=true;
   if(HG.shot&&HG.state==="fly"){
-    const S=HG.shot,p=Math.min(1,(now-S.t)/700),aimX=S.aim*rr*2.2,relY=(S.rel-.9)*rr*6;
+    const S=HG.shot,p=Math.min(1,(now-S.t)/700),aimX=Math.max(-3,Math.min(3,S.aim))*rr*1.2,relY=(S.rel-.9)*rr*6,sx=S.bx*W;
     let tx=rx+(S.made?aimX*.15:aimX),ty=ry+(S.made?0:-relY*.6);
     if(S.kind==="airball"){ty=ry+rr*.9;tx=rx+aimX*1.6+(S.rel<.9?0:rr*1.5)}
-    bx=rx+(tx-rx)*p;by=Hh*.86+(ty-Hh*.86)*p-Math.sin(p*Math.PI)*Hh*.42;bs=rr*(.62-.2*p);
+    bx=sx+(tx-sx)*p;by=Hh*.86+(ty-Hh*.86)*p-Math.sin(p*Math.PI)*Hh*.42;bs=rr*(.62-.2*p);
     if(p>=1){const q=Math.min(1,(now-S.t-700)/250);
       if(S.made){bx=tx+(rx-tx)*q;by=ty+q*rr*1.6;front=q<.3}
       else if(S.kind==="rim out"||S.kind==="brick"){bx=tx+Math.sign(aimX||1)*q*rr*2;by=ty-Math.sin(q*Math.PI)*rr*.9+q*rr}
@@ -112,18 +117,18 @@ function hgDraw(now=performance.now()){
   if(!front)ball();
   x.strokeStyle="#ff6a1f";x.lineWidth=4*d;x.beginPath();x.ellipse(rx,ry,rr,rr*.22,0,0,2*Math.PI);x.stroke();
   if(front)ball();
-  // aim bar
-  const st=HG.state,bw=Math.min(W*.6,360*d),bxL=(W-bw)/2,byA=Hh*.62;
-  if(st==="aim"||st==="lock"||st==="power"){
-    x.fillStyle="rgba(255,255,255,.08)";x.fillRect(bxL,byA,bw,8*d);
-    [[.32,"rgba(255,90,90,.25)"],[.16,"rgba(255,200,90,.35)"],[.06,"rgba(158,240,196,.7)"]].forEach(([e,col])=>{x.fillStyle=col;x.fillRect(W/2-e*bw/2,byA,e*bw,8*d)});
-    const a=st==="aim"?hgAimPos(now):HG.aim,ax=W/2+a*bw/2;x.fillStyle="#fff";x.fillRect(ax-2*d,byA-6*d,4*d,20*d);
-    x.fillStyle="rgba(255,255,255,.75)";x.font=`500 ${12*d}px Inter,system-ui,sans-serif`;x.textAlign="center";
-    x.fillText(st==="aim"?"Tap to lock aim":st==="lock"?"Hold to shoot, let go in the green":"",W/2,byA+30*d);
+  // aim: a reticle that follows your cursor, drawn at rim height
+  const st=HG.state;
+  if(st==="aim"||st==="power"){
+    const ax=HG.cx*W,e=Math.abs((HG.cx-HG.hx)/HG.rimW),col=e<.14?"158,240,196":e<.38?"255,210,120":"255,120,120";
+    x.strokeStyle=`rgba(${col},.9)`;x.lineWidth=2*d;x.beginPath();x.arc(ax,ry,10*d,0,7);x.moveTo(ax-16*d,ry);x.lineTo(ax-5*d,ry);x.moveTo(ax+5*d,ry);x.lineTo(ax+16*d,ry);x.moveTo(ax,ry-16*d);x.lineTo(ax,ry-5*d);x.stroke();
+    x.setLineDash([4*d,6*d]);x.strokeStyle=`rgba(${col},.25)`;x.beginPath();x.moveTo(ax,ry+18*d);x.lineTo(ax,Hh*.8);x.stroke();x.setLineDash([]);
+    x.fillStyle="rgba(255,255,255,.7)";x.font=`500 ${12*d}px Inter,system-ui,sans-serif`;x.textAlign="center";
+    x.fillText(st==="aim"?"Aim at the rim, then press and hold":"Let go in the green",W/2,Hh*.66);
   }
   // shot meter (2K style: vertical bar beside the shooter)
-  if(st==="lock"||st==="power"||(st==="fly"&&now-HG.shot.t<500)){
-    const mh=Hh*.34,mw=12*d,mx=W/2+bw/2+26*d>W-30*d?W-30*d:W/2+bs+40*d,my=Hh*.92-mh;
+  if(st==="power"||(st==="fly"&&now-HG.shot.t<500)){
+    const mh=Hh*.3,mw=12*d,bxx=st==="fly"?HG.shot.bx*W:HG.cx*W,mx=bxx+bs+30*d>W-24*d?bxx-bs-30*d-mw:bxx+bs+30*d,my=Hh*.95-mh;
     x.fillStyle="rgba(255,255,255,.1)";x.fillRect(mx,my,mw,mh);
     const yAt=v=>my+mh-(v/1.15)*mh;
     x.fillStyle="rgba(255,200,90,.35)";x.fillRect(mx,yAt(.9+.065),mw,yAt(.9-.065)-yAt(.9+.065));
