@@ -756,8 +756,17 @@ body[data-view="fantasy"] .inslead,body[data-view="fantasy"] .rmwhy,body[data-vi
   .wrap{padding-top:calc(var(--navh,84px) + 16px)!important}
   #fantasyView>section.g:not(#hero){padding:34px 2px}
 }
+
+/* content scrolls into soft fades instead of hitting hard lines: a short fade under the header and one
+   at the bottom edge of the screen (runs behind Safari's bottom bar on phones) */
+.bar{box-shadow:none!important;border-bottom:0}
+.bar::after{content:"";position:absolute;left:0;right:0;top:100%;height:28px;pointer-events:none;
+  background:linear-gradient(180deg,rgb(18,19,22),rgba(18,19,22,0))}
+.btmfade{position:fixed;left:0;right:0;bottom:0;height:calc(56px + env(safe-area-inset-bottom,0px));z-index:30;pointer-events:none;
+  background:linear-gradient(180deg,rgba(11,11,13,0),rgba(11,11,13,.92))}
+@media (max-width:700px),(pointer:coarse){.bar{background:rgb(18,19,22)!important}}
 </style></head><body>
-<div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div>
+<div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div><div class="btmfade" aria-hidden="true"></div>
 
 <div class="wrap">
   <header class="bar">
@@ -1226,7 +1235,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1794000396";
+const BUILD="1794000501";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(()=>{if(!document.hidden)checkBuild()},90000);
 loadLog().then(()=>load(true));setInterval(()=>{if(!document.hidden)loadLog().then(()=>load(false))},120000);
@@ -1273,20 +1282,20 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1794000396"></script>
-<script src="season.js?v=1794000396"></script>
-<script src="bets.js?v=1794000396"></script>
-<script src="trades.js?v=1794000396"></script>
-<script src="tradelab.js?v=1794000396"></script>
-<script src="betshub.js?v=1794000396"></script>
-<script src="sim.js?v=1794000396"></script>
-<script src="overunder.js?v=1794000396"></script>
-<script src="profile.js?v=1794000396"></script>
-<script src="ask.js?v=1794000396"></script>
-<script src="timeline.js?v=1794000396"></script>
-<script src="nav.js?v=1794000396"></script>
-<script src="insights.js?v=1794000396"></script>
-<script src="rostermoves.js?v=1794000396"></script>
-<script src="lineupedit.js?v=1794000396"></script>
-<script src="live.js?v=1794000396"></script>
+<script src="arena.js?v=1794000501"></script>
+<script src="season.js?v=1794000501"></script>
+<script src="bets.js?v=1794000501"></script>
+<script src="trades.js?v=1794000501"></script>
+<script src="tradelab.js?v=1794000501"></script>
+<script src="betshub.js?v=1794000501"></script>
+<script src="sim.js?v=1794000501"></script>
+<script src="overunder.js?v=1794000501"></script>
+<script src="profile.js?v=1794000501"></script>
+<script src="ask.js?v=1794000501"></script>
+<script src="timeline.js?v=1794000501"></script>
+<script src="nav.js?v=1794000501"></script>
+<script src="insights.js?v=1794000501"></script>
+<script src="rostermoves.js?v=1794000501"></script>
+<script src="lineupedit.js?v=1794000501"></script>
+<script src="live.js?v=1794000501"></script>
 </body></html>
