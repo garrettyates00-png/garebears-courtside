@@ -1,6 +1,14 @@
 [
  {
   "date": "2026-11-06",
+  "status": "ok",
+  "moved": [],
+  "note": "Lineup was already optimal.",
+  "at": "Nov 6, 2:59 PM CT",
+  "src": "schedule"
+ },
+ {
+  "date": "2026-11-06",
   "status": "saved",
   "moved": [
    "Donovan Mitchell: PG to G",
