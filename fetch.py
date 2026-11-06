@@ -338,8 +338,38 @@ def main():
                         picks.append(dict(t=to, n=mgr["names"].get(str(pid), str(pid)), date=tx["date"], pts=round(pts, 1), g=g))
                 elif kind == "DROP" and str(frm) in out:
                     out[str(frm)]["drops"] += 1
+        # Missed games: a rostered player whose NBA team played that day but who scored nothing (injury, illness,
+        # rest). Valued at his season average per game. Today is left out (games may not have started).
+        try:
+            sjp_ = json.load(open("season.json"))["players"]
+        except Exception:
+            sjp_ = []
+        abbr_id = {v: k for k, v in pro_abbr.items()}
+        tm_of = {r["id"]: r["tm"] for r in sjp_}; tm_of.update({p["id"]: p["tm"] for p in players})
+        avg_of = {r["id"]: r["fp"] for r in sjp_ if r.get("gp")}
+        for p in players: avg_of.setdefault(p["id"], p["pa"])
+        miss = {t: {} for t in out}
+        for iso, day in mgr["days"].items():
+            if iso >= today.isoformat(): continue
+            dd = dt.date.fromisoformat(iso)
+            for t, (_, _, pl) in day.items():
+                if t not in out: continue
+                for pid, s, fp in pl:
+                    tid = abbr_id.get(tm_of.get(pid))
+                    if fp or tid is None or dd not in games.get(tid, ()): continue
+                    a = avg_of.get(pid) or 0
+                    o = out[t]; o["inj_lost"] = o.get("inj_lost", 0) + a; o["inj_games"] = o.get("inj_games", 0) + 1
+                    if s not in ("BE", "IR"): o["inj_start"] = o.get("inj_start", 0) + 1   # a zero sitting in the lineup
+                    m_ = miss[t].setdefault(pid, [0, 0.0]); m_[0] += 1; m_[1] += a
+        for t, o in out.items():
+            o["inj_lost"] = round(o.get("inj_lost", 0), 1); o.setdefault("inj_games", 0); o.setdefault("inj_start", 0)
+            o["inj_who"] = [[mgr["names"].get(str(pid), str(pid)), g, round(v, 1)] for pid, (g, v) in sorted(miss[t].items(), key=lambda x: -x[1][1])[:4]]
+            o["bench_pts"] = 0.0
+        for iso, day in mgr["days"].items():
+            for t, (_, _, pl) in day.items():
+                if t in out: out[t]["bench_pts"] += sum(fp for _, s, fp in pl if s == "BE")
         for o in out.values():
-            for k in ("lost", "lost_wk", "opt", "act"): o[k] = round(o[k], 1)
+            for k in ("lost", "lost_wk", "opt", "act", "bench_pts"): o[k] = round(o[k], 1)
         picks.sort(key=lambda x: -x["pts"])
 
         # Move scorecard: for every add/drop, what the added players scored for the team since (total and in the
