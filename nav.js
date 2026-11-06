@@ -2,7 +2,7 @@
    Links follow the current view (Fantasy, Arena Team, Arena Season); the drawer lists all three. */
 const NAV={
   fantasy:{label:"Fantasy",items:[["hero","Matchup"],["secAsk","Ask"],["secMatchups","Matchups"],["secLineup","Lineup"],["secPower","Rankings"],["secOU","Over/under"],["secInsights","Insights"],["secMoves","Moves"],["secTrades","Trades"],["how","How it works"],["secTL","Timeline"],["secSim","Simulator"],["newsroom","News"]]},
-  team:{label:"Arena · Team",items:[["aHero","Team"],["aNext","Next game"],["aGames","Games"],["aShots","Shot chart"],["aImpact","Impact"],["aTeam","Team stats"],["aMedia","Highlights"],["aNews","News"],["aSched","Schedule"]]},
+  team:{label:"Arena · Team",items:[["aHero","Team"],["aNext","Next game"],["aGames","Games"],["aShots","Shot chart"],["aImpact","Impact"],["aTeam","Team stats"],["aMedia","Highlights"],["aHoops","Mini hoop"],["aNews","News"],["aSched","Schedule"]]},
   season:{label:"Arena · Season",items:[["sMine","Your players"],["sBoard","Scoreboard"],["sAvg","Averages"]]},
   bets:{label:"Arena · Bets",items:[["bSum","Overview"],["sBets","My bets"],["bTeams","By team"]]}
 };
