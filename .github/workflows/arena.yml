@@ -11,7 +11,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: refresh
+  group: arena   # its own queue, so fantasy refreshes don't push Arena runs out
   cancel-in-progress: false
 
 jobs:

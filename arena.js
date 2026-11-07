@@ -30,10 +30,27 @@ async function loadArena(force){
     if(!r.ok&&aTeam!=="mem"){toast&&toast(`${aTeam.toUpperCase()} is still being built. Showing Memphis for now; try again in a few minutes.`);aTeam="mem";r=await fetch(`arena/mem.json?t=${Date.now()}`,{cache:"no-store"})}
     const j=await r.json(); if(!force&&A&&j.pulled===A.pulled)return; A=j;
     try{GR=(await (await fetch("arena/grades.json?t="+Date.now(),{cache:"no-store"})).json()).grades||{}}catch(e){GR=GR||{}}
-    applyTheme(); renderArena();
+    applyTheme(); renderArena(); arenaStaleCheck();
   }catch(e){$("#aHero").innerHTML='<div class="mute">Arena data is still being built. Check back in a minute.</div>'}
 }
-setInterval(()=>{if(document.body.dataset.view==="arena")loadArena()},120000);
+setInterval(()=>{if(document.body.dataset.view==="arena"&&!document.hidden)loadArena()},120000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&document.body.dataset.view==="arena")loadArena()});
+/* Pull fresh Arena data now (Force update while in Arena) */
+async function arenaForce(){const before=A?A.pulled:"";
+  const ok=await dispatch("arena.yml",null,"Pulling the latest games",async()=>{await loadArena();return !!A&&A.pulled!==before});
+  if(ok!==null)toast(ok?"Arena updated · "+A.pulled:"Still publishing. It will show up in a few minutes.")}
+/* A game that should be over but isn't final in the data: GitHub's schedule runs late, so start a pull from here
+   (once every 20 minutes at most, only when this browser has the GitHub connection) */
+function arenaStaleCheck(){
+  if(!A||!A.schedule)return;const now=Date.now();
+  const g=A.schedule.find(x=>!x.final&&x.stype!=="Preseason"&&now-Date.parse(x.date)>2.6*3600e3&&now-Date.parse(x.date)<36*3600e3);
+  if(!g)return;
+  let last=0;try{last=+localStorage.getItem("grindex-arena-kick")||0}catch(e){}
+  if(typeof getTok!=="function"||!getTok()){$("#status").textContent=`The ${g.opp} game is over but its stats aren't in yet. Tap Force update to pull them.`;return}
+  if(now-last<20*60e3||forcing)return;
+  try{localStorage.setItem("grindex-arena-kick",String(now))}catch(e){}
+  arenaForce();
+}
 function applyTheme(){if(!A)return;const r=document.documentElement.style;r.setProperty("--tc",A.team.color);r.setProperty("--tc2",A.team.alt)}
 
 /* report-card grades (arena/grades.json): letter vs every NBA rotation player, rookies on a curve */

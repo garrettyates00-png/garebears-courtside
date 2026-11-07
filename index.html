@@ -1269,13 +1269,15 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1794004457";
+const BUILD="1794029229";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(()=>{if(!document.hidden)checkBuild()},90000);
 loadLog().then(()=>load(true));setInterval(()=>{if(!document.hidden)loadLog().then(()=>load(false))},120000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&D)loadLog().then(()=>load(false))});
 function toast(m){const t=document.createElement("div");t.className="toast";t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),4000)}
-$("#refresh").onclick=async()=>{await loadLog();await load(true);toast("Showing the newest published data · "+D.pulled)};
+$("#refresh").onclick=async()=>{
+  if(document.body.dataset.view==="arena"&&typeof loadArena==="function"){await loadArena(true);toast("Showing the newest Arena data · "+(A?A.pulled:""));return}
+  await loadLog();await load(true);toast("Showing the newest published data · "+D.pulled)};
 const REPO="garrettyates00-png/garebears-courtside",TK="courtside-gh-token";
 const getTok=()=>{try{return localStorage.getItem(TK)||""}catch(e){return ""}};
 const setTok=v=>{try{v?localStorage.setItem(TK,v):localStorage.removeItem(TK)}catch(e){}};
@@ -1308,7 +1310,9 @@ async function dispatch(wf,inputs,label,isDone){
   catch(e){toast(e.message);st.textContent=e.message;return null}
   finally{forcing=false;clearInterval(tick);btn.classList.remove("busy");if(!st.textContent.includes("failed")&&!st.textContent.includes("rejected"))st.textContent=""}
 }
-$("#force").onclick=async()=>{const before=D?D.pulled:"";const ok=await dispatch("refresh.yml",null,"Pulling from ESPN",async()=>(await load(false))&&D.pulled!==before);
+$("#force").onclick=async()=>{
+  if(document.body.dataset.view==="arena"&&typeof arenaForce==="function")return arenaForce();
+  const before=D?D.pulled:"";const ok=await dispatch("refresh.yml",null,"Pulling from ESPN",async()=>(await load(false))&&D.pulled!==before);
   if(ok!==null)toast(ok?"Fresh data · "+D.pulled:"Still publishing. It will appear on its own in a few minutes.")};
 async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHTML='<span class="mute">Saving to ESPN…</span>';
   const ok=await dispatch("lineup.yml",{dry_run:false},"Saving lineup to ESPN",async()=>{await loadLog();if(LOG[0]&&LOG[0].at!==before){await load(true);return true}return false});
@@ -1316,21 +1320,21 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1794004457"></script>
-<script src="season.js?v=1794004457"></script>
-<script src="bets.js?v=1794004457"></script>
-<script src="trades.js?v=1794004457"></script>
-<script src="tradelab.js?v=1794004457"></script>
-<script src="betshub.js?v=1794004457"></script>
-<script src="sim.js?v=1794004457"></script>
-<script src="overunder.js?v=1794004457"></script>
-<script src="profile.js?v=1794004457"></script>
-<script src="ask.js?v=1794004457"></script>
-<script src="timeline.js?v=1794004457"></script>
-<script src="nav.js?v=1794004457"></script>
-<script src="hoops.js?v=1794004457"></script>
-<script src="insights.js?v=1794004457"></script>
-<script src="rostermoves.js?v=1794004457"></script>
-<script src="lineupedit.js?v=1794004457"></script>
-<script src="live.js?v=1794004457"></script>
+<script src="arena.js?v=1794029229"></script>
+<script src="season.js?v=1794029229"></script>
+<script src="bets.js?v=1794029229"></script>
+<script src="trades.js?v=1794029229"></script>
+<script src="tradelab.js?v=1794029229"></script>
+<script src="betshub.js?v=1794029229"></script>
+<script src="sim.js?v=1794029229"></script>
+<script src="overunder.js?v=1794029229"></script>
+<script src="profile.js?v=1794029229"></script>
+<script src="ask.js?v=1794029229"></script>
+<script src="timeline.js?v=1794029229"></script>
+<script src="nav.js?v=1794029229"></script>
+<script src="hoops.js?v=1794029229"></script>
+<script src="insights.js?v=1794029229"></script>
+<script src="rostermoves.js?v=1794029229"></script>
+<script src="lineupedit.js?v=1794029229"></script>
+<script src="live.js?v=1794029229"></script>
 </body></html>
