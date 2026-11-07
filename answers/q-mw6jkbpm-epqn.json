@@ -1,0 +1,14 @@
+{
+ "id": "q-mw6jkbpm-epqn",
+ "q": "Dang. What changed my matchup prediction yesterday? Big flip for me",
+ "at": "2026-11-07T14:15:00+00:00",
+ "short": "Your opponent (Rob's Commode Chokers) lost Anthony Davis and Brandon Miller went day to day, which cut their projected week from about 1642 to about 1415 by last night. That flipped you from roughly 139 points behind to slightly ahead, 1441.9 to 1423.0.",
+ "answer": "The flip came mostly from your opponent's side. Around 4:20 PM CT Thursday the model had you at 1503.6 projected points against 1642.5 for The Commode Chokers, so you trailed by about 139. By the 8:19 PM CT refresh it was 1405.8 to 1414.6, and after the 11:22 PM CT refresh it was 1441.9 to 1403.2 in your favor. Right now it reads 1441.9 to 1423.0, a lead of about 19 points.\n\nThe trigger was the injury report that landed in that overnight window. Anthony Davis went from day to day to out (projected 49.6 per game, their second best scorer after Giannis), and Brandon Miller (37.4 per game) went day to day. Davis is marked OUT in the data and is still sitting in their C slot, so he is producing nothing. Their projection also dropped because Thursday games finished and came off the remaining total. Your own number fell too (1503.6 to 1405.8) because Jarrett Allen (36.9 per game) went day to day to out the same evening, but you lost about 98 points while they lost about 228. The 11:22 PM CT refresh then added about 36 points to your side, which looks like your lineup being re-optimized after the games, though I cannot see the exact cause in the data.\n\nI did not search the web for this, so the injury statuses come only from the league feed. Treat the return timing for Davis, Miller and Allen as unconfirmed.\n\nWhat to watch: a 19 point edge is close to a coin flip, so it can flip back. Saturday favors them (about 230 projected against your 179), and Sunday favors you strongly (about 318 against their 126, since only Kyrie, Sexton and Giannis play for them). Your lead depends on your Sunday lineup staying full. Anthony Edwards is on IR but shows a Sunday game, so check whether he is actually back. Ja Morant is out on IR and Allen is out, so neither helps this week.",
+ "moves": [
+  {
+   "do": "Check Anthony Edwards and Brandon Miller news Sunday morning before lineups lock, and keep your full 10 player Sunday lineup",
+   "why": "Sunday projects 318.3 for you against 125.7 for Rob, and that gap is what holds your 18.9 point lead."
+  }
+ ],
+ "sources": []
+}
