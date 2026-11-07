@@ -1,0 +1,12 @@
+{
+ "id": "q-mw5ytpab-bg5u",
+ "q": "Why didn’t gg Jackson play today? Wtf… what can you gather",
+ "at": "2026-11-07T05:31:00Z",
+ "short": "I couldn't find any report explaining why GG Jackson sat on Nov 6, so the reason is unconfirmed. He is on your opponent's team (Team 9), so his missing game helps you this week.",
+ "answer": "I ran two searches for GG Jackson news tonight and found nothing dated Nov 6, 2026. The results were all older: a broken foot in 2024, a knee absence at the end of last season, a personal-reasons absence in 2025, and a team-rule benching in 2024. None of those explain tonight, so I can't tell you whether it was injury, rest, a coaching decision or something personal. My confidence in any specific cause is low.\n\nWhat the league data shows: he has no injury tag, so it was not flagged as an injury when the data last refreshed. He is in the UTIL slot for Team 9, your opponent this week, and projects at 23.3 FP per game. He has averaged 11.5 FP over 8 games this season. Tonight was his only remaining game this week, so his remaining projection for the week is 0, and the data values him at about 19.5 for the week.\n\nThis helps you. Team 9 lost a UTIL starter's production for the week, and he is not on your roster, so there is nothing to fix on your side. For the actual reason, check the Grizzlies beat reporters or the final box score and inactive list. If it turns out to be a short injury, Team 9 may get him back next week.",
+ "moves": [],
+ "sources": [
+  {"title": "Grizzlies' GG Jackson: Out for personal reasons (CBS Sports, older report)", "url": "https://www.cbssports.com/fantasy/basketball/news/grizzlies-gg-jackson-out-for-personal-reasons"},
+  {"title": "GG Jackson II (knee) ruled out (FantasyPros, older report)", "url": "https://www.fantasypros.com/nba/news/579612/gg-jackson-knee-ruled-out-friday-.php"}
+ ]
+}
