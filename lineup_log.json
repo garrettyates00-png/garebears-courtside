@@ -1,5 +1,17 @@
 [
  {
+  "date": "2026-11-07",
+  "status": "saved",
+  "moved": [
+   "Bam Adebayo: C to BE",
+   "Julius Randle: BE to PF",
+   "Alex Sarr: PF to C"
+  ],
+  "custom": true,
+  "at": "Nov 7, 9:18 AM CT",
+  "src": "button"
+ },
+ {
   "date": "2026-11-06",
   "status": "ok",
   "moved": [],
