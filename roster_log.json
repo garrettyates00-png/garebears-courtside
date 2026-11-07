@@ -1,5 +1,18 @@
 [
  {
+  "req": "r-mw6jq7up",
+  "add": 3908845,
+  "drop": 3064290,
+  "ir": null,
+  "names": {
+   "add": "John Collins",
+   "drop": "Aaron Gordon"
+  },
+  "status": "done",
+  "kind": "FREEAGENT",
+  "at": "Nov 7, 9:16 AM CT"
+ },
+ {
   "req": "r-mw3p441c",
   "add": 4351852,
   "drop": 3064290,
