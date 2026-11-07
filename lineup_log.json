@@ -3,6 +3,16 @@
   "date": "2026-11-07",
   "status": "saved",
   "moved": [
+   "Bam Adebayo: BE to UTIL, no game today, fills an open starting slot",
+   "Jarrett Allen: UTIL to BE, out"
+  ],
+  "at": "Nov 7, 1:33 PM CT",
+  "src": "schedule"
+ },
+ {
+  "date": "2026-11-07",
+  "status": "saved",
+  "moved": [
    "Bam Adebayo: C to BE",
    "Julius Randle: BE to PF",
    "Alex Sarr: PF to C"
@@ -332,14 +342,5 @@
   "moved": [],
   "note": "Lineup was already optimal.",
   "at": "Oct 21, 8:28 AM CT"
- },
- {
-  "date": "2026-10-20",
-  "status": "saved",
-  "moved": [
-   "Jakob Poeltl: UTIL to BE, slot needed for a player with a game",
-   "Julian Champagnie: BE to UTIL, plays today (23.3 proj)"
-  ],
-  "at": "Oct 18, 11:45 PM CT"
  }
 ]
