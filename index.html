@@ -247,6 +247,11 @@ svg .mk{fill:var(--tcText)}svg .ms{stroke:rgba(255,255,255,.5);stroke-width:2}
 .hgover[hidden]{display:none}.hgres{font-size:15px}.hgres b{font:700 40px var(--sans);display:block}.hgnew{color:var(--up);font-weight:600;margin-top:4px}
 .hgstart{font-size:16px;padding:12px 26px}
 .hghs{display:grid;gap:4px;min-width:220px;text-align:left}.hghs>div:not(.eyebrow){display:grid;grid-template-columns:18px 50px 1fr;gap:8px;font-size:13px;align-items:baseline}.hghs span{color:var(--faint);font:500 12px var(--mono)}.hghs b{font:600 15px var(--mono)}.hghs small{color:var(--faint)}
+.mood{padding:6px 4px 22px}.mood:empty{display:none}
+.mword{font:800 clamp(40px,7vw,68px)/1 var(--sans);letter-spacing:-.035em;background:linear-gradient(90deg,var(--mc1),var(--mc2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.mwhy{margin:10px 0 0;max-width:780px;font-size:15px;line-height:1.55;color:var(--mute)}.mwhy b{color:var(--ink)}.mwhy b.up{color:var(--up)}.mwhy b.down{color:var(--down)}
+.m6{--mc1:#7dffb5;--mc2:#4fd1ff}.m5{--mc1:#9ef0c4;--mc2:#c6f68d}.m4{--mc1:#d7f5a0;--mc2:#ffe08a}.m3{--mc1:#ffe08a;--mc2:#ffb86b}.m2{--mc1:#ffab6b;--mc2:#ff7a7a}.m1{--mc1:#ff6b6b;--mc2:#ff3b7f}
+@media (max-width:700px){.mood{padding:2px 2px 16px}.mwhy{font-size:14px}}
 .insgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(340px,100%),1fr));gap:14px}
 .inscard{display:grid;gap:10px;align-content:start;padding:18px;border-radius:18px;background:rgba(255,255,255,.035);border:1px solid var(--line);min-width:0}
 .inscard h3{margin:0;font:600 18px var(--sans);letter-spacing:-.01em}.inscard .eyebrow{margin-bottom:-6px}
@@ -813,6 +818,7 @@ body[data-view="fantasy"] .inslead,body[data-view="fantasy"] .rmwhy,body[data-vi
   <div class="drawer" id="drawer" hidden><div class="dpanel" role="dialog" aria-label="Menu"></div></div>
 
   <div id="fantasyView" class="view">
+  <div id="mood" class="mood" aria-live="polite"></div>
   <section class="g pad hero" id="hero" tabindex="0" role="button" aria-label="Open your matchup"></section>
   <section class="g pad" id="secAsk"></section>
 
@@ -1211,7 +1217,7 @@ function renderAll(){
   if(document.body.dataset.view!=="arena")$("#pulled").textContent="Updated "+D.pulled;$("#dot").classList.toggle("stale",age>75);
   if(!forcing){if(age>75)staleNote(age);else $("#status").textContent=""}
   // each part renders on its own, so one failing section can't blank out the ones after it
-  const parts=[()=>renderHero(),()=>renderCards(),()=>renderDays(),()=>renderPower(),()=>renderStrength(selTeam),()=>renderWire(),()=>renderScoring(),()=>renderNewsroom(),
+  const parts=[()=>typeof renderMood==="function"&&renderMood(),()=>renderHero(),()=>renderCards(),()=>renderDays(),()=>renderPower(),()=>renderStrength(selTeam),()=>renderWire(),()=>renderScoring(),()=>renderNewsroom(),
     ()=>typeof renderAsk==="function"&&!document.activeElement?.closest?.("#askF")&&renderAsk(),
     ()=>typeof renderTrades==="function"&&renderTrades(),()=>typeof renderOU==="function"&&renderOU(),()=>typeof renderInsights==="function"&&renderInsights(),
     ()=>{if(typeof renderSim==="function"){SIMR=null;if(PHONE)simWhenVisible();else renderSim()}},()=>typeof tlWhenVisible==="function"&&tlWhenVisible()];
@@ -1269,7 +1275,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1794173488";
+const BUILD="1794176757";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(()=>{if(!document.hidden)checkBuild()},90000);
 loadLog().then(()=>load(true));setInterval(()=>{if(!document.hidden)loadLog().then(()=>load(false))},120000);
@@ -1320,21 +1326,22 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1794173488"></script>
-<script src="season.js?v=1794173488"></script>
-<script src="bets.js?v=1794173488"></script>
-<script src="trades.js?v=1794173488"></script>
-<script src="tradelab.js?v=1794173488"></script>
-<script src="betshub.js?v=1794173488"></script>
-<script src="sim.js?v=1794173488"></script>
-<script src="overunder.js?v=1794173488"></script>
-<script src="profile.js?v=1794173488"></script>
-<script src="ask.js?v=1794173488"></script>
-<script src="timeline.js?v=1794173488"></script>
-<script src="nav.js?v=1794173488"></script>
-<script src="hoops.js?v=1794173488"></script>
-<script src="insights.js?v=1794173488"></script>
-<script src="rostermoves.js?v=1794173488"></script>
-<script src="lineupedit.js?v=1794173488"></script>
-<script src="live.js?v=1794173488"></script>
+<script src="arena.js?v=1794176757"></script>
+<script src="season.js?v=1794176757"></script>
+<script src="bets.js?v=1794176757"></script>
+<script src="trades.js?v=1794176757"></script>
+<script src="tradelab.js?v=1794176757"></script>
+<script src="betshub.js?v=1794176757"></script>
+<script src="sim.js?v=1794176757"></script>
+<script src="overunder.js?v=1794176757"></script>
+<script src="profile.js?v=1794176757"></script>
+<script src="ask.js?v=1794176757"></script>
+<script src="timeline.js?v=1794176757"></script>
+<script src="nav.js?v=1794176757"></script>
+<script src="hoops.js?v=1794176757"></script>
+<script src="insights.js?v=1794176757"></script>
+<script src="rostermoves.js?v=1794176757"></script>
+<script src="lineupedit.js?v=1794176757"></script>
+<script src="mood.js?v=1794176757"></script>
+<script src="live.js?v=1794176757"></script>
 </body></html>

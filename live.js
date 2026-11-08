@@ -101,6 +101,7 @@ function weekForm(t){
 
 /* ---------- render: hero live block ---------- */
 function renderLive(){
+  if(typeof renderMood==="function")try{renderMood()}catch(e){console.error(e)}
   if(!D||!D.opp||!$("#hero"))return;
   if(!isLiveWeek()){const el=$("#liveBox");if(el)el.innerHTML="";return}
   const me=D.me,op=D.opp,T=D.teams;
