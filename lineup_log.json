@@ -3,6 +3,16 @@
   "date": "2026-11-08",
   "status": "saved",
   "moved": [
+   "Donovan Mitchell: BE to G, no game today, fills an open starting slot",
+   "Norman Powell: G to BE, out"
+  ],
+  "at": "Nov 8, 1:53 PM CT",
+  "src": "schedule"
+ },
+ {
+  "date": "2026-11-08",
+  "status": "saved",
+  "moved": [
    "Donovan Mitchell: G to BE",
    "Bam Adebayo: UTIL to PF",
    "Jaylen Brown: SF to SG",
@@ -341,18 +351,5 @@
    "Scotty Pippen Jr.: BE to SG, plays today (30.6 proj)"
   ],
   "at": "Oct 23, 3:01 PM CT"
- },
- {
-  "date": "2026-10-22",
-  "status": "saved",
-  "moved": [
-   "Anthony Edwards: SG to BE, slot needed for a player with a game",
-   "Donovan Mitchell: BE to PG, plays today (46.5 proj)",
-   "Jaylen Brown: BE to SG, plays today (38.6 proj)",
-   "Jarrett Allen: BE to UTIL, plays today (31.3 proj)",
-   "Darryn Peterson: PG to BE, slot needed for a player with a game",
-   "Bobby Portis: UTIL to BE, slot needed for a player with a game"
-  ],
-  "at": "Oct 22, 8:49 AM CT"
  }
 ]
