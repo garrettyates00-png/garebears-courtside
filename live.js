@@ -58,10 +58,12 @@ function remaining(t){
 function expectedSoFar(t){
   const B=D.base&&D.base.teams&&D.base.teams[t];if(!B)return null;const today=TODAY();let e=0;
   for(const [iso,d] of Object.entries(B.days))if(iso<today)e+=d.pts;
-  const bd=B.days[today];
-  // without live box scores, count a starter's game as played once ESPN's last pull shows him with a stat line today
+  // today: the players actually in the starting lineup now, at today's projection (the same number the player
+  // notes use), scaled by how much of each game is done. The Monday plan can have other starters and older
+  // projections, which made pace disagree with the player-by-player numbers.
+  const td=todayPlan(t),bd=B.days[today],pp=(td&&td.pp)||(bd&&bd.pp)||{};
   const srvToday=new Set((((D.act||{})[today]||{})[t]||{pl:[]}).pl.map(x=>x[0]));
-  if(bd)for(const id of bd.start){const p=D.players.find(x=>x.id===id);const g=p&&gameOf(p);const f=g?g.f:(LV.ok?0:(srvToday.has(id)?1:0));e+=(bd.pp[id]||0)*f}
+  for(const p of P(t)){if(isBench(p.slot))continue;const g=gameOf(p);const f=g?g.f:(LV.ok?0:(srvToday.has(p.id)?1:0));e+=(pp[p.id]||0)*f}
   return r1(e);
 }
 const isLiveWeek=()=>D&&D.opp&&(liveScore(D.me)>0||liveScore(D.opp)>0||Object.values(LV.games).some(g=>g.state!=="pre"));
