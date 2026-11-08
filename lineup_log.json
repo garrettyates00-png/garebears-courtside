@@ -1,5 +1,24 @@
 [
  {
+  "date": "2026-11-08",
+  "status": "saved",
+  "moved": [
+   "Donovan Mitchell: G to BE",
+   "Bam Adebayo: UTIL to PF",
+   "Jaylen Brown: SF to SG",
+   "Julius Randle: PF to F",
+   "Norman Powell: BE to G",
+   "Ausar Thompson: BE to SF",
+   "Darryn Peterson: SG to UTIL",
+   "Alex Sarr: C to BE",
+   "John Collins: BE to C",
+   "Mikal Bridges: F to BE"
+  ],
+  "custom": true,
+  "at": "Nov 8, 12:13 PM CT",
+  "src": "button"
+ },
+ {
   "date": "2026-11-07",
   "status": "saved",
   "moved": [
@@ -335,12 +354,5 @@
    "Bobby Portis: UTIL to BE, slot needed for a player with a game"
   ],
   "at": "Oct 22, 8:49 AM CT"
- },
- {
-  "date": "2026-10-21",
-  "status": "ok",
-  "moved": [],
-  "note": "Lineup was already optimal.",
-  "at": "Oct 21, 8:28 AM CT"
  }
 ]
