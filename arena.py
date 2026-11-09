@@ -561,26 +561,56 @@ def league_teams():
 
 
 def reel_file():
-    """League-wide highlight clips from the last couple of days (ESPN's own MP4 links, not downloaded):
-    the dashboard plays them behind the gold when you win a week."""
-    arts = get(f"{B}/news", limit=60).get("articles", [])
+    """Highlight clips from the last couple of days for the win celebration (ESPN's own MP4 links, nothing is
+    downloaded). Clips from the NBA teams of my fantasy players come first, then the rest of the league's."""
+    try:
+        d = json.load(open("data.json"))
+        mine = [p for p in d["players"] if p["t"] == d["me"]]
+    except Exception:
+        mine = []
+    my_tm = {p["tm"].lower() for p in mine}
+    ids = {}
+    for sp in get(f"{B}/teams").get("sports", []):
+        for lg in sp.get("leagues", []):
+            for t in lg.get("teams", []):
+                t = t["team"]; ids[t["abbreviation"].lower()] = t["id"]
+    id2ab = {v: k for k, v in ids.items()}
     cut = dt.datetime.now(dt.timezone.utc) - dt.timedelta(hours=60)
-    out = []
-    for x in arts:
-        if x.get("type") != "Media": continue
-        try:
-            when = dt.datetime.fromisoformat((x.get("published") or "").replace("Z", "+00:00"))
-        except Exception:
-            continue
-        if when < cut: continue
-        url = ((x.get("links") or {}).get("web") or {}).get("href", "")
-        mp4 = clip_mp4(x, url)
-        img = next((i.get("url") for i in (x.get("images") or []) if i.get("url")), "")
-        if mp4: out.append(dict(title=x.get("headline", ""), mp4=mp4, img=img, date=x.get("published", "")))
-        if len(out) >= 10: break
-    json.dump(dict(at=dt.datetime.now(TZ).isoformat(), clips=out), open("arena/reel.json", "w"), separators=(",", ":"))
-    print(f"reel: {len(out)} clips")
-
+    seen, out = set(), []
+    def take(arts, tag=None):
+        for x in arts:
+            if x.get("type") != "Media": continue
+            try:
+                when = dt.datetime.fromisoformat((x.get("published") or "").replace("Z", "+00:00"))
+            except Exception:
+                continue
+            if when < cut: continue
+            url = ((x.get("links") or {}).get("web") or {}).get("href", "")
+            if url in seen: continue
+            seen.add(url)
+            teams = sorted({id2ab.get(str(c.get("teamId"))) for c in (x.get("categories") or []) if c.get("type") == "team" and id2ab.get(str(c.get("teamId")))} | ({tag} if tag else set()))
+            mp4 = clip_mp4(x, url)
+            if not mp4: continue
+            text = (x.get("headline", "") + " " + (x.get("description") or "")).lower()
+            who = [p["n"] for p in mine if p["n"].split(" ")[-1].lower() in text]
+            out.append(dict(title=x.get("headline", ""), mp4=mp4, date=x.get("published", ""),
+                            img=next((i.get("url") for i in (x.get("images") or []) if i.get("url")), ""),
+                            teams=teams, mine=bool(set(teams) & my_tm) or bool(who), who=who))
+    for ab in sorted(my_tm):
+        if ab in ids:
+            try:
+                take(get(f"{B}/news", team=ids[ab], limit=15).get("articles", []), ab)
+            except Exception as e:
+                print("reel team", ab, e)
+    take(get(f"{B}/news", limit=60).get("articles", []))
+    out.sort(key=lambda c: (not c["mine"], -len(c["who"]), c["date"]), reverse=False)
+    # newest first inside each group
+    mine_c = sorted([c for c in out if c["mine"]], key=lambda c: (-len(c["who"]), c["date"]), reverse=False)
+    mine_c = sorted(mine_c, key=lambda c: c["date"], reverse=True); mine_c.sort(key=lambda c: -len(c["who"]))
+    rest = sorted([c for c in out if not c["mine"]], key=lambda c: c["date"], reverse=True)
+    clips = (mine_c + rest)[:18]
+    json.dump(dict(at=dt.datetime.now(TZ).isoformat(), clips=clips), open("arena/reel.json", "w"), separators=(",", ":"))
+    print(f"reel: {len(clips)} clips, {len(mine_c)} from my teams")
 
 if __name__ == "__main__":
     # config: "fav" teams refresh every run with full YouTube; every other NBA team rotates
