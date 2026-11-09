@@ -821,6 +821,20 @@ body[data-view="fantasy"] .inslead,body[data-view="fantasy"] .rmwhy,body[data-vi
   .snav a.on{background:rgba(255,255,255,.06);color:var(--ink)}
   .wrap{margin-left:max(214px,calc((100vw - 1180px) / 2));margin-right:auto;max-width:min(1180px,calc(100vw - 230px))}
 }
+
+/* desktop: the verdict as a compact band across the top */
+.mood.band{display:grid;grid-template-columns:auto auto 1fr;grid-template-areas:"top chips spark" "why why why";align-items:center;gap:10px 26px;padding:16px 22px;border-radius:20px;margin-bottom:18px}
+.mood.band .mtop{grid-area:top;display:flex;align-items:center;gap:16px}
+.mood.band .mleft{display:grid;gap:2px}.mood.band .meye{font-size:10px}
+.mood.band .mword{font-size:34px;margin-top:2px;line-height:1.1;animation:none}
+.mood.band .mquip{margin-top:0;font-size:13px;font-weight:500}
+.mood.band .mright{order:-1}.mood.band .mgw{width:70px;height:70px}.mood.band .mgv b{font-size:18px}.mood.band .mgv span{font-size:8px;letter-spacing:.08em}
+.mood.band .mchips{grid-area:chips;margin:0;flex-wrap:nowrap}.mood.band .mchip{padding:7px 12px}.mood.band .mchip b{font-size:18px}
+.mood.band .msp{grid-area:spark;margin:0;justify-self:end;width:100%;max-width:260px}.mood.band .mspark{height:40px}
+.mood.band .mchg,.mood.band .mwhy{grid-column:1/-1;margin:0;font-size:13.5px}
+.mood.band .mchg{grid-row:2}.mood.band .mwhy{grid-row:3;max-width:none}
+.mood.band .mglow{width:40%;inset:-120% -5% auto auto}
+@media (max-width:1180px){.mood.band{grid-template-columns:auto 1fr;grid-template-areas:"top chips" "why why"}.mood.band .msp{display:none}}
 </style></head><body>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div><div class="btmfade" aria-hidden="true"></div>
 
@@ -1298,7 +1312,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1794188541";
+const BUILD="1794192727";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(()=>{if(!document.hidden)checkBuild()},90000);
 loadLog().then(()=>load(true));setInterval(()=>{if(!document.hidden)loadLog().then(()=>load(false))},120000);
@@ -1349,22 +1363,22 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1794188541"></script>
-<script src="season.js?v=1794188541"></script>
-<script src="bets.js?v=1794188541"></script>
-<script src="trades.js?v=1794188541"></script>
-<script src="tradelab.js?v=1794188541"></script>
-<script src="betshub.js?v=1794188541"></script>
-<script src="sim.js?v=1794188541"></script>
-<script src="overunder.js?v=1794188541"></script>
-<script src="profile.js?v=1794188541"></script>
-<script src="ask.js?v=1794188541"></script>
-<script src="timeline.js?v=1794188541"></script>
-<script src="nav.js?v=1794188541"></script>
-<script src="hoops.js?v=1794188541"></script>
-<script src="insights.js?v=1794188541"></script>
-<script src="rostermoves.js?v=1794188541"></script>
-<script src="lineupedit.js?v=1794188541"></script>
-<script src="mood.js?v=1794188541"></script>
-<script src="live.js?v=1794188541"></script>
+<script src="arena.js?v=1794192727"></script>
+<script src="season.js?v=1794192727"></script>
+<script src="bets.js?v=1794192727"></script>
+<script src="trades.js?v=1794192727"></script>
+<script src="tradelab.js?v=1794192727"></script>
+<script src="betshub.js?v=1794192727"></script>
+<script src="sim.js?v=1794192727"></script>
+<script src="overunder.js?v=1794192727"></script>
+<script src="profile.js?v=1794192727"></script>
+<script src="ask.js?v=1794192727"></script>
+<script src="timeline.js?v=1794192727"></script>
+<script src="nav.js?v=1794192727"></script>
+<script src="hoops.js?v=1794192727"></script>
+<script src="insights.js?v=1794192727"></script>
+<script src="rostermoves.js?v=1794192727"></script>
+<script src="lineupedit.js?v=1794192727"></script>
+<script src="mood.js?v=1794192727"></script>
+<script src="live.js?v=1794192727"></script>
 </body></html>
