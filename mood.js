@@ -210,7 +210,7 @@ async function winReelBox(el,week){
   if(box&&box.dataset.week==String(week))return;   // already up for this win: leave it playing
   reelOff();
   box=document.createElement("div");box.id="winreel";box.setAttribute("role","region");box.dataset.week=week;box.setAttribute("aria-label","Highlights");
-  box.innerHTML=`<div class="wrhead"><div><div class="eyebrow">Victory reel · week ${week}</div><b class="wrtitle">Highlights</b></div>
+  box.innerHTML=`<div class="wrhead"><div><div class="eyebrow">Victory reel</div><b class="wrtitle">Highlights</b></div>
       <div class="wrbtns"><button class="b" type="button" data-wr="prev" aria-label="Previous clip">‹</button><span class="wrn"></span><button class="b" type="button" data-wr="next" aria-label="Next clip">›</button><button class="b" type="button" data-wr="snd" aria-label="Sound">🔇</button></div></div>
     <div class="wrstage"><video muted playsinline preload="auto"></video><div class="wrgrain" aria-hidden="true"></div>
       <div class="wrrain" aria-hidden="true">${Array.from({length:12},(_,i)=>`<i style="--x:${(i*29+7)%100}%;--d:${(i*.53).toFixed(2)}s;--t:${(2.6+(i%4)*.5).toFixed(1)}s"></i>`).join("")}</div>
