@@ -24,7 +24,8 @@ function renderMood(){
   // legit over: last day of the matchup, nothing left projected for either side, no game still going
   const going=t=>P(t).some(p=>{if(isBench(p.slot))return false;const g=gameOf(p);return g&&g.state!=="post"});
   const lastDay=!(D.days||[]).some(d=>d>today);
-  if(live&&lastDay&&Math.abs(fm-sm)<1&&Math.abs(fo-so)<1&&!going(me)&&!going(op))return moodFinal(el,sm,so,oname);
+  if(typeof resWeek==="function"){const R=resWeek();if(R&&R.live&&R.sc)return moodFinal(el,R.sc[me],R.sc[op],oname)}
+  else if(live&&lastDay&&Math.abs(fm-sm)<1&&Math.abs(fo-so)<1&&!going(me)&&!going(op))return moodFinal(el,sm,so,oname);
   // today: actual so far vs what should be in by now, at today's projections
   const di=dayInfo(me,today);let past=0;const B=D.base&&D.base.teams[me];
   if(B)for(const [k,d] of Object.entries(B.days))if(k<today)past+=d.pts;

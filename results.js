@@ -6,13 +6,19 @@ function resWeek(){
   // Monday: the new week's first day, show last week's results
   const B=D.base&&D.base.teams[D.me],days=B?Object.keys(B.days).sort():[],today=TODAY();
   if(days.length&&today===days[0]&&D.period>1&&(D.week_hist||{})[D.period-1])return {w:D.period-1,live:false};
-  // Sunday night: last day of the week and every game in the league is done
+  // Sunday night: last day of the week and every game in the league is done. Once that's been seen the final
+  // scores are saved on this device, so the result sticks even when the live feed rolls over to Monday's games.
+  const K="grindex-final-"+(D.season||"")+"-"+D.period;
+  try{const st=JSON.parse(localStorage.getItem(K)||"null");if(st&&st.sc)return {w:D.period,live:true,sc:st.sc}}catch(e){}
   if((D.days||[]).some(d=>d>today))return null;
   if(typeof isLiveWeek!=="function"||!isLiveWeek())return null;
-  for(const t of Object.keys(D.teams)){
+  const past=(D.days||[]).length&&today>D.days[D.days.length-1];   // after midnight with week data not rolled yet: it's over
+  if(!past)for(const t of Object.keys(D.teams)){
     if(Math.abs(finalMean(+t)-liveScore(+t))>=1)return null;
     if(P(+t).some(p=>{if(isBench(p.slot))return false;const g=gameOf(p);return g&&g.state!=="post"}))return null}
-  return {w:D.period,live:true};
+  const sc={};for(const t of Object.keys(D.teams))sc[t]=liveScore(+t);
+  try{localStorage.setItem(K,JSON.stringify({sc,at:Date.now()}))}catch(e){}
+  return {w:D.period,live:true,sc};
 }
 function renderResults(){
   const sec=$("#secMatchups");if(!sec||!D)return;
@@ -22,7 +28,7 @@ function renderResults(){
   if(!R||hid){box.innerHTML=hid&&R&&!R.live?`<button class="b resback" type="button" id="resShow">Show week ${R.w} results</button>`:"";
     const b=$("#resShow");if(b)b.onclick=()=>{try{localStorage.removeItem("grindex-res-hide-"+R.w)}catch(e){}renderResults()};return}
   const W=R.w,H=D.week_hist||{},T=D.teams;
-  const score=t=>R.live?liveScore(+t):((H[W]||{}).act||{})[t]||0;
+  const score=t=>R.sc?R.sc[t]:R.live?liveScore(+t):((H[W]||{}).act||{})[t]||0;
   const proj=t=>((H[W]||{}).proj||{})[t];
   const games=((D.sim&&D.sim.sched)||D.sched||[]).filter(m=>m[0]===W&&m[2]!=null);   // the full-season schedule (D.sched only has this week and next)
   // record after this week: ESPN's record already has it on Monday; Sunday night add tonight's result
