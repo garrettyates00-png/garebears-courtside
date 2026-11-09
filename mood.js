@@ -123,7 +123,7 @@ function moodFinal(el,sm,so,oname){
   el.className="mood "+(won&&!tie?"mwin":"m2 mloss")+(salty?"":" band");
   el.innerHTML=`${won&&!tie?'<div class="mgold" aria-hidden="true"></div><div class="mspark2" aria-hidden="true">'+Array.from({length:14},(_,i)=>`<i style="--x:${(i*37)%100}%;--y:${(i*53)%100}%;--d:${(i%7)*.45}s"></i>`).join("")+"</div>":'<div class="mglow" aria-hidden="true"></div>'}
     <div class="mtop"><div class="mleft"><div class="meye">Final · week ${D.period} vs ${oname}</div><div class="mword">${word}</div><div class="mquip">${line}</div></div>
-      <div class="mright">${won&&!tie?`<div class="mlogo"><b>${esc((D.teams[D.me].name||"W")[0])}</b>${D.teams[D.me].logo?`<img src="${esc(D.teams[D.me].logo)}" alt="${esc(D.teams[D.me].name)}" onerror="this.remove()">`:""}</div>`:`<div class="mres">${tie?"T":"L"}</div>`}</div></div>
+      <div class="mright">${won&&!tie?`<div class="mlogo medal"><span>🏅</span></div>`:`<div class="mres ${tie?"":"x"}">${tie?"T":"✕"}</div>`}</div></div>
     <div class="mchips"><div class="mchip"><span>Final</span><b class="${won?"up":"down"}">${Math.round(sm)}<small>vs ${Math.round(so)}</small></b></div>
       <div class="mchip"><span>Margin</span><b class="${won?"up":"down"}">${won?"+":tie?"":"−"}${m}</b></div></div>`;
   if(won&&!tie)moodConfetti(el);
@@ -137,12 +137,21 @@ function moodConfetti(el){
   const r=el.getBoundingClientRect(),sx=(r.left+r.width/2)/innerWidth*W,sy=(r.top+r.height*.4)/innerHeight*H;
   const cols=["#ffd86b","#ffe9a8","#f5b82e","#fff4cf","#e0a020","#ffffff","#ffcf4d"];
   const ps=Array.from({length:180},()=>{const a=Math.random()*Math.PI*2,v=(6+Math.random()*16)*(W/1000+.6);return{x:sx,y:sy,vx:Math.cos(a)*v,vy:Math.sin(a)*v-10*(W/1000+.6),r:3+Math.random()*6,rot:Math.random()*6,vr:(Math.random()-.5)*.3,c:cols[Math.random()*cols.length|0],s:Math.random()<.35}});
+  // sparks raining down from the top, with glowing trails
+  const fall=Array.from({length:90},()=>({x:Math.random()*W,y:-Math.random()*H*.8,v:(9+Math.random()*14)*(H/1800+.5),l:16+Math.random()*34,w:1+Math.random()*2.2,c:cols[Math.random()*cols.length|0],d:Math.random()*1.2}));
   const t0=performance.now();
+  // the kiss: a split-second pop as the sparks land
+  setTimeout(()=>{const k=document.createElement("div");k.className="mkiss";k.setAttribute("aria-hidden","true");k.textContent="👨‍❤️‍💋‍👨";document.body.appendChild(k);k.addEventListener("animationend",()=>k.remove())},1900);
   const step=t=>{const k_=(t-t0)/1000;x.clearRect(0,0,W,H);
+    x.save();x.globalCompositeOperation="lighter";
+    for(const f of fall){if(k_<f.d)continue;f.y+=f.v;const g=x.createLinearGradient(f.x,f.y-f.l,f.x,f.y);g.addColorStop(0,"rgba(255,215,110,0)");g.addColorStop(1,f.c);
+      x.strokeStyle=g;x.lineWidth=f.w;x.globalAlpha=Math.max(0,1-k_/3.6);x.beginPath();x.moveTo(f.x,f.y-f.l);x.lineTo(f.x,f.y);x.stroke();
+      x.fillStyle="#fff";x.beginPath();x.arc(f.x,f.y,f.w*1.2,0,7);x.fill()}
+    x.restore();
     for(const p of ps){p.vy+=.45;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.rot);x.globalAlpha=Math.max(0,1-k_/3.2);x.fillStyle=p.c;
       if(p.s){x.beginPath();for(let i=0;i<5;i++){const a=i*1.2566-1.5708;x.lineTo(Math.cos(a)*p.r*1.4,Math.sin(a)*p.r*1.4);x.lineTo(Math.cos(a+.628)*p.r*.55,Math.sin(a+.628)*p.r*.55)}x.fill()}
       else x.fillRect(-p.r,-p.r*.45,p.r*2,p.r*.9);x.restore()}
-    if(k_<3.4)requestAnimationFrame(step);else c.remove()};
+    if(k_<3.8)requestAnimationFrame(step);else c.remove()};
   requestAnimationFrame(step);
 }
 

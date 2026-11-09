@@ -41,7 +41,7 @@ function renderResults(){
       ${R.live?"":`<button class="b" type="button" id="resHide">Go to this week →</button>`}</div>
     <div class="resgrid">${cards.map(c=>{const r=rec[c.t],dv=c.pj!=null?c.s-c.pj:null;
       return `<article class="rescard ${c.tie?"tie":c.won?"won":"lost"} ${c.t===me?"me":""}">${c.won&&!c.tie?'<div class="rgold" aria-hidden="true"></div>':""}
-        <div class="rtop"><div class="rteam"><b>${esc(T[c.t].name)}</b><small>${esc(T[c.t].owner||"")}${c.t===me?" · you":""}</small></div><span class="rcoin">${c.tie?"T":c.won?"W":"L"}</span></div>
+        <div class="rtop"><div class="rteam"><b>${esc(T[c.t].name)}</b><small>${esc(T[c.t].owner||"")}${c.t===me?" · you":""}</small></div><span class="rcoin">${c.tie?"T":c.won?"🏅":"✕"}</span></div>
         <div class="rscore"><b>${Math.round(c.s)}</b><span>vs ${Math.round(c.so)} ${esc(T[c.o].name)}</span></div>
         <div class="rstats"><span><small>Record</small>${r[0]}-${r[1]}${r[2]?"-"+r[2]:""}</span><span><small>Power</small>#${pr.indexOf(c.t)+1}</span>
           <span><small>Margin</small>${c.tie?"0":(c.won?"+":"−")+Math.round(c.m)}</span>${dv!=null?`<span><small>vs proj</small><em class="${dv>=0?"up":"down"}">${dv>=0?"+":"−"}${Math.abs(Math.round(dv))}</em></span>`:""}</div></article>`}).join("")}</div>`;

@@ -905,6 +905,14 @@ body[data-view="fantasy"] .inslead,body[data-view="fantasy"] .rmwhy,body[data-vi
 /* while gold: page background picks up a warm glow */
 :root.gold body{background:radial-gradient(120% 60% at 50% -10%,rgba(255,200,80,.14),transparent 60%),var(--bg)}
 :root.gold .bar{box-shadow:0 1px 0 rgba(255,214,107,.25)!important}
+
+.mlogo.medal span{width:100%;height:100%;border-radius:50%;display:grid;place-items:center;font-size:58px;background:radial-gradient(circle at 40% 35%,#3a2a08,#120d04);box-shadow:inset 0 0 0 2px rgba(0,0,0,.35),inset 0 0 26px rgba(255,200,80,.35);grid-area:1/1}
+.mood.band .mlogo.medal span{font-size:32px}@media (max-width:700px){.mlogo.medal span{font-size:46px}}
+.mres.x{color:#fff;background:linear-gradient(140deg,#ff5f6d,#b3123a);box-shadow:0 0 0 3px rgba(255,120,130,.35),0 0 30px rgba(255,70,90,.5);font-weight:800}
+.won .rcoin{font-size:22px}.lost .rcoin{font-size:18px}
+.mkiss{position:fixed;left:50%;top:42%;z-index:210;pointer-events:none;font-size:min(42vw,220px);line-height:1;transform:translate(-50%,-50%) scale(.2);opacity:0;
+  filter:drop-shadow(0 0 40px rgba(255,200,80,.9));animation:mkiss .75s cubic-bezier(.2,1.4,.4,1) forwards}
+@keyframes mkiss{0%{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(-12deg)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.1) rotate(4deg)}70%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.25)}}
 </style></head><body>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div><div class="btmfade" aria-hidden="true"></div>
 
@@ -1390,7 +1398,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1794203254";
+const BUILD="1794203721";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(()=>{if(!document.hidden)checkBuild()},90000);
 loadLog().then(()=>load(true));setInterval(()=>{if(!document.hidden)loadLog().then(()=>load(false))},120000);
@@ -1441,23 +1449,23 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1794203254"></script>
-<script src="season.js?v=1794203254"></script>
-<script src="bets.js?v=1794203254"></script>
-<script src="trades.js?v=1794203254"></script>
-<script src="tradelab.js?v=1794203254"></script>
-<script src="betshub.js?v=1794203254"></script>
-<script src="sim.js?v=1794203254"></script>
-<script src="overunder.js?v=1794203254"></script>
-<script src="profile.js?v=1794203254"></script>
-<script src="ask.js?v=1794203254"></script>
-<script src="timeline.js?v=1794203254"></script>
-<script src="nav.js?v=1794203254"></script>
-<script src="hoops.js?v=1794203254"></script>
-<script src="insights.js?v=1794203254"></script>
-<script src="rostermoves.js?v=1794203254"></script>
-<script src="lineupedit.js?v=1794203254"></script>
-<script src="results.js?v=1794203254"></script>
-<script src="mood.js?v=1794203254"></script>
-<script src="live.js?v=1794203254"></script>
+<script src="arena.js?v=1794203721"></script>
+<script src="season.js?v=1794203721"></script>
+<script src="bets.js?v=1794203721"></script>
+<script src="trades.js?v=1794203721"></script>
+<script src="tradelab.js?v=1794203721"></script>
+<script src="betshub.js?v=1794203721"></script>
+<script src="sim.js?v=1794203721"></script>
+<script src="overunder.js?v=1794203721"></script>
+<script src="profile.js?v=1794203721"></script>
+<script src="ask.js?v=1794203721"></script>
+<script src="timeline.js?v=1794203721"></script>
+<script src="nav.js?v=1794203721"></script>
+<script src="hoops.js?v=1794203721"></script>
+<script src="insights.js?v=1794203721"></script>
+<script src="rostermoves.js?v=1794203721"></script>
+<script src="lineupedit.js?v=1794203721"></script>
+<script src="results.js?v=1794203721"></script>
+<script src="mood.js?v=1794203721"></script>
+<script src="live.js?v=1794203721"></script>
 </body></html>
