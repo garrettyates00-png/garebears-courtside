@@ -1,6 +1,8 @@
 /* The one-line verdict at the very top of Fantasy: how the week is going, in plain words, and why.
    Win chance sets the base, today's pace vs expectation nudges it, refreshed with every data pull and live tick. */
-const MOOD=[["Fucking awful","m1"],["Bad","m2"],["Shaky","m3"],["Going well","m4"],["Good","m5"],["Fucking great","m6"]];
+const MOOD=[["Fucking awful","m1","This shit is ugly. Somebody check the lineup."],["Shitty","m2","Not dead yet, but it smells like shit."],
+  ["Mid as hell","m3","Coin flip. Somebody needs to fucking show up."],["Pretty damn good","m4","Keep this shit rolling."],
+  ["Damn good","m5","You're cooking. Don't fuck it up."],["Fucking great","m6","Absolutely cooking their ass."]];
 function moodNum(v){return Math.round(v).toLocaleString("en-US")}
 function renderMood(){
   const el=$("#mood");if(!el||!D||!D.opp||!D.teams[D.opp]){if(el)el.innerHTML="";return}
@@ -20,14 +22,18 @@ function renderMood(){
   const N=typeof notes==="function"?notes(me):[];
   const done=N.filter(n=>/finished with/.test(n.t));
   const perfect=done.length>=3&&done.every(n=>n.s>0)&&wp>=.75;
-  const [word,cls]=perfect?["Perfect","m6"]:MOOD[tier-1];
+  const insane=wp>=.97&&dToday!=null&&dToday>=30;
+  const [word,cls,quip]=insane?["Fucking insane","m6","Call it. This one's over."]:perfect?["Fucking perfect","m6","Every damn starter beat his number."]:MOOD[tier-1];
   // why
   const why=[];
-  if(live){const lead=sm-so;why.push(`${lead>=0?"You lead":"You trail"} ${oname} <b>${moodNum(sm)}–${moodNum(so)}</b> and you're <b>${pc(wp)}%</b> to win.`)}
+  if(live){const lead=sm-so,sc=`<b>${moodNum(sm)}–${moodNum(so)}</b>`;
+    const how=lead>=150?`You're beating ${oname}'s ass ${sc}`:lead>=40?`You lead ${oname} ${sc}`:lead>=0?`You're barely ahead of ${oname} ${sc}`
+      :lead>-40?`You're barely behind ${oname} ${sc}`:lead>-150?`You trail ${oname} ${sc}`:`${oname} are kicking your ass ${sc}`;
+    why.push(`${how}, and you're <b>${pc(wp)}%</b> to win.`)}
   else why.push(`You're projected <b>${moodNum(fm)}–${moodNum(fo)}</b> against ${oname}, <b>${pc(wp)}%</b> to win.`);
   if(dToday!=null){
     const best=N.filter(n=>n.s>0).sort((a,b)=>b.s-a.s)[0],worst=N.filter(n=>n.s<0).sort((a,b)=>a.s-b.s)[0];
-    why.push(`Today you have <b>${moodNum(actToday)}</b>, ${Math.abs(dToday)<4?"right where you should be":dToday>0?`<b class="up">${moodNum(dToday)} ahead</b> of where you should be`:`<b class="down">${moodNum(-dToday)} behind</b> where you should be`}${best?`, led by ${esc(last(best.p.n))}`:""}${worst&&dToday<0?`; ${esc(last(worst.p.n))} is the drag`:""}.`);
+    why.push(`Today you have <b>${moodNum(actToday)}</b>, ${Math.abs(dToday)<4?"right where you should be":dToday>0?`<b class="up">${moodNum(dToday)} ahead</b> of where you should be${dToday>=25?" (hell yeah)":""}`:`<b class="down">${moodNum(-dToday)} behind</b> where you should be${dToday<=-25?" (come the fuck on)":""}`}${best?`, led by ${esc(last(best.p.n))}`:""}${worst&&dToday<0?`; ${esc(last(worst.p.n))} is the drag`:""}.`);
   }
   const left=P(me).filter(p=>!isBench(p.slot)&&(()=>{const g=gameOf(p);return g&&g.state!=="post"})()).length;
   if(left)why.push(`${left} of your starter${left>1?"s":""} still to play today.`);
@@ -72,13 +78,14 @@ function renderMood(){
   const oleft=P(op).filter(p=>!isBench(p.slot)&&(()=>{const g=gameOf(p);return g&&g.state!=="post"})()).length;
   const chip=(l,v,c="")=>`<div class="mchip"><span>${l}</span><b class="${c}">${v}</b></div>`;
   const lead=sm-so;
-  const chips=[live?chip("Score",`${moodNum(sm)}<small>–${moodNum(so)}</small>`,lead>=0?"up":"down"):chip("Projected",`${moodNum(fm)}<small>–${moodNum(fo)}</small>`),
-    dToday!=null?chip("Today vs pace",`${dToday>=0?"+":"−"}${moodNum(Math.abs(dToday))}`,dToday>=0?"up":"down"):"",
-    LV.ok?chip("Left to play",`${left}<small> vs ${oleft}</small>`):"",
-    live?chip("Final",`${moodNum(fm)}<small>–${moodNum(fo)}</small>`,fm>=fo?"up":"down"):""].join("");
+  const n0=v=>String(Math.round(v)),vs=(a,b)=>`${n0(a)}<small>vs ${n0(b)}</small>`;
+  const chips=[live?chip("Score",vs(sm,so),lead>=0?"up":"down"):chip("Projected",vs(fm,fo)),
+    dToday!=null?chip("Today",`${dToday>=0?"+":"−"}${n0(Math.abs(dToday))}<small>vs pace</small>`,dToday>=0?"up":"down"):"",
+    LV.ok?chip("Left",`${left}<small>vs ${oleft}</small>`):"",
+    live?chip("Final",vs(fm,fo),fm>=fo?"up":"down"):""].join("");
   el.className="mood "+cls;
   el.innerHTML=`<div class="mglow" aria-hidden="true"></div>
-    <div class="mtop"><div class="mleft"><div class="meye">This week vs ${oname}</div><div class="mword" data-w="${word}.">${word}.</div></div>
+    <div class="mtop"><div class="mleft"><div class="meye">This week vs ${oname}</div><div class="mword">${word}.</div><div class="mquip">${quip}</div></div>
       <div class="mright"><div class="mgw">${gauge}</div></div></div>
     <div class="mchips">${chips}</div>
     ${chg}
