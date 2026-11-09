@@ -247,11 +247,33 @@ svg .mk{fill:var(--tcText)}svg .ms{stroke:rgba(255,255,255,.5);stroke-width:2}
 .hgover[hidden]{display:none}.hgres{font-size:15px}.hgres b{font:700 40px var(--sans);display:block}.hgnew{color:var(--up);font-weight:600;margin-top:4px}
 .hgstart{font-size:16px;padding:12px 26px}
 .hghs{display:grid;gap:4px;min-width:220px;text-align:left}.hghs>div:not(.eyebrow){display:grid;grid-template-columns:18px 50px 1fr;gap:8px;font-size:13px;align-items:baseline}.hghs span{color:var(--faint);font:500 12px var(--mono)}.hghs b{font:600 15px var(--mono)}.hghs small{color:var(--faint)}
-.mood{padding:6px 4px 22px}.mood:empty{display:none}
-.mword{font:800 clamp(40px,7vw,68px)/1 var(--sans);letter-spacing:-.035em;background:linear-gradient(90deg,var(--mc1),var(--mc2));-webkit-background-clip:text;background-clip:text;color:transparent}
-.mwhy{margin:10px 0 0;max-width:780px;font-size:15px;line-height:1.55;color:var(--mute)}.mwhy b{color:var(--ink)}.mwhy b.up{color:var(--up)}.mwhy b.down{color:var(--down)}
-.m6{--mc1:#7dffb5;--mc2:#4fd1ff}.m5{--mc1:#9ef0c4;--mc2:#c6f68d}.m4{--mc1:#d7f5a0;--mc2:#ffe08a}.m3{--mc1:#ffe08a;--mc2:#ffb86b}.m2{--mc1:#ffab6b;--mc2:#ff7a7a}.m1{--mc1:#ff6b6b;--mc2:#ff3b7f}
-@media (max-width:700px){.mood{padding:2px 2px 16px}.mwhy{font-size:14px}}
+.mood{position:relative;isolation:isolate;overflow:hidden;margin:0 0 22px;padding:26px 28px 24px;border-radius:26px;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--mc1) 12%,rgba(255,255,255,.03)),rgba(255,255,255,.02) 55%,color-mix(in srgb,var(--mc2) 10%,rgba(255,255,255,.02)));
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--mc1) 26%,transparent),0 30px 80px -40px color-mix(in srgb,var(--mc2) 60%,transparent)}
+.mood:empty{display:none}
+.mglow{position:absolute;z-index:-1;inset:-40% -20% auto auto;width:70%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--mc2) 38%,transparent),transparent 65%);pointer-events:none}
+.mglow::after{content:"";position:absolute;left:-90%;top:70%;width:80%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--mc1) 28%,transparent),transparent 65%)}
+.mtop{display:flex;justify-content:space-between;align-items:center;gap:18px}
+.meye{font:600 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:color-mix(in srgb,var(--mc1) 70%,#fff)}
+.mword{font:900 clamp(46px,8.5vw,96px)/.92 var(--sans);letter-spacing:-.045em;margin-top:8px;
+  background:linear-gradient(100deg,var(--mc1),var(--mc2),#fff 60%,var(--mc1));background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 6px 26px color-mix(in srgb,var(--mc2) 45%,transparent));animation:mshine 9s ease-in-out infinite}
+@keyframes mshine{0%,100%{background-position:0% 0}50%{background-position:100% 0}}
+.mright{flex:none}.mgw{position:relative;width:132px;height:132px}
+.mgauge{width:100%;height:100%}.mg0{fill:none;stroke:rgba(255,255,255,.08);stroke-width:9;stroke-linecap:round}.mg1{fill:none;stroke:url(#none);stroke:var(--mc1);stroke-width:9;stroke-linecap:round;filter:drop-shadow(0 0 8px color-mix(in srgb,var(--mc1) 70%,transparent));transition:stroke-dasharray .8s ease}
+.mgv{position:absolute;inset:0;display:grid;place-content:center;text-align:center}.mgv b{font:800 32px var(--sans);letter-spacing:-.03em}.mgv span{font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.mchips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.mchip{display:grid;gap:2px;padding:9px 14px;border-radius:14px;background:rgba(0,0,0,.28);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.mchip span{font:500 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}.mchip b{font:700 20px var(--mono);letter-spacing:-.02em}.mchip b small{font-size:13px;color:var(--mute);font-weight:500}
+.mchip b.up{color:var(--up)}.mchip b.down{color:var(--down)}
+.mchg{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-top:14px;font-size:14px;line-height:1.5;color:var(--mute)}.mchg b{color:var(--ink)}
+.mchgv{font:700 13px var(--mono);padding:3px 10px;border-radius:999px}.mchg.up .mchgv{color:#06240f;background:var(--up)}.mchg.down .mchgv{color:#2a0606;background:var(--down)}
+.mwhy{margin:12px 0 0;max-width:820px;font-size:15px;line-height:1.6;color:var(--mute)}.mwhy b{color:var(--ink)}.mwhy b.up{color:var(--up)}.mwhy b.down{color:var(--down)}
+.msp{margin-top:14px;display:grid;gap:6px}.mspark{width:100%;max-width:520px;height:52px}.mline{fill:none;stroke:var(--mc1);stroke-width:2;vector-effect:non-scaling-stroke}
+.marea{fill:color-mix(in srgb,var(--mc1) 14%,transparent)}.mmid{stroke:rgba(255,255,255,.15);stroke-dasharray:3 4;vector-effect:non-scaling-stroke}.mdot{fill:#fff;filter:drop-shadow(0 0 6px var(--mc1))}
+.m6{--mc1:#5dffa8;--mc2:#3fc8ff}.m5{--mc1:#8ff0b8;--mc2:#b8f56e}.m4{--mc1:#cdf58c;--mc2:#ffd76a}.m3{--mc1:#ffd76a;--mc2:#ff9f55}.m2{--mc1:#ff9a5c;--mc2:#ff5f6d}.m1{--mc1:#ff4d5e;--mc2:#ff2e93}
+@media (max-width:700px){.mood{padding:20px 16px 18px;border-radius:22px}.mgw{width:92px;height:92px}.mgv b{font-size:23px}.mgv span{font-size:9px}.mchips{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:6px}.mchip{padding:7px 9px;min-width:0}.mchip span{font-size:9px;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mchip b{font-size:15px;white-space:nowrap}.mchip b small{font-size:11px}.mwhy,.mchg{font-size:14px}}
+@media (max-width:820px),(pointer:coarse){.mword{animation:none;filter:none}.mg1{filter:none}}
 .insgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(340px,100%),1fr));gap:14px}
 .inscard{display:grid;gap:10px;align-content:start;padding:18px;border-radius:18px;background:rgba(255,255,255,.035);border:1px solid var(--line);min-width:0}
 .inscard h3{margin:0;font:600 18px var(--sans);letter-spacing:-.01em}.inscard .eyebrow{margin-bottom:-6px}
@@ -1275,7 +1297,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1794176757";
+const BUILD="1794187058";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(()=>{if(!document.hidden)checkBuild()},90000);
 loadLog().then(()=>load(true));setInterval(()=>{if(!document.hidden)loadLog().then(()=>load(false))},120000);
@@ -1326,22 +1348,22 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1794176757"></script>
-<script src="season.js?v=1794176757"></script>
-<script src="bets.js?v=1794176757"></script>
-<script src="trades.js?v=1794176757"></script>
-<script src="tradelab.js?v=1794176757"></script>
-<script src="betshub.js?v=1794176757"></script>
-<script src="sim.js?v=1794176757"></script>
-<script src="overunder.js?v=1794176757"></script>
-<script src="profile.js?v=1794176757"></script>
-<script src="ask.js?v=1794176757"></script>
-<script src="timeline.js?v=1794176757"></script>
-<script src="nav.js?v=1794176757"></script>
-<script src="hoops.js?v=1794176757"></script>
-<script src="insights.js?v=1794176757"></script>
-<script src="rostermoves.js?v=1794176757"></script>
-<script src="lineupedit.js?v=1794176757"></script>
-<script src="mood.js?v=1794176757"></script>
-<script src="live.js?v=1794176757"></script>
+<script src="arena.js?v=1794187058"></script>
+<script src="season.js?v=1794187058"></script>
+<script src="bets.js?v=1794187058"></script>
+<script src="trades.js?v=1794187058"></script>
+<script src="tradelab.js?v=1794187058"></script>
+<script src="betshub.js?v=1794187058"></script>
+<script src="sim.js?v=1794187058"></script>
+<script src="overunder.js?v=1794187058"></script>
+<script src="profile.js?v=1794187058"></script>
+<script src="ask.js?v=1794187058"></script>
+<script src="timeline.js?v=1794187058"></script>
+<script src="nav.js?v=1794187058"></script>
+<script src="hoops.js?v=1794187058"></script>
+<script src="insights.js?v=1794187058"></script>
+<script src="rostermoves.js?v=1794187058"></script>
+<script src="lineupedit.js?v=1794187058"></script>
+<script src="mood.js?v=1794187058"></script>
+<script src="live.js?v=1794187058"></script>
 </body></html>

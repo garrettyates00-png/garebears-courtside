@@ -39,6 +39,49 @@ function renderMood(){
       :lead>=0?`They have more left, though: it projects ${fin}, so you need about <b>${moodNum(-gap)}</b> more than projected.`
       :`On current pace it ends around ${fin}; you need about <b>${moodNum(-gap)}</b> more than projected over the rest of the week.`);
   }
+  // ---- what changed since the last look: snapshots kept on this device, per matchup week ----
+  const K="grindex-mood",now=Date.now();let H={};try{H=JSON.parse(localStorage.getItem(K)||"{}")}catch(e){}
+  if(H.wk!==D.period)H={wk:D.period,s:[]};
+  const pts=t=>{const o={};for(const p of P(t)){if(isBench(p.slot))continue;const r=LV.rows&&LV.rows[p.id];if(r&&!r.dnp)o[p.id]=r.fp}return o};
+  const snap={t:now,wp:+wp.toFixed(3),sm:Math.round(sm),so:Math.round(so),fm:Math.round(fm),fo:Math.round(fo),d:today,me:pts(me),op:pts(op)};
+  const lastS=H.s[H.s.length-1];
+  if(!lastS||Math.abs(lastS.wp-snap.wp)>=.005||now-lastS.t>10*60e3||lastS.sm!==snap.sm||lastS.so!==snap.so){H.s.push(snap);H.s=H.s.slice(-80)}
+  try{localStorage.setItem(K,JSON.stringify(H))}catch(e){}
+  const ref=[...H.s].reverse().find(x=>now-x.t>12*60e3&&Math.abs(x.wp-snap.wp)>=.01)||null;
+  let chg="";
+  if(ref){
+    const dw=(snap.wp-ref.wp)*100,when=new Date(ref.t),ws=when.toDateString()===new Date().toDateString()?when.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"}):when.toLocaleDateString("en-US",{weekday:"short"})+" "+when.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"});
+    const gain=(cur,old,t)=>Object.entries(cur).map(([id,v])=>[id,v-((ref.d===today?old[id]:0)||0)]).filter(x=>x[1]>=1).sort((a,b)=>b[1]-a[1]);
+    const gm=gain(snap.me,ref.me||{},me),go=gain(snap.op,ref.op||{},op);
+    const nm=id=>esc(last((D.players.find(p=>String(p.id)===String(id))||{}).n||""));
+    const myAdd=snap.sm-ref.sm,opAdd=snap.so-ref.so,projM=snap.fm-ref.fm,projO=snap.fo-ref.fo;
+    const bits=[];
+    if(myAdd||opAdd)bits.push(`you scored <b>${moodNum(myAdd)}</b>${gm.length?` (${gm.slice(0,2).map(([id,v])=>`${nm(id)} +${Math.round(v)}`).join(", ")})`:""}, they scored <b>${moodNum(opAdd)}</b>${go.length?` (${go.slice(0,2).map(([id,v])=>`${nm(id)} +${Math.round(v)}`).join(", ")})`:""}`);
+    if(Math.abs(projM)>=8||Math.abs(projO)>=8)bits.push(`your projection ${projM>=0?"rose":"fell"} ${Math.abs(projM)}`+(Math.abs(projO)>=8?`, theirs ${projO>=0?"rose":"fell"} ${Math.abs(projO)}`:""));
+    chg=`<div class="mchg ${dw>=0?"up":"down"}"><span class="mchgv">${dw>=0?"▲":"▼"} ${Math.abs(dw).toFixed(0)}% win chance</span><span>since ${ws}${bits.length?": "+bits.join("; "):""}.</span></div>`;
+  }
+  // win-chance trail for the week (this device's snapshots)
+  const tr=H.s.map(x=>x.wp);let spark="";
+  if(tr.length>=3){const lo=Math.max(0,Math.min(...tr,.5)-.06),hi=Math.min(1,Math.max(...tr,.5)+.06);
+    const W=220,Hh=48,X=i=>i/(tr.length-1)*W,Y=v=>Hh-4-(v-lo)/(hi-lo||1)*(Hh-8);
+    const d_=tr.map((v,i)=>`${i?"L":"M"}${X(i).toFixed(1)} ${Y(v).toFixed(1)}`).join(" ");
+    spark=`<svg class="mspark" viewBox="0 0 ${W} ${Hh}" preserveAspectRatio="none" aria-label="Win chance this week"><line x1="0" x2="${W}" y1="${Y(.5)}" y2="${Y(.5)}" class="mmid"/><path d="${d_} L${W} ${Hh} L0 ${Hh}Z" class="marea"/><path d="${d_}" class="mline"/><circle cx="${X(tr.length-1)}" cy="${Y(tr[tr.length-1])}" r="3.5" class="mdot"/></svg>`}
+  // gauge
+  const R=46,C=2*Math.PI*R,arc=C*.75,fill=arc*wp;
+  const gauge=`<svg class="mgauge" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="${R}" class="mg0" stroke-dasharray="${arc} ${C}" transform="rotate(135 60 60)"/><circle cx="60" cy="60" r="${R}" class="mg1" stroke-dasharray="${fill} ${C}" transform="rotate(135 60 60)"/></svg><div class="mgv"><b>${pc(wp)}%</b><span>to win</span></div>`;
+  const oleft=P(op).filter(p=>!isBench(p.slot)&&(()=>{const g=gameOf(p);return g&&g.state!=="post"})()).length;
+  const chip=(l,v,c="")=>`<div class="mchip"><span>${l}</span><b class="${c}">${v}</b></div>`;
+  const lead=sm-so;
+  const chips=[live?chip("Score",`${moodNum(sm)}<small>–${moodNum(so)}</small>`,lead>=0?"up":"down"):chip("Projected",`${moodNum(fm)}<small>–${moodNum(fo)}</small>`),
+    dToday!=null?chip("Today vs pace",`${dToday>=0?"+":"−"}${moodNum(Math.abs(dToday))}`,dToday>=0?"up":"down"):"",
+    LV.ok?chip("Left to play",`${left}<small> vs ${oleft}</small>`):"",
+    live?chip("Final",`${moodNum(fm)}<small>–${moodNum(fo)}</small>`,fm>=fo?"up":"down"):""].join("");
   el.className="mood "+cls;
-  el.innerHTML=`<div class="mword">${word}.</div><p class="mwhy">${why.join(" ")}</p>`;
+  el.innerHTML=`<div class="mglow" aria-hidden="true"></div>
+    <div class="mtop"><div class="mleft"><div class="meye">This week vs ${oname}</div><div class="mword" data-w="${word}.">${word}.</div></div>
+      <div class="mright"><div class="mgw">${gauge}</div></div></div>
+    <div class="mchips">${chips}</div>
+    ${chg}
+    <p class="mwhy">${why.join(" ")}</p>
+    ${spark?`<div class="msp"><span class="meye">Win chance this week · ${pc(Math.min(...tr))}–${pc(Math.max(...tr))}%</span>${spark}</div>`:""}`;
 }
