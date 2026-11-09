@@ -19,6 +19,7 @@ function renderMood(){
     if(R&&!R.live&&!hid){const H=(D.week_hist||{})[R.w]||{},g=((D.sim&&D.sim.sched)||[]).find(m=>m[0]===R.w&&(m[1]==me||m[2]==me));
       if(g&&H.act){const o=g[1]==me?g[2]:g[1];return moodFinal(el,H.act[me]||0,H.act[o]||0,esc(T[o].name),R.w,o)}}}
   if(typeof goldOn!=="undefined"&&goldOn)goldMode(false);
+  reelOff();
   if(typeof setMoodHue==="function")setMoodHue(wp);
   // legit over: last day of the matchup, nothing left projected for either side, no game still going
   const going=t=>P(t).some(p=>{if(isBench(p.slot))return false;const g=gameOf(p);return g&&g.state!=="post"});
@@ -127,17 +128,18 @@ function moodFinal(el,sm,so,oname,week,opp){
   if(typeof setMoodHue==="function")setMoodHue(tie?.5:won?1:0);
   goldMode(won&&!tie);
   const key=`${week}|${Math.round(sm)}|${Math.round(so)}|${salty}`;
+  if(won&&!tie)winReelBox(el,week);else reelOff();
   if(el.dataset.final===key&&el.querySelector(".mword"))return;   // already showing this result: keep the video playing
   el.dataset.final=key;
   el.className="mood "+(won&&!tie?"mwin":"m2 mloss")+(salty?"":" band");el.dataset.week=week;
-  el.innerHTML=`${won&&!tie?'<div class="mvid" aria-hidden="true"><video muted playsinline preload="auto"></video><div class="rgrain"></div><div class="mvshade"></div></div><div class="mgold" aria-hidden="true"></div><div class="mspark2" aria-hidden="true">'+Array.from({length:14},(_,i)=>`<i style="--x:${(i*37)%100}%;--y:${(i*53)%100}%;--d:${(i%7)*.45}s"></i>`).join("")+"</div>":'<div class="mglow" aria-hidden="true"></div>'}
+  el.innerHTML=`${won&&!tie?'<div class="mgold" aria-hidden="true"></div><div class="mspark2" aria-hidden="true">'+Array.from({length:14},(_,i)=>`<i style="--x:${(i*37)%100}%;--y:${(i*53)%100}%;--d:${(i%7)*.45}s"></i>`).join("")+"</div>":'<div class="mglow" aria-hidden="true"></div>'}
     <div class="mtop"><div class="mleft"><div class="meye">Final · week ${week} vs ${oname}</div><div class="mword">${word}</div><div class="mquip">${line}</div></div>
       <div class="mright">${won&&!tie?`<div class="mlogo medal"><span>🏅</span></div>`:`<div class="mres ${tie?"":"x"}">${tie?"T":"✕"}</div>`}</div></div>
     <div class="mchips"><div class="mchip"><span>Final</span><b class="${won?"up":"down"}">${Math.round(sm)}<small>vs ${Math.round(so)}</small></b></div>
 <div class="mchip"><span>Margin</span><b class="${won?"up":"down"}">${won?"+":tie?"":"−"}${m}</b></div></div>
-    <div class="mfoot">${won&&!tie?`<div class="mcap" aria-live="polite"></div><button class="msound" type="button" aria-label="Sound" hidden>🔇</button><button class="mreplay" type="button">▶ Replay</button>`:""}${week!==D.period?`<button class="mnext" type="button">This week →</button>`:""}</div>`;
-  const nx=el.querySelector(".mnext");if(nx)nx.onclick=()=>{try{localStorage.setItem("grindex-res-hide-"+week,"1")}catch(e){}goldMode(false);renderMood();if(typeof renderResults==="function")renderResults()};
-  if(won&&!tie){moodConfetti(el);cardReel(el);const rb=el.querySelector(".mreplay");if(rb)rb.onclick=()=>{document.querySelector(".goldsweep")?.remove();goldOn=false;goldMode(true);moodConfetti(el,true)}}
+    <div class="mfoot">${won&&!tie?`<button class="mreplay" type="button">▶ Replay</button>`:""}${week!==D.period?`<button class="mnext" type="button">This week →</button>`:""}</div>`;
+  const nx=el.querySelector(".mnext");if(nx)nx.onclick=()=>{try{localStorage.setItem("grindex-res-hide-"+week,"1")}catch(e){}goldMode(false);reelOff();renderMood();if(typeof renderResults==="function")renderResults()};
+  if(won&&!tie){moodConfetti(el);const rb=el.querySelector(".mreplay");if(rb)rb.onclick=()=>{document.querySelector(".goldsweep")?.remove();goldOn=false;goldMode(true);moodConfetti(el,true)}}
 }
 function moodConfetti(el,force){
   // once per matchup per device (the Replay button forces it)
@@ -199,22 +201,47 @@ async function winReel(){
   setTimeout(()=>{clearInterval(t);box.classList.remove("on");setTimeout(()=>{V.forEach(v=>{v.pause();v.removeAttribute("src");v.load()});box.remove()},1800)},16000);
 }
 
-/* The night's highlights as the win card's moving background: whole clips, one after another, in sepia grain
-   under the gold. Keeps going while the card is on screen and pauses when it isn't (or the page is hidden). */
-async function cardReel(el){
-  const box=el.querySelector(".mvid");if(!box)return;const v=box.querySelector("video"),cap=el.querySelector(".mcap"),snd=el.querySelector(".msound");
+/* The night's highlights in their own player right under the win card. It stays up the whole time the win is
+   showing (Sunday night and Monday until you switch to the new week), plays every clip to the end and then the
+   next, and leads with clips from your players' NBA teams. Pauses when scrolled away or the page is hidden. */
+function reelOff(){const b=document.getElementById("winreel");if(b){const v=b.querySelector("video");if(v){v.pause();v.removeAttribute("src");v.load()}b.remove()}}
+async function winReelBox(el,week){
+  let box=document.getElementById("winreel");
+  if(box&&box.dataset.week==String(week))return;   // already up for this win: leave it playing
+  reelOff();
+  box=document.createElement("div");box.id="winreel";box.setAttribute("role","region");box.dataset.week=week;box.setAttribute("aria-label","Highlights");
+  box.innerHTML=`<div class="wrhead"><div><div class="eyebrow">Victory reel · week ${week}</div><b class="wrtitle">Highlights</b></div>
+      <div class="wrbtns"><button class="b" type="button" data-wr="prev" aria-label="Previous clip">‹</button><span class="wrn"></span><button class="b" type="button" data-wr="next" aria-label="Next clip">›</button><button class="b" type="button" data-wr="snd" aria-label="Sound">🔇</button></div></div>
+    <div class="wrstage"><video muted playsinline preload="auto"></video><div class="wrgrain" aria-hidden="true"></div>
+      <div class="wrrain" aria-hidden="true">${Array.from({length:12},(_,i)=>`<i style="--x:${(i*29+7)%100}%;--d:${(i*.53).toFixed(2)}s;--t:${(2.6+(i%4)*.5).toFixed(1)}s"></i>`).join("")}</div>
+      <div class="wrload">Loading highlights…</div></div>
+    <div class="wrcap"><span class="wrtag"></span><span class="wrtxt"></span></div>`;
+  el.insertAdjacentElement("afterend",box);
+  const v=box.querySelector("video"),n=box.querySelector(".wrn"),tag=box.querySelector(".wrtag"),txt=box.querySelector(".wrtxt"),ld=box.querySelector(".wrload"),snd=box.querySelector('[data-wr="snd"]');
   let clips=[];try{clips=((await (await fetch("arena/reel.json?t="+Date.now(),{cache:"no-store"})).json()).clips)||[]}catch(e){}
-  clips=clips.filter(c=>c.mp4);if(!clips.length){box.remove();return}
+  // lead with the games where the most of my guys played (and clips that name one of them)
+  const cnt={};for(const p of D.players)if(p.t==D.me){const k=String(p.tm||"").toLowerCase();cnt[k]=(cnt[k]||0)+1}
+  const wt=c=>(c.who||[]).length*3+(c.teams||[]).reduce((a,t)=>a+(cnt[t]||0),0);
+  clips=clips.filter(c=>c.mp4).map((c,k)=>({...c,k,w:wt(c)})).sort((a,b)=>(b.w-a.w)||(a.k-b.k));
+  for(const c of clips)if(c.w>0)c.mine=true;
+  if(!box.isConnected)return;
+  if(!clips.length){ld.textContent="No highlights posted yet. Check back after the next update.";return}
   v.muted=true;v.defaultMuted=true;v.playsInline=true;v.setAttribute("webkit-playsinline","");
   let i=0,bad=0;
-  const load=()=>{const c=clips[i%clips.length];v.poster=c.img||"";v.src=c.mp4;v.load();
-    if(cap)cap.innerHTML=`<span>Tonight</span>${esc(c.title.replace(/: Game Highlights$/,""))}`;
-    const pr=v.play();if(pr)pr.catch(()=>{})};
-  v.onplaying=()=>{box.classList.add("on");bad=0};
-  v.onended=()=>{i++;load()};                       // a clip plays to the end before the next one starts
-  v.onerror=()=>{if(++bad>clips.length){box.classList.add("on","still");return}i++;load()};
+  const load=()=>{i=(i+clips.length)%clips.length;const c=clips[i];v.poster=c.img||"";v.src=c.mp4;v.load();
+    n.textContent=`${i+1}/${clips.length}`;
+    tag.textContent=c.mine?(c.who&&c.who.length?c.who.slice(0,2).map(w=>w.split(" ").slice(-1)[0]).join(" · "):"Your team"):"Around the league";
+    tag.className="wrtag"+(c.mine?" mine":"");
+    txt.textContent=(c.title||"").replace(/: Game Highlights$/,"");
+    if(inView&&!document.hidden){const pr=v.play();if(pr)pr.catch(()=>{})}};
+  v.onplaying=()=>{ld.hidden=true;bad=0};
+  v.onended=()=>{i++;load()};                      // every clip plays to the end before the next starts
+  v.onerror=()=>{if(++bad>clips.length){ld.hidden=false;ld.textContent="These clips won't play here.";return}i++;load()};
+  box.querySelector('[data-wr="prev"]').onclick=()=>{i--;load()};
+  box.querySelector('[data-wr="next"]').onclick=()=>{i++;load()};
+  const tog=()=>{v.muted=!v.muted;snd.textContent=v.muted?"🔇":"🔊";v.play().catch(()=>{})};snd.onclick=tog;v.onclick=tog;
+  let inView=true;
+  const io=new IntersectionObserver(es=>{for(const e of es){inView=e.isIntersecting;if(inView&&!document.hidden)v.play().catch(()=>{});else v.pause()}},{threshold:.2});io.observe(box);
+  document.addEventListener("visibilitychange",()=>{if(!box.isConnected)return;if(document.hidden)v.pause();else if(inView)v.play().catch(()=>{})});
   load();
-  if(snd){snd.hidden=false;snd.onclick=()=>{v.muted=!v.muted;snd.textContent=v.muted?"🔇":"🔊";if(!v.muted)v.play().catch(()=>{})}}
-  const io=new IntersectionObserver(es=>{for(const e of es){if(e.isIntersecting&&!document.hidden)v.play().catch(()=>{});else v.pause()}},{threshold:.15});io.observe(el);
-  document.addEventListener("visibilitychange",()=>{if(document.hidden)v.pause();else if(el.isConnected)v.play().catch(()=>{})});
 }
