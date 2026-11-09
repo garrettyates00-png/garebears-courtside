@@ -575,7 +575,8 @@ def reel_file():
         if when < cut: continue
         url = ((x.get("links") or {}).get("web") or {}).get("href", "")
         mp4 = clip_mp4(x, url)
-        if mp4: out.append(dict(title=x.get("headline", ""), mp4=mp4, date=x.get("published", "")))
+        img = next((i.get("url") for i in (x.get("images") or []) if i.get("url")), "")
+        if mp4: out.append(dict(title=x.get("headline", ""), mp4=mp4, img=img, date=x.get("published", "")))
         if len(out) >= 10: break
     json.dump(dict(at=dt.datetime.now(TZ).isoformat(), clips=out), open("arena/reel.json", "w"), separators=(",", ":"))
     print(f"reel: {len(out)} clips")

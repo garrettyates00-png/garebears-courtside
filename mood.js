@@ -14,6 +14,11 @@ function renderMood(){
   const live=typeof isLiveWeek==="function"&&isLiveWeek();
   const sm=live?liveScore(me):0,so=live?liveScore(op):0,fm=finalMean(me),fo=finalMean(op);
   const wp=winProb(me,op),oname=esc(T[op].name);
+  // Monday (first day of a new week): keep last week's result up until you switch to the new week
+  if(typeof resWeek==="function"){const R=resWeek();let hid=false;try{hid=R&&localStorage.getItem("grindex-res-hide-"+R.w)==="1"}catch(e){}
+    if(R&&!R.live&&!hid){const H=(D.week_hist||{})[R.w]||{},g=((D.sim&&D.sim.sched)||[]).find(m=>m[0]===R.w&&(m[1]==me||m[2]==me));
+      if(g&&H.act){const o=g[1]==me?g[2]:g[1];return moodFinal(el,H.act[me]||0,H.act[o]||0,esc(T[o].name),R.w,o)}}}
+  if(typeof goldOn!=="undefined"&&goldOn)goldMode(false);
   if(typeof setMoodHue==="function")setMoodHue(wp);
   // legit over: last day of the matchup, nothing left projected for either side, no game still going
   const going=t=>P(t).some(p=>{if(isBench(p.slot))return false;const g=gameOf(p);return g&&g.state!=="post"});
@@ -111,26 +116,28 @@ function renderMood(){
 }
 
 /* The result once the matchup is over. A win gets the gold treatment and a one-time burst of gold confetti. */
-function moodFinal(el,sm,so,oname){
+function moodFinal(el,sm,so,oname,week,opp){
+  week=week||D.period;opp=opp||D.opp;
   const won=sm>so,tie=Math.round(sm)===Math.round(so),m=Math.round(Math.abs(sm-so)),salty=typeof PHONE!=="undefined"&&PHONE;
-  const opShort=esc(last(D.teams[D.opp].name));
+  const opShort=esc(last(D.teams[opp].name));
   const winLine=salty?(m>=150?`Won by ${m}. Absolutely fucking buried the ${opShort}.`:m>=40?`Won by ${m}. Get fucked, ${opShort}.`:`Won by ${m}. Close as hell, but a W is a fucking W.`)
     :(m>=150?`Won by ${m}. A blowout.`:m>=40?`Won by ${m}. Clean win.`:`Won by ${m}. Close, but a win is a win.`);
   const word=tie?"Tie.":won?"You won.":"You lost.";
   const line=tie?"Dead even. Nobody gets the W.":won?winLine:`Lost by ${m}. Reset and run it back next week.`;
   if(typeof setMoodHue==="function")setMoodHue(tie?.5:won?1:0);
   goldMode(won&&!tie);
-  el.className="mood "+(won&&!tie?"mwin":"m2 mloss")+(salty?"":" band");
+  el.className="mood "+(won&&!tie?"mwin":"m2 mloss")+(salty?"":" band");el.dataset.week=week;
   el.innerHTML=`${won&&!tie?'<div class="mgold" aria-hidden="true"></div><div class="mspark2" aria-hidden="true">'+Array.from({length:14},(_,i)=>`<i style="--x:${(i*37)%100}%;--y:${(i*53)%100}%;--d:${(i%7)*.45}s"></i>`).join("")+"</div>":'<div class="mglow" aria-hidden="true"></div>'}
-    <div class="mtop"><div class="mleft"><div class="meye">Final · week ${D.period} vs ${oname}</div><div class="mword">${word}</div><div class="mquip">${line}</div></div>
+    <div class="mtop"><div class="mleft"><div class="meye">Final · week ${week} vs ${oname}</div><div class="mword">${word}</div><div class="mquip">${line}</div></div>
       <div class="mright">${won&&!tie?`<div class="mlogo medal"><span>🏅</span></div>`:`<div class="mres ${tie?"":"x"}">${tie?"T":"✕"}</div>`}</div></div>
     <div class="mchips"><div class="mchip"><span>Final</span><b class="${won?"up":"down"}">${Math.round(sm)}<small>vs ${Math.round(so)}</small></b></div>
-      ${won&&!tie?`<button class="mreplay" type="button">▶ Replay</button>`:""}<div class="mchip"><span>Margin</span><b class="${won?"up":"down"}">${won?"+":tie?"":"−"}${m}</b></div></div>`;
+      ${won&&!tie?`<button class="mreplay" type="button">▶ Replay</button>`:""}${week!==D.period?`<button class="mnext" type="button">This week →</button>`:""}<div class="mchip"><span>Margin</span><b class="${won?"up":"down"}">${won?"+":tie?"":"−"}${m}</b></div></div>`;
+  const nx=el.querySelector(".mnext");if(nx)nx.onclick=()=>{try{localStorage.setItem("grindex-res-hide-"+week,"1")}catch(e){}goldMode(false);renderMood();if(typeof renderResults==="function")renderResults()};
   if(won&&!tie){moodConfetti(el);const rb=el.querySelector(".mreplay");if(rb)rb.onclick=()=>{document.querySelector(".goldsweep")?.remove();goldOn=false;goldMode(true);moodConfetti(el,true)}}
 }
 function moodConfetti(el,force){
   // once per matchup per device (the Replay button forces it)
-  const k="grindex-won-"+D.period;if(!force)try{if(localStorage.getItem(k))return;localStorage.setItem(k,"1")}catch(e){}
+  const k="grindex-won2-"+(el.dataset.week||D.period);if(!force)try{if(localStorage.getItem(k))return;localStorage.setItem(k,"1")}catch(e){}
   if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
   const c=document.createElement("canvas");c.className="mconf";document.body.appendChild(c);
   const W=c.width=innerWidth*Math.min(2,devicePixelRatio||1),H=c.height=innerHeight*Math.min(2,devicePixelRatio||1),x=c.getContext("2d");
@@ -179,9 +186,12 @@ async function winReel(){
   box.innerHTML=`<video muted playsinline preload="auto"></video><video muted playsinline preload="auto"></video><div class="rgrain"></div><div class="rtint"></div>`;
   document.body.appendChild(box);requestAnimationFrame(()=>box.classList.add("on"));
   const V=[...box.querySelectorAll("video")];let i=0,cur=0;
-  const play=k=>{const v=V[cur];v.src=clips[k%clips.length].mp4;v.currentTime=0;
-    const go=()=>{try{v.currentTime=Math.min(8,(v.duration||20)*.25)}catch(e){}v.play().catch(()=>{})};
-    v.onloadedmetadata=go;v.classList.add("show");V[1-cur].classList.remove("show");cur=1-cur};
+  V.forEach(v=>{v.muted=true;v.defaultMuted=true;v.playsInline=true;v.setAttribute("webkit-playsinline","")});
+  const play=k=>{const v=V[cur],c=clips[k%clips.length];
+    v.onloadedmetadata=()=>{try{v.currentTime=Math.min(8,(v.duration||20)*.25)}catch(e){}const pr=v.play();if(pr)pr.catch(()=>{})};
+    v.onerror=()=>{if(c.img){box.style.backgroundImage=`url("${c.img}")`;box.classList.add("still")}};
+    if(c.img)v.poster=c.img;v.src=c.mp4;v.load();
+    v.classList.add("show");V[1-cur].classList.remove("show");cur=1-cur};
   play(i++);const t=setInterval(()=>play(i++),3600);
   setTimeout(()=>{clearInterval(t);box.classList.remove("on");setTimeout(()=>{V.forEach(v=>{v.pause();v.removeAttribute("src");v.load()});box.remove()},1800)},16000);
 }
