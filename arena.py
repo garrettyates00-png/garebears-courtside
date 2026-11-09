@@ -515,7 +515,7 @@ def grades_file():
     how much of the offense he carries. Rookies get a curve (+5), second-year players +2."""
     allp = []
     for f in os.listdir("arena"):
-        if not f.endswith(".json") or "_" in f or f in ("config.json", "scoreboard.json", "grades.json"): continue
+        if not f.endswith(".json") or "_" in f or f in ("config.json", "scoreboard.json", "grades.json", "reel.json"): continue
         try:
             j = json.load(open(f"arena/{f}"))
         except Exception:
@@ -560,6 +560,27 @@ def league_teams():
     return sorted(out, key=lambda t: t["name"])
 
 
+def reel_file():
+    """League-wide highlight clips from the last couple of days (ESPN's own MP4 links, not downloaded):
+    the dashboard plays them behind the gold when you win a week."""
+    arts = get(f"{B}/news", limit=60).get("articles", [])
+    cut = dt.datetime.now(dt.timezone.utc) - dt.timedelta(hours=60)
+    out = []
+    for x in arts:
+        if x.get("type") != "Media": continue
+        try:
+            when = dt.datetime.fromisoformat((x.get("published") or "").replace("Z", "+00:00"))
+        except Exception:
+            continue
+        if when < cut: continue
+        url = ((x.get("links") or {}).get("web") or {}).get("href", "")
+        mp4 = clip_mp4(x, url)
+        if mp4: out.append(dict(title=x.get("headline", ""), mp4=mp4, date=x.get("published", "")))
+        if len(out) >= 10: break
+    json.dump(dict(at=dt.datetime.now(TZ).isoformat(), clips=out), open("arena/reel.json", "w"), separators=(",", ":"))
+    print(f"reel: {len(out)} clips")
+
+
 if __name__ == "__main__":
     # config: "fav" teams refresh every run with full YouTube; every other NBA team rotates
     # (missing first, then the oldest few), so each one refreshes every couple of hours.
@@ -588,6 +609,10 @@ if __name__ == "__main__":
         scoreboard_file()
     except Exception as e:
         print("scoreboard failed:", e)
+    try:
+        reel_file()
+    except Exception as e:
+        print("reel failed:", e)
     for t in fav:
         build(t, True)
     for t in missing + rest:

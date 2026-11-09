@@ -125,12 +125,12 @@ function moodFinal(el,sm,so,oname){
     <div class="mtop"><div class="mleft"><div class="meye">Final · week ${D.period} vs ${oname}</div><div class="mword">${word}</div><div class="mquip">${line}</div></div>
       <div class="mright">${won&&!tie?`<div class="mlogo medal"><span>🏅</span></div>`:`<div class="mres ${tie?"":"x"}">${tie?"T":"✕"}</div>`}</div></div>
     <div class="mchips"><div class="mchip"><span>Final</span><b class="${won?"up":"down"}">${Math.round(sm)}<small>vs ${Math.round(so)}</small></b></div>
-      <div class="mchip"><span>Margin</span><b class="${won?"up":"down"}">${won?"+":tie?"":"−"}${m}</b></div></div>`;
-  if(won&&!tie)moodConfetti(el);
+      ${won&&!tie?`<button class="mreplay" type="button">▶ Replay</button>`:""}<div class="mchip"><span>Margin</span><b class="${won?"up":"down"}">${won?"+":tie?"":"−"}${m}</b></div></div>`;
+  if(won&&!tie){moodConfetti(el);const rb=el.querySelector(".mreplay");if(rb)rb.onclick=()=>{document.querySelector(".goldsweep")?.remove();goldOn=false;goldMode(true);moodConfetti(el,true)}}
 }
-function moodConfetti(el){
-  // once per matchup per device
-  const k="grindex-won-"+D.period;try{if(localStorage.getItem(k))return;localStorage.setItem(k,"1")}catch(e){}
+function moodConfetti(el,force){
+  // once per matchup per device (the Replay button forces it)
+  const k="grindex-won-"+D.period;if(!force)try{if(localStorage.getItem(k))return;localStorage.setItem(k,"1")}catch(e){}
   if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
   const c=document.createElement("canvas");c.className="mconf";document.body.appendChild(c);
   const W=c.width=innerWidth*Math.min(2,devicePixelRatio||1),H=c.height=innerHeight*Math.min(2,devicePixelRatio||1),x=c.getContext("2d");
@@ -140,8 +140,8 @@ function moodConfetti(el){
   // sparks raining down from the top, with glowing trails
   const fall=Array.from({length:90},()=>({x:Math.random()*W,y:-Math.random()*H*.8,v:(9+Math.random()*14)*(H/1800+.5),l:16+Math.random()*34,w:1+Math.random()*2.2,c:cols[Math.random()*cols.length|0],d:Math.random()*1.2}));
   const t0=performance.now();
-  // the kiss: a split-second pop as the sparks land
-  setTimeout(()=>{const k=document.createElement("div");k.className="mkiss";k.setAttribute("aria-hidden","true");k.textContent="👨‍❤️‍💋‍👨";document.body.appendChild(k);k.addEventListener("animationend",()=>k.remove())},1900);
+  // the night's highlights play behind the gold, grainy and old-fashioned
+  winReel();
   const step=t=>{const k_=(t-t0)/1000;x.clearRect(0,0,W,H);
     x.save();x.globalCompositeOperation="lighter";
     for(const f of fall){if(k_<f.d)continue;f.y+=f.v;const g=x.createLinearGradient(f.x,f.y-f.l,f.x,f.y);g.addColorStop(0,"rgba(255,215,110,0)");g.addColorStop(1,f.c);
@@ -167,4 +167,21 @@ function goldMode(on){
       const g=document.createElement("div");g.className="goldsweep";g.setAttribute("aria-hidden","true");document.body.appendChild(g);
       g.addEventListener("animationend",()=>g.remove())}
   }else if(typeof applyColors==="function")applyColors();
+}
+
+/* Highlight reel behind the win: last night's ESPN clips (streamed from ESPN, muted), cut every few seconds,
+   washed in sepia grain under the gold, then faded out. */
+async function winReel(){
+  if(document.querySelector(".reel")||matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  let clips=[];try{clips=((await (await fetch("arena/reel.json?t="+Date.now(),{cache:"no-store"})).json()).clips)||[]}catch(e){}
+  clips=clips.filter(c=>c.mp4).slice(0,6);if(!clips.length)return;
+  const box=document.createElement("div");box.className="reel";box.setAttribute("aria-hidden","true");
+  box.innerHTML=`<video muted playsinline preload="auto"></video><video muted playsinline preload="auto"></video><div class="rgrain"></div><div class="rtint"></div>`;
+  document.body.appendChild(box);requestAnimationFrame(()=>box.classList.add("on"));
+  const V=[...box.querySelectorAll("video")];let i=0,cur=0;
+  const play=k=>{const v=V[cur];v.src=clips[k%clips.length].mp4;v.currentTime=0;
+    const go=()=>{try{v.currentTime=Math.min(8,(v.duration||20)*.25)}catch(e){}v.play().catch(()=>{})};
+    v.onloadedmetadata=go;v.classList.add("show");V[1-cur].classList.remove("show");cur=1-cur};
+  play(i++);const t=setInterval(()=>play(i++),3600);
+  setTimeout(()=>{clearInterval(t);box.classList.remove("on");setTimeout(()=>{V.forEach(v=>{v.pause();v.removeAttribute("src");v.load()});box.remove()},1800)},16000);
 }
