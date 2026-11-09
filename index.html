@@ -1278,8 +1278,14 @@ const CK="courtside-colors";
 const PRESETS=[["Mono",220,0,40],["Ice",200,80,40],["Mint",158,70,50],["Court",24,85,30],["Gold",44,85,-30],["Rose",340,75,40],["Violet",265,70,60],["Miami",190,85,140],["Sunset",330,85,60],["Aurora",150,75,120]];
 const BLENDS=[["Solo",0],["Duo",40],["Split",140],["Neon",180]];
 let C={h:220,s:0,g:.75,o:40,flow:false,team:true};try{Object.assign(C,JSON.parse(localStorage.getItem(CK)||"{}"))}catch(e){}
-let flowT=null,flowH=null;const RM=matchMedia("(prefers-reduced-motion: reduce)").matches||PHONE;  // phones: no colour-flow timer (it repaints the whole page every 2 s)
-function applyColors(){const r=document.documentElement.style;r.setProperty("--ah",flowH??C.h);r.setProperty("--ao",C.o);document.documentElement.classList.toggle("flow",!!C.flow&&!RM);
+let flowT=null,flowH=null,moodWp=null;const RM=matchMedia("(prefers-reduced-motion: reduce)").matches||PHONE;  // phones: no colour-flow timer (it repaints the whole page every 2 s)
+/* Matchup colors (optional): the whole app's accent follows your win chance, red when it's awful, through
+   amber at a coin flip, to green when it's great. Overrides the hue settings while it's on. */
+function setMoodHue(wp){moodWp=wp;if(C.mood)applyColors()}
+function applyColors(){const r=document.documentElement.style;
+  if(C.mood&&moodWp!=null){const h=Math.round(Math.max(0,Math.min(1,moodWp))*140);r.setProperty("--ah",h);r.setProperty("--ao",22);r.setProperty("--as","82%");r.setProperty("--glow",C.g);
+    document.documentElement.classList.remove("flow");if(flowT){clearInterval(flowT);flowT=null;flowH=null}document.body.classList.toggle("mycolors",!C.team);try{localStorage.setItem(CK,JSON.stringify(C))}catch(e){}return}
+  r.setProperty("--ah",flowH??C.h);r.setProperty("--ao",C.o);document.documentElement.classList.toggle("flow",!!C.flow&&!RM);
   if(C.flow&&!RM&&!flowT){flowH=C.h;flowT=setInterval(()=>{flowH=(flowH+3);r.setProperty("--ah",flowH)},2000)}if((!C.flow||RM)&&flowT){clearInterval(flowT);flowT=null;flowH=null;r.setProperty("--ah",C.h)}
 r.setProperty("--as",C.s+"%");r.setProperty("--glow",C.g);document.body.classList.toggle("mycolors",!C.team);try{localStorage.setItem(CK,JSON.stringify(C))}catch(e){}}
 applyColors();
@@ -1291,19 +1297,20 @@ $("#gear").addEventListener("click",e=>{e.stopPropagation();const open=document.
     <div class="crow"><label for="cGlow">Glow</label><input id="cGlow" type="range" min="0" max="100"><span class="num" id="cGlowV"></span></div>
     <div><div class="eyebrow" style="margin-bottom:8px">Presets</div><div class="presets">${PRESETS.map(([n,h,s2,o])=>`<button type="button" data-h="${h}" data-s="${s2}" data-o="${o}" title="${n}" aria-label="${n}" style="background:${s2?`linear-gradient(135deg,hsl(${h} ${s2}% 62%),hsl(${h+o} ${s2}% 58%))`:"hsl(220 0% 85%)"}"></button>`).join("")}</div></div>
     <div><div class="eyebrow" style="margin-bottom:8px">Blend</div><div class="seg2" id="cBlend">${BLENDS.map(([n,o])=>`<button type="button" data-o="${o}">${n}</button>`).join("")}</div></div>
+    <label class="tog"><input type="checkbox" id="cMood"> Match my matchup: green when it's great, red when it's awful</label>
     <label class="tog"><input type="checkbox" id="cFlow"> Slowly shift colors</label>
     <label class="tog"><input type="checkbox" id="cTeam"> Use team colors in Arena</label>`;
   document.body.appendChild(p);$("#gear").setAttribute("aria-expanded","true");
   const W=$("#wheel"),K=$("#knob");
   const sync=()=>{if(flowT)flowH=C.h;const a=(C.h-90)*Math.PI/180,R=100-17;K.style.left=(100+R*Math.cos(a))+"px";K.style.top=(100+R*Math.sin(a))+"px";K.style.background=`hsl(${C.h} 80% 60%)`;
-    W.setAttribute("aria-valuenow",Math.round(C.h));$("#hueTxt").textContent=Math.round(C.h)+"°";$("#cSat").value=C.s;$("#cSatV").textContent=C.s;$("#cGlow").value=Math.round(C.g*100);$("#cGlowV").textContent=Math.round(C.g*100);$("#cTeam").checked=C.team;$("#cFlow").checked=!!C.flow;p.querySelectorAll("#cBlend button").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.o===C.o));
+    W.setAttribute("aria-valuenow",Math.round(C.h));$("#hueTxt").textContent=Math.round(C.h)+"°";$("#cSat").value=C.s;$("#cSatV").textContent=C.s;$("#cGlow").value=Math.round(C.g*100);$("#cGlowV").textContent=Math.round(C.g*100);$("#cTeam").checked=C.team;$("#cFlow").checked=!!C.flow;$("#cMood").checked=!!C.mood;p.querySelectorAll("#cBlend button").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.o===C.o));
     p.querySelectorAll(".presets button").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.h===C.h&&+b.dataset.s===C.s&&+b.dataset.o===C.o));applyColors()};
   const pick=ev=>{const r=W.getBoundingClientRect(),x=ev.clientX-r.left-r.width/2,y=ev.clientY-r.top-r.height/2;C.h=(Math.atan2(y,x)*180/Math.PI+90+360)%360;if(C.s<20)C.s=60;sync()};
   W.addEventListener("pointerdown",ev=>{W.setPointerCapture(ev.pointerId);pick(ev);const mv=e2=>pick(e2),up=()=>{W.removeEventListener("pointermove",mv);W.removeEventListener("pointerup",up)};W.addEventListener("pointermove",mv);W.addEventListener("pointerup",up)});
   W.addEventListener("keydown",ev=>{if(ev.key==="ArrowRight"||ev.key==="ArrowUp"){C.h=(C.h+5)%360;sync()}if(ev.key==="ArrowLeft"||ev.key==="ArrowDown"){C.h=(C.h+355)%360;sync()}});
-  $("#cSat").oninput=e2=>{C.s=+e2.target.value;sync()};$("#cGlow").oninput=e2=>{C.g=+e2.target.value/100;sync()};$("#cTeam").onchange=e2=>{C.team=e2.target.checked;sync()};$("#cFlow").onchange=e2=>{C.flow=e2.target.checked;sync()};$("#cBlend").onclick=e2=>{const b=e2.target.closest("[data-o]");if(b){C.o=+b.dataset.o;if(C.s<20)C.s=70;sync()}};
+  $("#cSat").oninput=e2=>{C.s=+e2.target.value;sync()};$("#cGlow").oninput=e2=>{C.g=+e2.target.value/100;sync()};$("#cTeam").onchange=e2=>{C.team=e2.target.checked;sync()};$("#cFlow").onchange=e2=>{C.flow=e2.target.checked;sync()};$("#cMood").onchange=e2=>{C.mood=e2.target.checked;if(!C.mood){const r=document.documentElement.style;r.setProperty("--as",C.s+"%")}sync()};$("#cBlend").onclick=e2=>{const b=e2.target.closest("[data-o]");if(b){C.o=+b.dataset.o;if(C.s<20)C.s=70;sync()}};
   p.querySelector(".presets").onclick=e2=>{const b=e2.target.closest("[data-h]");if(b){C.h=+b.dataset.h;C.s=+b.dataset.s;C.o=+b.dataset.o;sync()}};
-  $("#cReset").onclick=()=>{C={h:220,s:0,g:.75,o:40,flow:false,team:true};sync()};
+  $("#cReset").onclick=()=>{C={h:220,s:0,g:.75,o:40,flow:false,team:true,mood:false};sync()};
   sync();
 });
 document.addEventListener("click",e=>{const p=document.querySelector(".cpanel");if(p&&!p.contains(e.target)&&e.target.id!=="gear"){p.remove();$("#gear").setAttribute("aria-expanded","false")}});
@@ -1312,7 +1319,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1794192727";
+const BUILD="1794192778";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(()=>{if(!document.hidden)checkBuild()},90000);
 loadLog().then(()=>load(true));setInterval(()=>{if(!document.hidden)loadLog().then(()=>load(false))},120000);
@@ -1363,22 +1370,22 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1794192727"></script>
-<script src="season.js?v=1794192727"></script>
-<script src="bets.js?v=1794192727"></script>
-<script src="trades.js?v=1794192727"></script>
-<script src="tradelab.js?v=1794192727"></script>
-<script src="betshub.js?v=1794192727"></script>
-<script src="sim.js?v=1794192727"></script>
-<script src="overunder.js?v=1794192727"></script>
-<script src="profile.js?v=1794192727"></script>
-<script src="ask.js?v=1794192727"></script>
-<script src="timeline.js?v=1794192727"></script>
-<script src="nav.js?v=1794192727"></script>
-<script src="hoops.js?v=1794192727"></script>
-<script src="insights.js?v=1794192727"></script>
-<script src="rostermoves.js?v=1794192727"></script>
-<script src="lineupedit.js?v=1794192727"></script>
-<script src="mood.js?v=1794192727"></script>
-<script src="live.js?v=1794192727"></script>
+<script src="arena.js?v=1794192778"></script>
+<script src="season.js?v=1794192778"></script>
+<script src="bets.js?v=1794192778"></script>
+<script src="trades.js?v=1794192778"></script>
+<script src="tradelab.js?v=1794192778"></script>
+<script src="betshub.js?v=1794192778"></script>
+<script src="sim.js?v=1794192778"></script>
+<script src="overunder.js?v=1794192778"></script>
+<script src="profile.js?v=1794192778"></script>
+<script src="ask.js?v=1794192778"></script>
+<script src="timeline.js?v=1794192778"></script>
+<script src="nav.js?v=1794192778"></script>
+<script src="hoops.js?v=1794192778"></script>
+<script src="insights.js?v=1794192778"></script>
+<script src="rostermoves.js?v=1794192778"></script>
+<script src="lineupedit.js?v=1794192778"></script>
+<script src="mood.js?v=1794192778"></script>
+<script src="live.js?v=1794192778"></script>
 </body></html>

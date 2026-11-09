@@ -14,6 +14,7 @@ function renderMood(){
   const live=typeof isLiveWeek==="function"&&isLiveWeek();
   const sm=live?liveScore(me):0,so=live?liveScore(op):0,fm=finalMean(me),fo=finalMean(op);
   const wp=winProb(me,op),oname=esc(T[op].name);
+  if(typeof setMoodHue==="function")setMoodHue(wp);
   // today: actual so far vs what should be in by now, at today's projections
   const di=dayInfo(me,today);let past=0;const B=D.base&&D.base.teams[me];
   if(B)for(const [k,d] of Object.entries(B.days))if(k<today)past+=d.pts;
