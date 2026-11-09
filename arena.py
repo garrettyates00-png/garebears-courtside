@@ -19,6 +19,33 @@ os.makedirs("arena", exist_ok=True)
 os.makedirs("arena/cache", exist_ok=True)
 
 
+
+def clip_mp4(x, url):
+    """A direct MP4 for an ESPN highlight clip (ESPN's own CDN; nothing is downloaded or stored), or "".
+    Looks in the news item first, then asks ESPN's clip API."""
+    import re as _re
+    def pick(links):
+        src = (links or {}).get("source") or {}
+        for k in ("HD", "full", "mezzanine"):
+            h = (src.get(k) or {}).get("href")
+            if h and ".mp4" in h: return h
+        h = src.get("href")
+        return h if h and ".mp4" in h else ""
+    for v in (x.get("video") or x.get("videos") or []):
+        h = pick(v.get("links"))
+        if h: return h
+    m = _re.search(r"/id/(\d+)", url or "") or _re.search(r"(\d{6,})", str(x.get("id") or ""))
+    if not m: return ""
+    for api in (f"https://content.core.api.espn.com/v1/video/clips/{m.group(1)}", f"https://api-app.espn.com/v1/video/clips/{m.group(1)}"):
+        try:
+            j = requests.get(api, timeout=10, headers={"User-Agent": "Mozilla/5.0"}).json()
+            for v in (j.get("videos") or []):
+                h = pick(v.get("links"))
+                if h: return h
+        except Exception:
+            pass
+    return ""
+
 def get(url, **params):
     r = requests.get(url, params=params or None, headers=HDR, timeout=30)
     r.raise_for_status()
@@ -329,6 +356,8 @@ def build(abbr, full=True):
             item = dict(title=x.get("headline", ""), text=(x.get("description") or "")[:260],
                         img=next((i.get("url") for i in (x.get("images") or []) if i.get("url")), ""),
                         url=((x.get("links") or {}).get("web") or {}).get("href", ""), date=x.get("published", ""))
+            if x.get("type") == "Media":
+                item["mp4"] = clip_mp4(x, item["url"])
             (vids if x.get("type") == "Media" else news).append(item)
     except Exception:
         pass
