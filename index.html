@@ -883,6 +883,28 @@ body[data-view="fantasy"] .inslead,body[data-view="fantasy"] .rmwhy,body[data-vi
 .won .rstats small{color:rgba(255,233,168,.65)}
 @media (max-width:820px),(pointer:coarse){.rgold{animation:none}}
 @media (max-width:700px){.rescard{padding:14px 16px;gap:8px;border-radius:18px}.rscore b{font-size:34px}.rcoin{width:36px;height:36px;font-size:17px}.rteam b{font-size:16px}.rstats span{font-size:14px}.resgrid{gap:10px}}
+
+/* ===== gold takeover on a win ===== */
+.mlogo{width:118px;height:118px;border-radius:50%;padding:4px;display:grid;place-items:center;
+  background:conic-gradient(from var(--mga),#fff4cf,#ffd86b,#b8860b,#ffe9a8,#f5b82e,#fff8e1,#c99016,#ffd86b,#fff4cf);animation:mgspin 4s linear infinite,mpulse2 2.6s ease-in-out infinite;
+  box-shadow:0 0 0 2px rgba(255,240,200,.35),0 0 50px rgba(255,200,80,.75),0 0 120px rgba(255,180,40,.35)}
+.mlogo>*{grid-area:1/1}.mlogo img,.mlogo b{width:100%;height:100%;border-radius:50%;object-fit:cover;background:#1a1307;display:grid;place-items:center;font:900 46px var(--sans);color:#ffd86b;box-shadow:inset 0 0 0 2px rgba(0,0,0,.35)}
+@keyframes mpulse2{50%{box-shadow:0 0 0 3px rgba(255,240,200,.7),0 0 80px rgba(255,200,80,1),0 0 160px rgba(255,180,40,.5)}}
+.mood.band .mlogo{width:70px;height:70px;padding:3px}.mood.band .mlogo b{font-size:28px}
+@media (max-width:700px){.mlogo{width:96px;height:96px}}
+/* glitter sweep across the winning card */
+.mood.mwin::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(115deg,transparent 30%,rgba(255,248,225,.0) 40%,rgba(255,248,225,.28) 48%,rgba(255,215,110,.12) 52%,transparent 62%);background-size:300% 100%;animation:mgloss 4.5s ease-in-out infinite}
+@keyframes mgloss{0%{background-position:120% 0}60%,100%{background-position:-60% 0}}
+.mood.mwin .mword{font-size:clamp(48px,9vw,104px);filter:drop-shadow(0 0 28px rgba(255,200,80,.75)) drop-shadow(0 0 2px rgba(255,248,225,.9)) drop-shadow(0 4px 2px rgba(0,0,0,.4))}
+/* the gold wash: sweeps top to bottom once, tinting everything it passes */
+.goldsweep{position:fixed;left:0;right:0;top:-60vh;height:60vh;z-index:150;pointer-events:none;mix-blend-mode:color;
+  background:linear-gradient(180deg,transparent,rgba(255,200,60,.85) 45%,rgba(255,230,140,.9) 55%,transparent);animation:gsweep 2.6s cubic-bezier(.5,.05,.4,1) forwards}
+.goldsweep::after{content:"";position:absolute;inset:0;mix-blend-mode:screen;background:linear-gradient(180deg,transparent 35%,rgba(255,240,190,.25) 50%,transparent 65%)}
+@keyframes gsweep{to{transform:translateY(220vh)}}
+/* while gold: page background picks up a warm glow */
+:root.gold body{background:radial-gradient(120% 60% at 50% -10%,rgba(255,200,80,.14),transparent 60%),var(--bg)}
+:root.gold .bar{box-shadow:0 1px 0 rgba(255,214,107,.25)!important}
 </style></head><body>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div><div class="btmfade" aria-hidden="true"></div>
 
@@ -1329,8 +1351,8 @@ let C={h:220,s:0,g:.75,o:40,flow:false,team:true};try{Object.assign(C,JSON.parse
 let flowT=null,flowH=null,moodWp=null;const RM=matchMedia("(prefers-reduced-motion: reduce)").matches||PHONE;  // phones: no colour-flow timer (it repaints the whole page every 2 s)
 /* Matchup colors (optional): the whole app's accent follows your win chance, red when it's awful, through
    amber at a coin flip, to green when it's great. Overrides the hue settings while it's on. */
-function setMoodHue(wp){moodWp=wp;if(C.mood)applyColors()}
-function applyColors(){const r=document.documentElement.style;
+function setMoodHue(wp){moodWp=wp;if(C.mood&&!(typeof goldOn!=="undefined"&&goldOn))applyColors()}
+function applyColors(){const r=document.documentElement.style;if(typeof goldOn!=="undefined"&&goldOn)return;  // a win holds the app in gold
   if(C.mood&&moodWp!=null){const h=Math.round(Math.max(0,Math.min(1,moodWp))*140);r.setProperty("--ah",h);r.setProperty("--ao",22);r.setProperty("--as","82%");r.setProperty("--glow",C.g);
     document.documentElement.classList.remove("flow");document.documentElement.classList.add("moodc");if(flowT){clearInterval(flowT);flowT=null;flowH=null}document.body.classList.toggle("mycolors",!C.team);try{localStorage.setItem(CK,JSON.stringify(C))}catch(e){}return}
   document.documentElement.classList.remove("moodc");
@@ -1368,7 +1390,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1794203181";
+const BUILD="1794203254";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(()=>{if(!document.hidden)checkBuild()},90000);
 loadLog().then(()=>load(true));setInterval(()=>{if(!document.hidden)loadLog().then(()=>load(false))},120000);
@@ -1419,23 +1441,23 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1794203181"></script>
-<script src="season.js?v=1794203181"></script>
-<script src="bets.js?v=1794203181"></script>
-<script src="trades.js?v=1794203181"></script>
-<script src="tradelab.js?v=1794203181"></script>
-<script src="betshub.js?v=1794203181"></script>
-<script src="sim.js?v=1794203181"></script>
-<script src="overunder.js?v=1794203181"></script>
-<script src="profile.js?v=1794203181"></script>
-<script src="ask.js?v=1794203181"></script>
-<script src="timeline.js?v=1794203181"></script>
-<script src="nav.js?v=1794203181"></script>
-<script src="hoops.js?v=1794203181"></script>
-<script src="insights.js?v=1794203181"></script>
-<script src="rostermoves.js?v=1794203181"></script>
-<script src="lineupedit.js?v=1794203181"></script>
-<script src="results.js?v=1794203181"></script>
-<script src="mood.js?v=1794203181"></script>
-<script src="live.js?v=1794203181"></script>
+<script src="arena.js?v=1794203254"></script>
+<script src="season.js?v=1794203254"></script>
+<script src="bets.js?v=1794203254"></script>
+<script src="trades.js?v=1794203254"></script>
+<script src="tradelab.js?v=1794203254"></script>
+<script src="betshub.js?v=1794203254"></script>
+<script src="sim.js?v=1794203254"></script>
+<script src="overunder.js?v=1794203254"></script>
+<script src="profile.js?v=1794203254"></script>
+<script src="ask.js?v=1794203254"></script>
+<script src="timeline.js?v=1794203254"></script>
+<script src="nav.js?v=1794203254"></script>
+<script src="hoops.js?v=1794203254"></script>
+<script src="insights.js?v=1794203254"></script>
+<script src="rostermoves.js?v=1794203254"></script>
+<script src="lineupedit.js?v=1794203254"></script>
+<script src="results.js?v=1794203254"></script>
+<script src="mood.js?v=1794203254"></script>
+<script src="live.js?v=1794203254"></script>
 </body></html>

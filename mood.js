@@ -119,10 +119,11 @@ function moodFinal(el,sm,so,oname){
   const word=tie?"Tie.":won?"You won.":"You lost.";
   const line=tie?"Dead even. Nobody gets the W.":won?winLine:`Lost by ${m}. Reset and run it back next week.`;
   if(typeof setMoodHue==="function")setMoodHue(tie?.5:won?1:0);
+  goldMode(won&&!tie);
   el.className="mood "+(won&&!tie?"mwin":"m2 mloss")+(salty?"":" band");
   el.innerHTML=`${won&&!tie?'<div class="mgold" aria-hidden="true"></div><div class="mspark2" aria-hidden="true">'+Array.from({length:14},(_,i)=>`<i style="--x:${(i*37)%100}%;--y:${(i*53)%100}%;--d:${(i%7)*.45}s"></i>`).join("")+"</div>":'<div class="mglow" aria-hidden="true"></div>'}
     <div class="mtop"><div class="mleft"><div class="meye">Final · week ${D.period} vs ${oname}</div><div class="mword">${word}</div><div class="mquip">${line}</div></div>
-      <div class="mright"><div class="mres ${won&&!tie?"w":""}">${tie?"T":won?"W":"L"}</div></div></div>
+      <div class="mright">${won&&!tie?`<div class="mlogo"><b>${esc((D.teams[D.me].name||"W")[0])}</b>${D.teams[D.me].logo?`<img src="${esc(D.teams[D.me].logo)}" alt="${esc(D.teams[D.me].name)}" onerror="this.remove()">`:""}</div>`:`<div class="mres">${tie?"T":"L"}</div>`}</div></div>
     <div class="mchips"><div class="mchip"><span>Final</span><b class="${won?"up":"down"}">${Math.round(sm)}<small>vs ${Math.round(so)}</small></b></div>
       <div class="mchip"><span>Margin</span><b class="${won?"up":"down"}">${won?"+":tie?"":"−"}${m}</b></div></div>`;
   if(won&&!tie)moodConfetti(el);
@@ -143,4 +144,18 @@ function moodConfetti(el){
       else x.fillRect(-p.r,-p.r*.45,p.r*2,p.r*.9);x.restore()}
     if(k_<3.4)requestAnimationFrame(step);else c.remove()};
   requestAnimationFrame(step);
+}
+
+/* A win turns the whole app gold: a gold wash sweeps down the screen and the accent colors fade to gold with it. */
+let goldOn=false;
+function goldMode(on){
+  const root=document.documentElement,r=root.style;
+  if(on===goldOn)return;goldOn=on;
+  root.classList.toggle("gold",on);
+  if(on){
+    root.classList.add("moodc");r.setProperty("--ah",44);r.setProperty("--as","92%");r.setProperty("--ao",14);
+    if(!document.querySelector(".goldsweep")&&!matchMedia("(prefers-reduced-motion: reduce)").matches){
+      const g=document.createElement("div");g.className="goldsweep";g.setAttribute("aria-hidden","true");document.body.appendChild(g);
+      g.addEventListener("animationend",()=>g.remove())}
+  }else if(typeof applyColors==="function")applyColors();
 }
