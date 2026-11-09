@@ -126,14 +126,18 @@ function moodFinal(el,sm,so,oname,week,opp){
   const line=tie?"Dead even. Nobody gets the W.":won?winLine:`Lost by ${m}. Reset and run it back next week.`;
   if(typeof setMoodHue==="function")setMoodHue(tie?.5:won?1:0);
   goldMode(won&&!tie);
+  const key=`${week}|${Math.round(sm)}|${Math.round(so)}|${salty}`;
+  if(el.dataset.final===key&&el.querySelector(".mword"))return;   // already showing this result: keep the video playing
+  el.dataset.final=key;
   el.className="mood "+(won&&!tie?"mwin":"m2 mloss")+(salty?"":" band");el.dataset.week=week;
-  el.innerHTML=`${won&&!tie?'<div class="mgold" aria-hidden="true"></div><div class="mspark2" aria-hidden="true">'+Array.from({length:14},(_,i)=>`<i style="--x:${(i*37)%100}%;--y:${(i*53)%100}%;--d:${(i%7)*.45}s"></i>`).join("")+"</div>":'<div class="mglow" aria-hidden="true"></div>'}
+  el.innerHTML=`${won&&!tie?'<div class="mvid" aria-hidden="true"><video muted playsinline preload="auto"></video><div class="rgrain"></div><div class="mvshade"></div></div><div class="mgold" aria-hidden="true"></div><div class="mspark2" aria-hidden="true">'+Array.from({length:14},(_,i)=>`<i style="--x:${(i*37)%100}%;--y:${(i*53)%100}%;--d:${(i%7)*.45}s"></i>`).join("")+"</div>":'<div class="mglow" aria-hidden="true"></div>'}
     <div class="mtop"><div class="mleft"><div class="meye">Final · week ${week} vs ${oname}</div><div class="mword">${word}</div><div class="mquip">${line}</div></div>
       <div class="mright">${won&&!tie?`<div class="mlogo medal"><span>🏅</span></div>`:`<div class="mres ${tie?"":"x"}">${tie?"T":"✕"}</div>`}</div></div>
     <div class="mchips"><div class="mchip"><span>Final</span><b class="${won?"up":"down"}">${Math.round(sm)}<small>vs ${Math.round(so)}</small></b></div>
-      ${won&&!tie?`<button class="mreplay" type="button">▶ Replay</button>`:""}${week!==D.period?`<button class="mnext" type="button">This week →</button>`:""}<div class="mchip"><span>Margin</span><b class="${won?"up":"down"}">${won?"+":tie?"":"−"}${m}</b></div></div>`;
+<div class="mchip"><span>Margin</span><b class="${won?"up":"down"}">${won?"+":tie?"":"−"}${m}</b></div></div>
+    <div class="mfoot">${won&&!tie?`<div class="mcap" aria-live="polite"></div><button class="msound" type="button" aria-label="Sound" hidden>🔇</button><button class="mreplay" type="button">▶ Replay</button>`:""}${week!==D.period?`<button class="mnext" type="button">This week →</button>`:""}</div>`;
   const nx=el.querySelector(".mnext");if(nx)nx.onclick=()=>{try{localStorage.setItem("grindex-res-hide-"+week,"1")}catch(e){}goldMode(false);renderMood();if(typeof renderResults==="function")renderResults()};
-  if(won&&!tie){moodConfetti(el);const rb=el.querySelector(".mreplay");if(rb)rb.onclick=()=>{document.querySelector(".goldsweep")?.remove();goldOn=false;goldMode(true);moodConfetti(el,true)}}
+  if(won&&!tie){moodConfetti(el);cardReel(el);const rb=el.querySelector(".mreplay");if(rb)rb.onclick=()=>{document.querySelector(".goldsweep")?.remove();goldOn=false;goldMode(true);moodConfetti(el,true)}}
 }
 function moodConfetti(el,force){
   // once per matchup per device (the Replay button forces it)
@@ -143,12 +147,11 @@ function moodConfetti(el,force){
   const W=c.width=innerWidth*Math.min(2,devicePixelRatio||1),H=c.height=innerHeight*Math.min(2,devicePixelRatio||1),x=c.getContext("2d");
   const r=el.getBoundingClientRect(),sx=(r.left+r.width/2)/innerWidth*W,sy=(r.top+r.height*.4)/innerHeight*H;
   const cols=["#ffd86b","#ffe9a8","#f5b82e","#fff4cf","#e0a020","#ffffff","#ffcf4d"];
-  const ps=Array.from({length:180},()=>{const a=Math.random()*Math.PI*2,v=(6+Math.random()*16)*(W/1000+.6);return{x:sx,y:sy,vx:Math.cos(a)*v,vy:Math.sin(a)*v-10*(W/1000+.6),r:3+Math.random()*6,rot:Math.random()*6,vr:(Math.random()-.5)*.3,c:cols[Math.random()*cols.length|0],s:Math.random()<.35}});
+  const ps=Array.from({length:0},()=>{const a=Math.random()*Math.PI*2,v=(6+Math.random()*16)*(W/1000+.6);return{x:sx,y:sy,vx:Math.cos(a)*v,vy:Math.sin(a)*v-10*(W/1000+.6),r:3+Math.random()*6,rot:Math.random()*6,vr:(Math.random()-.5)*.3,c:cols[Math.random()*cols.length|0],s:Math.random()<.35}});
   // sparks raining down from the top, with glowing trails
   const fall=Array.from({length:90},()=>({x:Math.random()*W,y:-Math.random()*H*.8,v:(9+Math.random()*14)*(H/1800+.5),l:16+Math.random()*34,w:1+Math.random()*2.2,c:cols[Math.random()*cols.length|0],d:Math.random()*1.2}));
   const t0=performance.now();
-  // the night's highlights play behind the gold, grainy and old-fashioned
-  winReel();
+
   const step=t=>{const k_=(t-t0)/1000;x.clearRect(0,0,W,H);
     x.save();x.globalCompositeOperation="lighter";
     for(const f of fall){if(k_<f.d)continue;f.y+=f.v;const g=x.createLinearGradient(f.x,f.y-f.l,f.x,f.y);g.addColorStop(0,"rgba(255,215,110,0)");g.addColorStop(1,f.c);
@@ -194,4 +197,24 @@ async function winReel(){
     v.classList.add("show");V[1-cur].classList.remove("show");cur=1-cur};
   play(i++);const t=setInterval(()=>play(i++),3600);
   setTimeout(()=>{clearInterval(t);box.classList.remove("on");setTimeout(()=>{V.forEach(v=>{v.pause();v.removeAttribute("src");v.load()});box.remove()},1800)},16000);
+}
+
+/* The night's highlights as the win card's moving background: whole clips, one after another, in sepia grain
+   under the gold. Keeps going while the card is on screen and pauses when it isn't (or the page is hidden). */
+async function cardReel(el){
+  const box=el.querySelector(".mvid");if(!box)return;const v=box.querySelector("video"),cap=el.querySelector(".mcap"),snd=el.querySelector(".msound");
+  let clips=[];try{clips=((await (await fetch("arena/reel.json?t="+Date.now(),{cache:"no-store"})).json()).clips)||[]}catch(e){}
+  clips=clips.filter(c=>c.mp4);if(!clips.length){box.remove();return}
+  v.muted=true;v.defaultMuted=true;v.playsInline=true;v.setAttribute("webkit-playsinline","");
+  let i=0,bad=0;
+  const load=()=>{const c=clips[i%clips.length];v.poster=c.img||"";v.src=c.mp4;v.load();
+    if(cap)cap.innerHTML=`<span>Tonight</span>${esc(c.title.replace(/: Game Highlights$/,""))}`;
+    const pr=v.play();if(pr)pr.catch(()=>{})};
+  v.onplaying=()=>{box.classList.add("on");bad=0};
+  v.onended=()=>{i++;load()};                       // a clip plays to the end before the next one starts
+  v.onerror=()=>{if(++bad>clips.length){box.classList.add("on","still");return}i++;load()};
+  load();
+  if(snd){snd.hidden=false;snd.onclick=()=>{v.muted=!v.muted;snd.textContent=v.muted?"🔇":"🔊";if(!v.muted)v.play().catch(()=>{})}}
+  const io=new IntersectionObserver(es=>{for(const e of es){if(e.isIntersecting&&!document.hidden)v.play().catch(()=>{});else v.pause()}},{threshold:.15});io.observe(el);
+  document.addEventListener("visibilitychange",()=>{if(document.hidden)v.pause();else if(el.isConnected)v.play().catch(()=>{})});
 }
