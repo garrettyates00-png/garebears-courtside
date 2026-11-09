@@ -15,6 +15,10 @@ function renderMood(){
   const sm=live?liveScore(me):0,so=live?liveScore(op):0,fm=finalMean(me),fo=finalMean(op);
   const wp=winProb(me,op),oname=esc(T[op].name);
   if(typeof setMoodHue==="function")setMoodHue(wp);
+  // legit over: last day of the matchup, nothing left projected for either side, no game still going
+  const going=t=>P(t).some(p=>{if(isBench(p.slot))return false;const g=gameOf(p);return g&&g.state!=="post"});
+  const lastDay=!(D.days||[]).some(d=>d>today);
+  if(live&&lastDay&&Math.abs(fm-sm)<1&&Math.abs(fo-so)<1&&!going(me)&&!going(op))return moodFinal(el,sm,so,oname);
   // today: actual so far vs what should be in by now, at today's projections
   const di=dayInfo(me,today);let past=0;const B=D.base&&D.base.teams[me];
   if(B)for(const [k,d] of Object.entries(B.days))if(k<today)past+=d.pts;
@@ -104,4 +108,39 @@ function renderMood(){
     ${chg}
     <p class="mwhy">${why.join(" ")}</p>
     ${spark?`<div class="msp"><span class="meye">Win chance this week · ${pc(Math.min(...tr))}–${pc(Math.max(...tr))}%</span>${spark}</div>`:""}`;
+}
+
+/* The result once the matchup is over. A win gets the gold treatment and a one-time burst of gold confetti. */
+function moodFinal(el,sm,so,oname){
+  const won=sm>so,tie=Math.round(sm)===Math.round(so),m=Math.round(Math.abs(sm-so)),salty=typeof PHONE!=="undefined"&&PHONE;
+  const opShort=esc(last(D.teams[D.opp].name));
+  const winLine=salty?(m>=150?`Won by ${m}. Absolutely fucking buried the ${opShort}.`:m>=40?`Won by ${m}. Get fucked, ${opShort}.`:`Won by ${m}. Close as hell, but a W is a fucking W.`)
+    :(m>=150?`Won by ${m}. A blowout.`:m>=40?`Won by ${m}. Clean win.`:`Won by ${m}. Close, but a win is a win.`);
+  const word=tie?"Tie.":won?"You won.":"You lost.";
+  const line=tie?"Dead even. Nobody gets the W.":won?winLine:`Lost by ${m}. Reset and run it back next week.`;
+  if(typeof setMoodHue==="function")setMoodHue(tie?.5:won?1:0);
+  el.className="mood "+(won&&!tie?"mwin":"m2 mloss")+(salty?"":" band");
+  el.innerHTML=`${won&&!tie?'<div class="mgold" aria-hidden="true"></div><div class="mspark2" aria-hidden="true">'+Array.from({length:14},(_,i)=>`<i style="--x:${(i*37)%100}%;--y:${(i*53)%100}%;--d:${(i%7)*.45}s"></i>`).join("")+"</div>":'<div class="mglow" aria-hidden="true"></div>'}
+    <div class="mtop"><div class="mleft"><div class="meye">Final · week ${D.period} vs ${oname}</div><div class="mword">${word}</div><div class="mquip">${line}</div></div>
+      <div class="mright"><div class="mres ${won&&!tie?"w":""}">${tie?"T":won?"W":"L"}</div></div></div>
+    <div class="mchips"><div class="mchip"><span>Final</span><b class="${won?"up":"down"}">${Math.round(sm)}<small>vs ${Math.round(so)}</small></b></div>
+      <div class="mchip"><span>Margin</span><b class="${won?"up":"down"}">${won?"+":tie?"":"−"}${m}</b></div></div>`;
+  if(won&&!tie)moodConfetti(el);
+}
+function moodConfetti(el){
+  // once per matchup per device
+  const k="grindex-won-"+D.period;try{if(localStorage.getItem(k))return;localStorage.setItem(k,"1")}catch(e){}
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  const c=document.createElement("canvas");c.className="mconf";document.body.appendChild(c);
+  const W=c.width=innerWidth*Math.min(2,devicePixelRatio||1),H=c.height=innerHeight*Math.min(2,devicePixelRatio||1),x=c.getContext("2d");
+  const r=el.getBoundingClientRect(),sx=(r.left+r.width/2)/innerWidth*W,sy=(r.top+r.height*.4)/innerHeight*H;
+  const cols=["#ffd86b","#ffe9a8","#f5b82e","#fff4cf","#e0a020","#ffffff","#ffcf4d"];
+  const ps=Array.from({length:180},()=>{const a=Math.random()*Math.PI*2,v=(6+Math.random()*16)*(W/1000+.6);return{x:sx,y:sy,vx:Math.cos(a)*v,vy:Math.sin(a)*v-10*(W/1000+.6),r:3+Math.random()*6,rot:Math.random()*6,vr:(Math.random()-.5)*.3,c:cols[Math.random()*cols.length|0],s:Math.random()<.35}});
+  const t0=performance.now();
+  const step=t=>{const k_=(t-t0)/1000;x.clearRect(0,0,W,H);
+    for(const p of ps){p.vy+=.45;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;x.save();x.translate(p.x,p.y);x.rotate(p.rot);x.globalAlpha=Math.max(0,1-k_/3.2);x.fillStyle=p.c;
+      if(p.s){x.beginPath();for(let i=0;i<5;i++){const a=i*1.2566-1.5708;x.lineTo(Math.cos(a)*p.r*1.4,Math.sin(a)*p.r*1.4);x.lineTo(Math.cos(a+.628)*p.r*.55,Math.sin(a+.628)*p.r*.55)}x.fill()}
+      else x.fillRect(-p.r,-p.r*.45,p.r*2,p.r*.9);x.restore()}
+    if(k_<3.4)requestAnimationFrame(step);else c.remove()};
+  requestAnimationFrame(step);
 }

@@ -836,6 +836,29 @@ body[data-view="fantasy"] .inslead,body[data-view="fantasy"] .rmwhy,body[data-vi
 .mood.band .mchg{grid-row:2}.mood.band .mwhy{grid-row:3;max-width:none}
 .mood.band .mglow{width:40%;inset:-120% -5% auto auto}
 @media (max-width:1180px){.mood.band{grid-template-columns:auto 1fr;grid-template-areas:"top chips" "why why"}.mood.band .msp{display:none}}
+
+/* ===== the win: gold trim, shimmer, sparkles ===== */
+@property --mga{syntax:"<angle>";inherits:false;initial-value:0deg}
+.mood.mwin{--mc1:#ffd86b;--mc2:#ffb020;background:radial-gradient(120% 140% at 0% 0%,rgba(255,215,110,.22),transparent 55%),radial-gradient(90% 120% at 100% 100%,rgba(255,170,40,.18),transparent 60%),linear-gradient(135deg,#1d1608,#120f08 60%,#1f1707);
+  box-shadow:0 0 0 1px rgba(255,214,107,.35),0 0 60px -10px rgba(255,190,60,.55),0 40px 100px -40px rgba(255,170,40,.6)}
+.mgold{position:absolute;inset:0;z-index:-1;border-radius:inherit;padding:2px;pointer-events:none;
+  background:conic-gradient(from var(--mga),#fff4cf,#ffd86b 12%,#b8860b 25%,#ffe9a8 38%,#f5b82e 50%,#fff8e1 62%,#c99016 75%,#ffd86b 88%,#fff4cf);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);
+  animation:mgspin 5s linear infinite}
+@keyframes mgspin{to{--mga:360deg}}
+.mood.mwin .mword{background:linear-gradient(100deg,#fff8e1,#ffd86b 30%,#f5b82e 50%,#fff4cf 65%,#e0a020 85%,#fff8e1);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 22px rgba(255,200,80,.55)) drop-shadow(0 4px 2px rgba(0,0,0,.4));animation:mshine 3.5s ease-in-out infinite}
+.mood.mwin .mquip{color:#ffe9a8}.mood.mwin .mchip{background:rgba(40,28,4,.55);box-shadow:inset 0 0 0 1px rgba(255,214,107,.25)}.mood.mwin .mchip b.up{color:#ffd86b;text-shadow:0 0 14px rgba(255,200,80,.5)}.mood.mwin .mchip span{color:rgba(255,233,168,.7)}.mood.mwin .meye{color:#ffd86b}
+.mres{width:110px;height:110px;border-radius:50%;display:grid;place-items:center;font:900 54px var(--sans);color:rgba(255,255,255,.55);box-shadow:inset 0 0 0 3px rgba(255,255,255,.12)}
+.mres.w{color:#2a1c02;background:radial-gradient(circle at 35% 30%,#fff8e1,#ffd86b 45%,#c99016);box-shadow:0 0 0 3px rgba(255,240,200,.6),0 0 40px rgba(255,200,80,.7),inset 0 -6px 14px rgba(120,70,0,.45);animation:mpulse 2.4s ease-in-out infinite}
+@keyframes mpulse{50%{box-shadow:0 0 0 3px rgba(255,240,200,.9),0 0 70px rgba(255,200,80,.95),inset 0 -6px 14px rgba(120,70,0,.45);transform:scale(1.04)}}
+.mspark2{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.mspark2 i{position:absolute;left:var(--x);top:var(--y);width:3px;height:3px;border-radius:50%;background:#fff;box-shadow:0 0 8px 2px #ffd86b;opacity:0;animation:mtw 3.2s var(--d) ease-in-out infinite}
+@keyframes mtw{0%,100%{opacity:0;transform:scale(.4)}50%{opacity:1;transform:scale(1.4)}}
+.mconf{position:fixed;inset:0;width:100vw;height:100vh;z-index:200;pointer-events:none}
+.mood.mloss .mword{animation:none}
+.mood.band .mres{width:64px;height:64px;font-size:30px}
+@media (max-width:700px){.mres{width:84px;height:84px;font-size:40px}}
 </style></head><body>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div><div class="btmfade" aria-hidden="true"></div>
 
@@ -1321,7 +1344,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1794193108";
+const BUILD="1794203057";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(()=>{if(!document.hidden)checkBuild()},90000);
 loadLog().then(()=>load(true));setInterval(()=>{if(!document.hidden)loadLog().then(()=>load(false))},120000);
@@ -1372,22 +1395,22 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1794193108"></script>
-<script src="season.js?v=1794193108"></script>
-<script src="bets.js?v=1794193108"></script>
-<script src="trades.js?v=1794193108"></script>
-<script src="tradelab.js?v=1794193108"></script>
-<script src="betshub.js?v=1794193108"></script>
-<script src="sim.js?v=1794193108"></script>
-<script src="overunder.js?v=1794193108"></script>
-<script src="profile.js?v=1794193108"></script>
-<script src="ask.js?v=1794193108"></script>
-<script src="timeline.js?v=1794193108"></script>
-<script src="nav.js?v=1794193108"></script>
-<script src="hoops.js?v=1794193108"></script>
-<script src="insights.js?v=1794193108"></script>
-<script src="rostermoves.js?v=1794193108"></script>
-<script src="lineupedit.js?v=1794193108"></script>
-<script src="mood.js?v=1794193108"></script>
-<script src="live.js?v=1794193108"></script>
+<script src="arena.js?v=1794203057"></script>
+<script src="season.js?v=1794203057"></script>
+<script src="bets.js?v=1794203057"></script>
+<script src="trades.js?v=1794203057"></script>
+<script src="tradelab.js?v=1794203057"></script>
+<script src="betshub.js?v=1794203057"></script>
+<script src="sim.js?v=1794203057"></script>
+<script src="overunder.js?v=1794203057"></script>
+<script src="profile.js?v=1794203057"></script>
+<script src="ask.js?v=1794203057"></script>
+<script src="timeline.js?v=1794203057"></script>
+<script src="nav.js?v=1794203057"></script>
+<script src="hoops.js?v=1794203057"></script>
+<script src="insights.js?v=1794203057"></script>
+<script src="rostermoves.js?v=1794203057"></script>
+<script src="lineupedit.js?v=1794203057"></script>
+<script src="mood.js?v=1794203057"></script>
+<script src="live.js?v=1794203057"></script>
 </body></html>
