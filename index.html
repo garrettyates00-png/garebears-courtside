@@ -859,6 +859,30 @@ body[data-view="fantasy"] .inslead,body[data-view="fantasy"] .rmwhy,body[data-vi
 .mood.mloss .mword{animation:none}
 .mood.band .mres{width:64px;height:64px;font-size:30px}
 @media (max-width:700px){.mres{width:84px;height:84px;font-size:40px}}
+
+/* ===== week results (Sunday night / Monday) ===== */
+#secMatchups.showres>.sec-h,#secMatchups.showres #cards,#secMatchups.showres #cardX{display:none}
+.reshead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:18px}.reshead h3{margin:2px 0 0;font:700 clamp(26px,3.4vw,34px) var(--sans);letter-spacing:-.02em}
+.resback{margin-bottom:12px}
+.resgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(260px,100%),1fr));gap:14px}
+.rescard{position:relative;isolation:isolate;display:grid;gap:12px;padding:18px;border-radius:20px;overflow:hidden}
+.rescard.won{background:radial-gradient(120% 120% at 0% 0%,rgba(255,215,110,.2),transparent 55%),linear-gradient(140deg,#1d1608,#131008 65%,#1c1507);box-shadow:0 0 0 1px rgba(255,214,107,.4),0 0 40px -12px rgba(255,190,60,.55)}
+.rescard.lost{background:radial-gradient(120% 120% at 100% 0%,rgba(255,80,90,.16),transparent 55%),linear-gradient(140deg,#1a0d10,#120b0d);box-shadow:0 0 0 1px rgba(255,90,100,.45),0 0 30px -14px rgba(255,70,90,.5)}
+.rescard.tie{background:rgba(255,255,255,.04);box-shadow:0 0 0 1px rgba(255,255,255,.12)}
+.rescard.me{outline:2px solid rgba(255,255,255,.7);outline-offset:3px}
+.rgold{position:absolute;inset:0;z-index:-1;border-radius:inherit;padding:2px;pointer-events:none;
+  background:conic-gradient(from var(--mga),#fff4cf,#ffd86b 12%,#b8860b 25%,#ffe9a8 38%,#f5b82e 50%,#fff8e1 62%,#c99016 75%,#ffd86b 88%,#fff4cf);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);animation:mgspin 6s linear infinite}
+.rtop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.rteam{min-width:0}.rteam b{display:block;font:600 17px var(--sans);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rteam small{color:var(--faint);font-size:12px}
+.rcoin{flex:none;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font:900 20px var(--sans)}
+.won .rcoin{color:#2a1c02;background:radial-gradient(circle at 35% 30%,#fff8e1,#ffd86b 45%,#c99016);box-shadow:0 0 18px rgba(255,200,80,.7)}
+.lost .rcoin{color:#fff;background:linear-gradient(140deg,#ff5f6d,#b3123a);box-shadow:0 0 14px rgba(255,70,90,.45)}.tie .rcoin{background:rgba(255,255,255,.12)}
+.rscore b{font:800 44px/1 var(--sans);letter-spacing:-.03em}.won .rscore b{background:linear-gradient(100deg,#fff8e1,#ffd86b 40%,#f5b82e);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lost .rscore b{color:#ffb3b9}.rscore span{display:block;margin-top:4px;font-size:13px;color:var(--mute)}
+.rstats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.rstats span{display:grid;gap:1px;font:700 15px var(--mono)}.rstats small{font:500 9.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}.rstats em{font-style:normal}
+.won .rstats small{color:rgba(255,233,168,.65)}
+@media (max-width:820px),(pointer:coarse){.rgold{animation:none}}
+@media (max-width:700px){.rescard{padding:14px 16px;gap:8px;border-radius:18px}.rscore b{font-size:34px}.rcoin{width:36px;height:36px;font-size:17px}.rteam b{font-size:16px}.rstats span{font-size:14px}.resgrid{gap:10px}}
 </style></head><body>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div><div class="btmfade" aria-hidden="true"></div>
 
@@ -1278,7 +1302,7 @@ function renderAll(){
   if(document.body.dataset.view!=="arena")$("#pulled").textContent="Updated "+D.pulled;$("#dot").classList.toggle("stale",age>75);
   if(!forcing){if(age>75)staleNote(age);else $("#status").textContent=""}
   // each part renders on its own, so one failing section can't blank out the ones after it
-  const parts=[()=>typeof renderMood==="function"&&renderMood(),()=>renderHero(),()=>renderCards(),()=>renderDays(),()=>renderPower(),()=>renderStrength(selTeam),()=>renderWire(),()=>renderScoring(),()=>renderNewsroom(),
+  const parts=[()=>typeof renderMood==="function"&&renderMood(),()=>renderHero(),()=>renderCards(),()=>typeof renderResults==="function"&&renderResults(),()=>renderDays(),()=>renderPower(),()=>renderStrength(selTeam),()=>renderWire(),()=>renderScoring(),()=>renderNewsroom(),
     ()=>typeof renderAsk==="function"&&!document.activeElement?.closest?.("#askF")&&renderAsk(),
     ()=>typeof renderTrades==="function"&&renderTrades(),()=>typeof renderOU==="function"&&renderOU(),()=>typeof renderInsights==="function"&&renderInsights(),
     ()=>{if(typeof renderSim==="function"){SIMR=null;if(PHONE)simWhenVisible();else renderSim()}},()=>typeof tlWhenVisible==="function"&&tlWhenVisible()];
@@ -1344,7 +1368,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1794203057";
+const BUILD="1794203181";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(()=>{if(!document.hidden)checkBuild()},90000);
 loadLog().then(()=>load(true));setInterval(()=>{if(!document.hidden)loadLog().then(()=>load(false))},120000);
@@ -1395,22 +1419,23 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1794203057"></script>
-<script src="season.js?v=1794203057"></script>
-<script src="bets.js?v=1794203057"></script>
-<script src="trades.js?v=1794203057"></script>
-<script src="tradelab.js?v=1794203057"></script>
-<script src="betshub.js?v=1794203057"></script>
-<script src="sim.js?v=1794203057"></script>
-<script src="overunder.js?v=1794203057"></script>
-<script src="profile.js?v=1794203057"></script>
-<script src="ask.js?v=1794203057"></script>
-<script src="timeline.js?v=1794203057"></script>
-<script src="nav.js?v=1794203057"></script>
-<script src="hoops.js?v=1794203057"></script>
-<script src="insights.js?v=1794203057"></script>
-<script src="rostermoves.js?v=1794203057"></script>
-<script src="lineupedit.js?v=1794203057"></script>
-<script src="mood.js?v=1794203057"></script>
-<script src="live.js?v=1794203057"></script>
+<script src="arena.js?v=1794203181"></script>
+<script src="season.js?v=1794203181"></script>
+<script src="bets.js?v=1794203181"></script>
+<script src="trades.js?v=1794203181"></script>
+<script src="tradelab.js?v=1794203181"></script>
+<script src="betshub.js?v=1794203181"></script>
+<script src="sim.js?v=1794203181"></script>
+<script src="overunder.js?v=1794203181"></script>
+<script src="profile.js?v=1794203181"></script>
+<script src="ask.js?v=1794203181"></script>
+<script src="timeline.js?v=1794203181"></script>
+<script src="nav.js?v=1794203181"></script>
+<script src="hoops.js?v=1794203181"></script>
+<script src="insights.js?v=1794203181"></script>
+<script src="rostermoves.js?v=1794203181"></script>
+<script src="lineupedit.js?v=1794203181"></script>
+<script src="results.js?v=1794203181"></script>
+<script src="mood.js?v=1794203181"></script>
+<script src="live.js?v=1794203181"></script>
 </body></html>
