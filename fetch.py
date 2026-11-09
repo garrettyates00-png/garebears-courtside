@@ -64,7 +64,7 @@ def main():
         f, l = mem.get(t.get("primaryOwner") or t["owners"][0], ("", ""))
         rec = t.get("record", {}).get("overall", {})
         teams[t["id"]] = dict(name=t["name"].strip(), owner=short_name(f, l), w=rec.get("wins", 0), l=rec.get("losses", 0), ti=rec.get("ties", 0),
-                              pf=round(rec.get("pointsFor", 0), 1))
+                              pf=round(rec.get("pointsFor", 0), 1), logo=t.get("logo") or "")
 
     # NBA schedule: team abbrev and game dates (Central time)
     pro_abbr, games = {}, {}
