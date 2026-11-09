@@ -960,6 +960,41 @@ body[data-view="fantasy"] .inslead,body[data-view="fantasy"] .rmwhy,body[data-vi
 .wrtxt{font:500 13.5px var(--sans);color:#fff4cf;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 @media (prefers-reduced-motion:reduce){.wrrain{display:none}}
 @media (max-width:820px){#winreel{padding:10px;margin:10px 0 20px}.wrtitle{font-size:16px}}
+
+/* desktop status row */
+.mood.mdesk{padding:22px 26px 18px;border-radius:20px;margin-bottom:20px}
+.mood.mdesk .mglow{width:45%;inset:-110% -8% auto auto;opacity:.7}
+.mdrow{display:grid;grid-template-columns:minmax(230px,1fr) auto auto;align-items:center;gap:28px}
+.mdhead{min-width:0}
+.mood.mdesk .meye{font-size:10.5px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mdword{margin:4px 0 2px;font:800 56px/1 var(--sans);letter-spacing:-.04em;color:var(--mc1);text-shadow:0 0 28px color-mix(in srgb,var(--mc1) 35%,transparent);white-space:nowrap;padding-bottom:.08em}
+.mdquip{font:500 14px/1.4 var(--sans);color:var(--mute)}
+.mdstats{display:grid;grid-template-columns:repeat(3,minmax(128px,auto));border-left:1px solid rgba(255,255,255,.08)}
+.mds{display:grid;align-content:start;gap:4px;padding:2px 24px;border-right:1px solid rgba(255,255,255,.08);min-width:0}
+.mdl{font:600 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--faint);white-space:nowrap}
+.mdv{font:700 30px/1.05 var(--sans);letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:var(--ink)}
+.mdv small{font-size:.55em;font-weight:600;margin-left:1px;opacity:.75}
+.mdsub{font:500 12.5px var(--sans);color:var(--mute);white-space:nowrap;font-variant-numeric:tabular-nums}
+.mdsub em{font-style:normal;font-weight:700}.mdsub em.up{color:var(--up)}.mdsub em.down{color:var(--down)}
+.mds.pace.ok{--pt:#5ee39a}.mds.pace.warn{--pt:#ffc94d}.mds.pace.bad{--pt:#ff5a64}
+.mds.pace .mdv{color:var(--pt,var(--ink))}
+.mdbar{position:relative;height:6px;margin-top:4px;border-radius:99px;background:rgba(255,255,255,.08)}
+.mdbar i{position:absolute;inset:0 auto 0 0;border-radius:inherit;background:var(--pt,#888);box-shadow:0 0 10px color-mix(in srgb,var(--pt,#888) 55%,transparent);transition:width .6s ease}
+.mdbar u{position:absolute;left:80%;top:-3px;bottom:-3px;width:2px;border-radius:2px;background:rgba(255,255,255,.55)}  /* 100% mark */
+.mdwin{display:grid;justify-items:center;gap:8px;padding-left:4px}
+.mdring{position:relative;width:96px;height:96px}
+.mdring svg{width:100%;height:100%;display:block}
+.mood.mdesk .mg0,.mood.mdesk .mg1{stroke-width:7}
+.mdring b{position:absolute;inset:0;display:grid;place-items:center;font:800 24px var(--sans);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.mdring b small{font-size:.55em;font-weight:600;opacity:.75}
+.mdring b{grid-auto-flow:column;place-content:center;align-items:baseline}
+.mdfoot{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,.07)}
+.mdtext{display:grid;gap:8px;min-width:0}
+.mood.mdesk .mwhy{margin:0;font-size:13.5px;line-height:1.55;max-width:760px}
+.mood.mdesk .mchg{margin:0;font-size:13px}
+.mdtrail{flex:none;display:grid;gap:4px;width:220px}.mdtrail .mspark{height:36px;max-width:none}
+@media (max-width:1240px){.mds{padding:2px 16px}.mdstats{grid-template-columns:repeat(3,minmax(112px,auto))}.mdword{font-size:46px}.mdv{font-size:26px}.mdrow{gap:20px}.mdring{width:84px;height:84px}.mdring b{font-size:21px}}
+@media (max-width:1060px){.mdrow{grid-template-columns:1fr auto;grid-template-areas:"head win" "stats stats"}.mdhead{grid-area:head}.mdwin{grid-area:win}.mdstats{grid-area:stats;border-left:0;border-top:1px solid rgba(255,255,255,.08);padding-top:14px}.mds:first-child{padding-left:0}.mdtrail{display:none}}
 </style></head><body>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div><div class="btmfade" aria-hidden="true"></div>
 
@@ -1445,7 +1480,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1794205197";
+const BUILD="1794257589";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(()=>{if(!document.hidden)checkBuild()},90000);
 loadLog().then(()=>load(true));setInterval(()=>{if(!document.hidden)loadLog().then(()=>load(false))},120000);
@@ -1496,23 +1531,23 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1794205197"></script>
-<script src="season.js?v=1794205197"></script>
-<script src="bets.js?v=1794205197"></script>
-<script src="trades.js?v=1794205197"></script>
-<script src="tradelab.js?v=1794205197"></script>
-<script src="betshub.js?v=1794205197"></script>
-<script src="sim.js?v=1794205197"></script>
-<script src="overunder.js?v=1794205197"></script>
-<script src="profile.js?v=1794205197"></script>
-<script src="ask.js?v=1794205197"></script>
-<script src="timeline.js?v=1794205197"></script>
-<script src="nav.js?v=1794205197"></script>
-<script src="hoops.js?v=1794205197"></script>
-<script src="insights.js?v=1794205197"></script>
-<script src="rostermoves.js?v=1794205197"></script>
-<script src="lineupedit.js?v=1794205197"></script>
-<script src="results.js?v=1794205197"></script>
-<script src="mood.js?v=1794205197"></script>
-<script src="live.js?v=1794205197"></script>
+<script src="arena.js?v=1794257589"></script>
+<script src="season.js?v=1794257589"></script>
+<script src="bets.js?v=1794257589"></script>
+<script src="trades.js?v=1794257589"></script>
+<script src="tradelab.js?v=1794257589"></script>
+<script src="betshub.js?v=1794257589"></script>
+<script src="sim.js?v=1794257589"></script>
+<script src="overunder.js?v=1794257589"></script>
+<script src="profile.js?v=1794257589"></script>
+<script src="ask.js?v=1794257589"></script>
+<script src="timeline.js?v=1794257589"></script>
+<script src="nav.js?v=1794257589"></script>
+<script src="hoops.js?v=1794257589"></script>
+<script src="insights.js?v=1794257589"></script>
+<script src="rostermoves.js?v=1794257589"></script>
+<script src="lineupedit.js?v=1794257589"></script>
+<script src="results.js?v=1794257589"></script>
+<script src="mood.js?v=1794257589"></script>
+<script src="live.js?v=1794257589"></script>
 </body></html>

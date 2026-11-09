@@ -33,7 +33,11 @@ function renderMood(){
   const dToday=actToday!=null&&expToday!=null&&expToday>5?actToday-expToday:null;
   // tier: win chance first, today's pace moves it one step
   let tier=wp>=.88?6:wp>=.72?5:wp>=.55?4:wp>=.4?3:wp>=.2?2:1;
-  if(dToday!=null){if(dToday>=20&&tier<6)tier++;else if(dToday<=-20&&tier>1)tier--}
+  // pace for the week so far (actual vs what should be in by now) moves it: on track keeps it, a bit behind drops one
+  // step, well behind drops two; with little played yet, today's pace nudges it instead
+  const pace=live&&ex!=null&&ex>=60?sm/ex:null;
+  if(pace!=null){if(pace>=1.05&&tier<6)tier++;else if(pace<.88)tier=Math.max(1,tier-2);else if(pace<.97)tier=Math.max(1,tier-1)}
+  else if(dToday!=null){if(dToday>=20&&tier<6)tier++;else if(dToday<=-20&&tier>1)tier--}
   // perfect day: every starter whose game is over beat his number and you're comfortably ahead
   const N=typeof notes==="function"?notes(me):[];
   const done=N.filter(n=>/finished with/.test(n.t));
@@ -107,6 +111,7 @@ function renderMood(){
     dToday!=null?chip("Today",`${dToday>=0?"+":"−"}${n0(Math.abs(dToday))}<small>vs pace</small>`,dToday>=0?"up":"down"):"",
     LV.ok?chip("Left",`${left}<small>vs ${oleft}</small>`):"",
     live?chip("Final",vs(fm,fo),fm>=fo?"up":"down"):""].join("");
+  if(!salty)return moodDesk(el,{cls,word,quip,oname,live,sm,so,fm,fo,wp,ex,chg,tr,spark,why,left,oleft});
   el.className="mood "+cls+(salty?"":" band");
   el.innerHTML=`<div class="mglow" aria-hidden="true"></div>
     <div class="mtop"><div class="mleft"><div class="meye">This week vs ${oname}</div><div class="mword">${word}.</div><div class="mquip">${quip}</div></div>
@@ -115,6 +120,33 @@ function renderMood(){
     ${chg}
     <p class="mwhy">${why.join(" ")}</p>
     ${spark?`<div class="msp"><span class="meye">Win chance this week · ${pc(Math.min(...tr))}–${pc(Math.max(...tr))}%</span>${spark}</div>`:""}`;
+}
+
+/* Desktop status: one clean row. Verdict on the left, the numbers in the middle (current, projected final, and pace
+   as a % of what you should have by now: 100% is on track, yellow below that, red well below), win chance on the
+   right. The detail line, what changed and the week's trail sit underneath. */
+function moodPaceTone(p){return p==null?"":p>=.97?"ok":p>=.88?"warn":"bad"}
+function moodDesk(el,o){
+  const N=v=>moodNum(v),pct=o.live&&o.ex!=null&&o.ex>5?o.sm/o.ex:null,tone=moodPaceTone(pct);
+  const lead=o.sm-o.so,gap=o.fm-o.fo;
+  const stat=(lab,val,sub,cls="",extra="")=>`<div class="mds ${cls}"><span class="mdl">${lab}</span><b class="mdv">${val}</b><span class="mdsub">${sub}</span>${extra}</div>`;
+  const cur=o.live?stat("Current",N(o.sm),`vs ${N(o.so)} · <em class="${lead>=0?"up":"down"}">${lead>=0?"+":"−"}${N(Math.abs(lead))}</em>`)
+    :stat("Current","0","Week hasn't started");
+  const fin=stat("Projected final",N(o.fm),`vs ${N(o.fo)} · <em class="${gap>=0?"up":"down"}">${gap>=0?"+":"−"}${N(Math.abs(gap))}</em>`);
+  const bar=pct!=null?`<div class="mdbar ${tone}" role="meter" aria-valuemin="0" aria-valuemax="125" aria-valuenow="${Math.round(pct*100)}" aria-label="Pace"><i style="width:${Math.min(100,pct/1.25*100).toFixed(1)}%"></i><u></u></div>`:`<div class="mdbar"><u></u></div>`;
+  const pace=stat("Pace",pct!=null?`${Math.round(pct*100)}<small>%</small>`:"—",
+    pct!=null?`${N(o.sm)} of ${N(o.ex)} expected`:"No games played yet",`pace ${tone}`,bar);
+  const R=40,C=2*Math.PI*R,arc=C*.75,fill=arc*o.wp;
+  const ring=`<div class="mdwin"><div class="mdring"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="${R}" class="mg0" stroke-dasharray="${arc} ${C}" transform="rotate(135 50 50)"/><circle cx="50" cy="50" r="${R}" class="mg1" stroke-dasharray="${fill} ${C}" transform="rotate(135 50 50)"/></svg><b>${pc(o.wp)}<small>%</small></b></div><span class="mdl">Win chance</span></div>`;
+  const trail=o.spark?`<div class="mdtrail"><span class="mdl">This week ${pc(Math.min(...o.tr))}–${pc(Math.max(...o.tr))}%</span>${o.spark}</div>`:"";
+  el.className="mood mdesk "+o.cls;delete el.dataset.final;
+  el.innerHTML=`<div class="mglow" aria-hidden="true"></div>
+    <div class="mdrow">
+      <div class="mdhead"><div class="meye">This week · vs ${o.oname}</div><div class="mdword">${o.word}</div><div class="mdquip">${o.quip}</div></div>
+      <div class="mdstats">${cur}${fin}${pace}</div>
+      ${ring}
+    </div>
+    <div class="mdfoot"><div class="mdtext">${o.chg}<p class="mwhy">${o.why.join(" ")}</p></div>${trail}</div>`;
 }
 
 /* The result once the matchup is over. A win gets the gold treatment and a one-time burst of gold confetti. */
