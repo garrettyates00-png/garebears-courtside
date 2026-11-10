@@ -1,12 +1,10 @@
 /* The one-line verdict at the very top of Fantasy: how the week is going, in plain words, and why.
    Win chance sets the base, today's pace vs expectation nudges it, refreshed with every data pull and live tick. */
-// phones get the salty version; desktop stays clean
-const MOOD_CLEAN=[["Rough","m1","A tough week so far. Check the lineup."],["Not great","m2","Still alive, but it needs a push."],
-  ["Toss-up","m3","Could go either way. Somebody needs to step up."],["Going well","m4","Keep it rolling."],
-  ["Good","m5","You're cooking. Stay the course."],["Great","m6","In full control."]];
-const MOOD=[["Fucking awful","m1","This shit is ugly. Somebody check the lineup."],["Shitty","m2","Not dead yet, but it smells like shit."],
-  ["Mid as hell","m3","Coin flip. Somebody needs to fucking show up."],["Pretty damn good","m4","Keep this shit rolling."],
-  ["Damn good","m5","You're cooking. Don't fuck it up."],["Fucking great","m6","Absolutely cooking their ass."]];
+// fun words, no cursing (same on phone and desktop)
+const MOOD=[["Catastrophic","m1","Somebody check the lineup. Please."],["Melancholy","m2","Not dead yet, but it's gloomy out here."],
+  ["Dicey","m3","Coin flip. Somebody needs to show up."],["Decent","m4","Solid footing. Keep it rolling."],
+  ["Cooking","m5","Stay the course. Don't let it burn."],["Untouchable","m6","In full control. They're cooked."]];
+const MOOD_CLEAN=MOOD;
 function moodNum(v){return Math.round(v).toLocaleString("en-US")}
 function renderMood(){
   const el=$("#mood");if(!el||!D||!D.opp||!D.teams[D.opp]){if(el)el.innerHTML="";return}
@@ -44,19 +42,19 @@ function renderMood(){
   const perfect=done.length>=3&&done.every(n=>n.s>0)&&wp>=.75;
   const insane=wp>=.97&&dToday!=null&&dToday>=30;
   const salty=typeof PHONE!=="undefined"&&PHONE;
-  const [word,cls,quip]=insane?(salty?["Fucking insane","m6","Call it. This one's over."]:["Dominant","m6","Call it. This one's over."])
-    :perfect?(salty?["Fucking perfect","m6","Every damn starter beat his number."]:["Perfect","m6","Every starter beat his number."])
-    :(salty?MOOD:MOOD_CLEAN)[tier-1];
+  const [word,cls,quip]=insane?(["INSANE","m6","Call it. This one's over."])
+    :perfect?["Flawless","m6","Every starter beat his number."]
+    :MOOD[tier-1];
   // why
   const why=[];
   if(live){const lead=sm-so,sc=`<b>${moodNum(sm)}–${moodNum(so)}</b>`;
-    const how=lead>=150?(salty?`You're beating ${oname}'s ass ${sc}`:`You're running away from ${oname} ${sc}`):lead>=40?`You lead ${oname} ${sc}`:lead>=0?`You're barely ahead of ${oname} ${sc}`
-      :lead>-40?`You're barely behind ${oname} ${sc}`:lead>-150?`You trail ${oname} ${sc}`:(salty?`${oname} are kicking your ass ${sc}`:`${oname} are running away with it ${sc}`);
+    const how=lead>=150?`You're running away from ${oname} ${sc}`:lead>=40?`You lead ${oname} ${sc}`:lead>=0?`You're barely ahead of ${oname} ${sc}`
+      :lead>-40?`You're barely behind ${oname} ${sc}`:lead>-150?`You trail ${oname} ${sc}`:`${oname} are running away with it ${sc}`;
     why.push(`${how}, and you're <b>${pc(wp)}%</b> to win.`)}
   else why.push(`You're projected <b>${moodNum(fm)}–${moodNum(fo)}</b> against ${oname}, <b>${pc(wp)}%</b> to win.`);
   if(dToday!=null){
     const best=N.filter(n=>n.s>0).sort((a,b)=>b.s-a.s)[0],worst=N.filter(n=>n.s<0).sort((a,b)=>a.s-b.s)[0];
-    why.push(`Today you have <b>${moodNum(actToday)}</b>, ${Math.abs(dToday)<4?"right where you should be":dToday>0?`<b class="up">${moodNum(dToday)} ahead</b> of where you should be${dToday>=25&&salty?" (hell yeah)":""}`:`<b class="down">${moodNum(-dToday)} behind</b> where you should be${dToday<=-25&&salty?" (come the fuck on)":""}`}${best?`, led by ${esc(last(best.p.n))}`:""}${worst&&dToday<0?`; ${esc(last(worst.p.n))} is the drag`:""}.`);
+    why.push(`Today you have <b>${moodNum(actToday)}</b>, ${Math.abs(dToday)<4?"right where you should be":dToday>0?`<b class="up">${moodNum(dToday)} ahead</b> of where you should be${dToday>=25?" (let's go)":""}`:`<b class="down">${moodNum(-dToday)} behind</b> where you should be${dToday<=-25?" (wake up, fellas)":""}`}${best?`, led by ${esc(last(best.p.n))}`:""}${worst&&dToday<0?`; ${esc(last(worst.p.n))} is the drag`:""}.`);
   }
   const left=P(me).filter(p=>!isBench(p.slot)&&(()=>{const g=gameOf(p);return g&&g.state!=="post"})()).length;
   if(left)why.push(`${left} of your starter${left>1?"s":""} still to play today.`);
@@ -65,8 +63,8 @@ function renderMood(){
     const lead=sm-so,fin=`<b>${moodNum(fm)}–${moodNum(fo)}</b>`;
     const over=Math.abs(fm-sm)<1&&Math.abs(fo-so)<1;   // nothing left to play this week
     if(over){why.length=0;const m=Math.round(Math.abs(lead));
-      why.push(lead>=0?`Final: you beat ${oname} <b>${moodNum(sm)}–${moodNum(so)}</b>, by ${m}.${salty&&m<40?" Too damn close, but a W is a W.":""}`
-        :`Final: ${oname} won <b>${moodNum(so)}–${moodNum(sm)}</b>, by ${m}.${salty?(m<40?" That's some bullshit.":" Flush it."):""}`)}
+      why.push(lead>=0?`Final: you beat ${oname} <b>${moodNum(sm)}–${moodNum(so)}</b>, by ${m}.${m<40?" Too close for comfort, but a W is a W.":""}`
+        :`Final: ${oname} won <b>${moodNum(so)}–${moodNum(sm)}</b>, by ${m}.${m<40?" That one stings.":" Flush it."}`)}
     else
     why.push(gap>=0&&lead<0?`You have more games left, so it should flip: about ${fin} at the end.`
       :gap>=0?`It should end around ${fin}.`
@@ -154,8 +152,7 @@ function moodFinal(el,sm,so,oname,week,opp){
   week=week||D.period;opp=opp||D.opp;
   const won=sm>so,tie=Math.round(sm)===Math.round(so),m=Math.round(Math.abs(sm-so)),salty=typeof PHONE!=="undefined"&&PHONE;
   const opShort=esc(last(D.teams[opp].name));
-  const winLine=salty?(m>=150?`Won by ${m}. Absolutely fucking buried the ${opShort}.`:m>=40?`Won by ${m}. Get fucked, ${opShort}.`:`Won by ${m}. Close as hell, but a W is a fucking W.`)
-    :(m>=150?`Won by ${m}. A blowout.`:m>=40?`Won by ${m}. Clean win.`:`Won by ${m}. Close, but a win is a win.`);
+  const winLine=m>=150?`Won by ${m}. Absolutely buried the ${opShort}.`:m>=40?`Won by ${m}. Sit down, ${opShort}.`:`Won by ${m}. Nail-biter, but a W is a W.`;
   const word=tie?"Tie.":won?"You won.":"You lost.";
   const line=tie?"Dead even. Nobody gets the W.":won?winLine:`Lost by ${m}. Reset and run it back next week.`;
   if(typeof setMoodHue==="function")setMoodHue(tie?.5:won?1:0);
