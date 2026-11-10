@@ -2,7 +2,7 @@
    Win chance sets the base, today's pace vs expectation nudges it, refreshed with every data pull and live tick. */
 // fun words, no cursing (same on phone and desktop)
 const MOOD=[["Catastrophic","m1","Somebody check the lineup. Please."],["Melancholy","m2","Not dead yet, but it's gloomy out here."],
-  ["Dicey","m3","Coin flip. Somebody needs to show up."],["Decent","m4","Solid footing. Keep it rolling."],
+  ["Dicey","m3","Getting shaky. Somebody needs to show up."],["Decent","m4","Solid footing. Keep it rolling."],
   ["Cooking","m5","Stay the course. Don't let it burn."],["Untouchable","m6","In full control. They're cooked."]];
 const MOOD_CLEAN=MOOD;
 function moodNum(v){return Math.round(v).toLocaleString("en-US")}
