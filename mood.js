@@ -18,7 +18,6 @@ function renderMood(){
       if(g&&H.act){const o=g[1]==me?g[2]:g[1];return moodFinal(el,H.act[me]||0,H.act[o]||0,esc(T[o].name),R.w,o)}}}
   if(typeof goldOn!=="undefined"&&goldOn)goldMode(false);
   reelOff();
-  if(typeof setMoodHue==="function")setMoodHue(wp);
   // legit over: last day of the matchup, nothing left projected for either side, no game still going
   const going=t=>P(t).some(p=>{if(isBench(p.slot))return false;const g=gameOf(p);return g&&g.state!=="post"});
   const lastDay=!(D.days||[]).some(d=>d>today);
@@ -36,6 +35,8 @@ function renderMood(){
   const pace=live&&ex!=null&&ex>=60?sm/ex:null;
   if(pace!=null){if(pace>=1.05&&tier<6)tier++;else if(pace<.88)tier=Math.max(1,tier-2);else if(pace<.97)tier=Math.max(1,tier-1)}
   else if(dToday!=null){if(dToday>=20&&tier<6)tier++;else if(dToday<=-20&&tier>1)tier--}
+  // color mode follows the status word, not the raw win chance (Dicey is yellow even at 80%)
+  if(typeof setMoodHue==="function")setMoodHue((tier-1)/5);
   // perfect day: every starter whose game is over beat his number and you're comfortably ahead
   const N=typeof notes==="function"?notes(me):[];
   const done=N.filter(n=>/finished with/.test(n.t));
@@ -97,7 +98,7 @@ function renderMood(){
   if(tr.length>=3){const lo=Math.max(0,Math.min(...tr,.5)-.06),hi=Math.min(1,Math.max(...tr,.5)+.06);
     const W=220,Hh=48,X=i=>i/(tr.length-1)*W,Y=v=>Hh-4-(v-lo)/(hi-lo||1)*(Hh-8);
     const d_=tr.map((v,i)=>`${i?"L":"M"}${X(i).toFixed(1)} ${Y(v).toFixed(1)}`).join(" ");
-    spark=`<svg class="mspark" viewBox="0 0 ${W} ${Hh}" preserveAspectRatio="none" aria-label="Win chance this week"><line x1="0" x2="${W}" y1="${Y(.5)}" y2="${Y(.5)}" class="mmid"/><path d="${d_} L${W} ${Hh} L0 ${Hh}Z" class="marea"/><path d="${d_}" class="mline"/><circle cx="${X(tr.length-1)}" cy="${Y(tr[tr.length-1])}" r="3.5" class="mdot"/></svg>`}
+    spark=`<svg class="mspark" viewBox="0 0 ${W} ${Hh}" preserveAspectRatio="none" aria-label="Win chance this week"><line x1="0" x2="${W}" y1="${Y(.5)}" y2="${Y(.5)}" class="mmid"/><path d="${d_} L${W} ${Hh} L0 ${Hh}Z" class="marea"/><path d="${d_}" class="mline"/><path d="M${X(tr.length-1).toFixed(1)} ${Y(tr[tr.length-1]).toFixed(1)}h0" class="mdot"/></svg>`}
   // gauge
   const R=46,C=2*Math.PI*R,arc=C*.75,fill=arc*wp;
   const gauge=`<svg class="mgauge" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="${R}" class="mg0" stroke-dasharray="${arc} ${C}" transform="rotate(135 60 60)"/><circle cx="60" cy="60" r="${R}" class="mg1" stroke-dasharray="${fill} ${C}" transform="rotate(135 60 60)"/></svg><div class="mgv"><b>${pc(wp)}%</b><span>to win</span></div>`;

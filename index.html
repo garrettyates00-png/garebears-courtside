@@ -995,6 +995,9 @@ body[data-view="fantasy"] .inslead,body[data-view="fantasy"] .rmwhy,body[data-vi
 .mdtrail{flex:none;display:grid;gap:4px;width:220px}.mdtrail .mspark{height:36px;max-width:none}
 @media (max-width:1240px){.mds{padding:2px 16px}.mdstats{grid-template-columns:repeat(3,minmax(112px,auto))}.mdword{font-size:46px}.mdv{font-size:26px}.mdrow{gap:20px}.mdring{width:84px;height:84px}.mdring b{font-size:21px}}
 @media (max-width:1060px){.mdrow{grid-template-columns:1fr auto;grid-template-areas:"head win" "stats stats"}.mdhead{grid-area:head}.mdwin{grid-area:win}.mdstats{grid-area:stats;border-left:0;border-top:1px solid rgba(255,255,255,.08);padding-top:14px}.mds:first-child{padding-left:0}.mdtrail{display:none}}
+
+.mdot{fill:none!important;stroke:#fff;stroke-width:7px;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.askbtns .x,.askprev .x,td .x{position:static;flex:none;width:32px;height:32px;min-width:32px;min-height:32px;max-height:32px;padding:0;display:inline-grid;place-items:center;aspect-ratio:1;font-size:14px}
 </style></head><body>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div><div class="btmfade" aria-hidden="true"></div>
 
@@ -1480,7 +1483,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1794273827";
+const BUILD="1794283274";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(()=>{if(!document.hidden)checkBuild()},90000);
 loadLog().then(()=>load(true));setInterval(()=>{if(!document.hidden)loadLog().then(()=>load(false))},120000);
@@ -1531,23 +1534,23 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1794273827"></script>
-<script src="season.js?v=1794273827"></script>
-<script src="bets.js?v=1794273827"></script>
-<script src="trades.js?v=1794273827"></script>
-<script src="tradelab.js?v=1794273827"></script>
-<script src="betshub.js?v=1794273827"></script>
-<script src="sim.js?v=1794273827"></script>
-<script src="overunder.js?v=1794273827"></script>
-<script src="profile.js?v=1794273827"></script>
-<script src="ask.js?v=1794273827"></script>
-<script src="timeline.js?v=1794273827"></script>
-<script src="nav.js?v=1794273827"></script>
-<script src="hoops.js?v=1794273827"></script>
-<script src="insights.js?v=1794273827"></script>
-<script src="rostermoves.js?v=1794273827"></script>
-<script src="lineupedit.js?v=1794273827"></script>
-<script src="results.js?v=1794273827"></script>
-<script src="mood.js?v=1794273827"></script>
-<script src="live.js?v=1794273827"></script>
+<script src="arena.js?v=1794283274"></script>
+<script src="season.js?v=1794283274"></script>
+<script src="bets.js?v=1794283274"></script>
+<script src="trades.js?v=1794283274"></script>
+<script src="tradelab.js?v=1794283274"></script>
+<script src="betshub.js?v=1794283274"></script>
+<script src="sim.js?v=1794283274"></script>
+<script src="overunder.js?v=1794283274"></script>
+<script src="profile.js?v=1794283274"></script>
+<script src="ask.js?v=1794283274"></script>
+<script src="timeline.js?v=1794283274"></script>
+<script src="nav.js?v=1794283274"></script>
+<script src="hoops.js?v=1794283274"></script>
+<script src="insights.js?v=1794283274"></script>
+<script src="rostermoves.js?v=1794283274"></script>
+<script src="lineupedit.js?v=1794283274"></script>
+<script src="results.js?v=1794283274"></script>
+<script src="mood.js?v=1794283274"></script>
+<script src="live.js?v=1794283274"></script>
 </body></html>

@@ -27,7 +27,7 @@ function bhChart(model,mine){
   const B=series(mine.filter(b=>b.result),b=>b.date,b=>profitOf(b));
   if(A.length+B.length<2)return "";
   const ds=[...new Set([...A,...B].map(x=>x[0]))].sort(),xi=d=>ds.indexOf(d);
-  const vs=[0,...A.map(x=>x[1]),...B.map(x=>x[1])],lo=Math.min(...vs),hi=Math.max(...vs),W=640,H=160,L=50,R=10,T=10,Bm=24;
+  const vs=[0,...A.map(x=>x[1]),...B.map(x=>x[1])],lo=Math.min(...vs),hi=Math.max(...vs),W=Math.max(300,Math.round((document.querySelector('.bhchart')||document.querySelector('#secBets')||{}).clientWidth||Math.min(innerWidth-32,640))),H=160,L=50,R=10,T=10,Bm=24;
   const X=i=>L+(W-L-R)*(ds.length>1?i/(ds.length-1):.5),Y=v=>T+(H-T-Bm)*(1-(v-lo)/((hi-lo)||1));
   const path=s=>s.map(([d,v],k)=>`${k?"L":"M"}${X(xi(d)).toFixed(1)} ${Y(v).toFixed(1)}`).join(" ");
   const md=y=>`${+y.slice(4,6)}/${+y.slice(6)}`;

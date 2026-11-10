@@ -13,7 +13,8 @@ async function renderTL(){
   const P=TL.points.filter(p=>p.m?p.m[sel]:mine).map(p=>p.m?{...p,...p.m[sel]}:p),M=TLM.find(m=>m[0]===tlMetric),fmt=M[2],val=p=>p[tlMetric];
   if(!P.length){el.innerHTML=`<p class="mute">No history for that team yet.</p>`;return}
   const pts=P.map((p,i)=>({i,t:Date.parse(p.at),v:val(p)})).filter(x=>x.v!=null&&!isNaN(x.t));
-  const W=900,H=240,L=48,R=16,T=16,B=28;
+  const cw=(el.querySelector(".tlchart")||el).clientWidth||(innerWidth>=1100?Math.min(innerWidth-330,1136):innerWidth-32);
+  const W=Math.max(300,Math.round(cw)),H=innerWidth<=700?200:240,L=48,R=16,T=16,B=28;
   const t0=pts[0].t,t1=pts[pts.length-1].t||t0+1,vs=pts.map(x=>x.v);let lo=Math.min(...vs),hi=Math.max(...vs);
   if(tlMetric==="po"||tlMetric==="title"){lo=0;hi=Math.max(hi*1.15,.1);if(tlMetric==="po")hi=Math.min(1,Math.max(hi,.5))}
   if(hi-lo<1e-9){hi+=1;lo-=1}const pad=(hi-lo)*.08;lo-=tlMetric==="po"||tlMetric==="title"?0:pad;hi+=pad;
@@ -56,6 +57,7 @@ async function renderTL(){
   el.querySelector(".tlf").onclick=e=>{const b=e.target.closest("[data-m]");if(b){tlMetric=b.dataset.m;renderTL()}};
   $("#tlTeam").onchange=e=>{tlTeam=e.target.value;renderTL()};
   const svg=el.querySelector("svg"),rd=$("#tlRead"),dot=$("#tlDot");
+  {const aw=Math.round(svg.getBoundingClientRect().width);if(aw>0&&Math.abs(aw-W)>3&&!renderTL.again){renderTL.again=1;try{return renderTL()}finally{renderTL.again=0}}}
   const read=(q,live)=>{const p=P[q.i],es=byPoint[q.i]||[];
     rd.innerHTML=`<div class="tlrh"><span class="eyebrow">${live?"Latest":"Snapshot"} · ${esc(p.pulled||new Date(p.at).toLocaleString("en-US",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}))}</span><span><b>${fmt(q.v)}</b> ${dtxt(delta(q.i))}</span></div>${es.length?`<div class="tlre">${es.map(e=>`<span class="tlk" style="--c:${EVC[e.kind]}">${esc(e.text)}</span>`).join("")}</div>`:`<div class="tlre faint">No roster or injury news at this point${live?". Hover or drag on the graph to look back.":"."}</div>`}`};
   const last=pts.at(-1);read(last,true);
@@ -126,3 +128,6 @@ let tlIO=null;
 function tlWhenVisible(){const el=$("#secTL");if(!el)return;TL=null;
   if(!("IntersectionObserver" in window)){renderTL();return}
   if(tlIO)tlIO.disconnect();tlIO=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){tlIO.disconnect();tlIO=null;renderTL()}},{rootMargin:"400px"});tlIO.observe(el)}
+
+/* redraw at the new size after a rotate or window resize, so the chart is never stretched */
+{let tlw=innerWidth,tlT;addEventListener("resize",()=>{clearTimeout(tlT);tlT=setTimeout(()=>{if(Math.abs(innerWidth-tlw)>20){tlw=innerWidth;try{renderTL();if(typeof renderBetsTab==="function")renderBetsTab()}catch(e){}}},250)})}
