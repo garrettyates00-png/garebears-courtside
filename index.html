@@ -272,7 +272,7 @@ svg .mk{fill:var(--tcText)}svg .ms{stroke:rgba(255,255,255,.5);stroke-width:2}
 .mwhy{margin:12px 0 0;max-width:820px;font-size:15px;line-height:1.6;color:var(--mute)}.mwhy b{color:var(--ink)}.mwhy b.up{color:var(--up)}.mwhy b.down{color:var(--down)}
 .msp{margin-top:14px;display:grid;gap:6px}.mspark{width:100%;max-width:520px;height:52px}.mline{fill:none;stroke:var(--mc1);stroke-width:2;vector-effect:non-scaling-stroke}
 .marea{fill:color-mix(in srgb,var(--mc1) 14%,transparent)}.mmid{stroke:rgba(255,255,255,.15);stroke-dasharray:3 4;vector-effect:non-scaling-stroke}.mdot{fill:#fff;filter:drop-shadow(0 0 6px var(--mc1))}
-.m6{--mc1:#5dffa8;--mc2:#3fc8ff}.m5{--mc1:#8ff0b8;--mc2:#b8f56e}.m4{--mc1:#cdf58c;--mc2:#ffd76a}.m3{--mc1:#ffd76a;--mc2:#ff9f55}.m2{--mc1:#ff9a5c;--mc2:#ff5f6d}.m1{--mc1:#ff4d5e;--mc2:#ff2e93}
+.m6{--mc1:#5dffa8;--mc2:#4fe8c8}.m5{--mc1:#8ff0b8;--mc2:#a6f0a0}.m4{--mc1:#cdf58c;--mc2:#dcef86}.m3{--mc1:#ffd76a;--mc2:#ffc562}.m2{--mc1:#ff9a5c;--mc2:#ffad66}.m1{--mc1:#ff4d5e;--mc2:#ff6a5a}
 @media (max-width:700px){.mood{padding:20px 16px 18px;border-radius:22px}.mgw{width:92px;height:92px}.mgv b{font-size:23px}.mgv span{font-size:9px}.mchips{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:6px}.mchip{padding:9px 10px;min-width:0}.mchip span{font-size:9.5px;letter-spacing:.08em}.mchip b{font-size:19px}.mchip b small{font-size:11px}.mquip{font-size:14.5px}.mwhy,.mchg{font-size:14px}}
 @media (max-width:820px),(pointer:coarse){.mword{animation:none;filter:none}.mg1{filter:none}}
 .insgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(340px,100%),1fr));gap:14px}
@@ -1483,7 +1483,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1794283274";
+const BUILD="1794346661";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(()=>{if(!document.hidden)checkBuild()},90000);
 loadLog().then(()=>load(true));setInterval(()=>{if(!document.hidden)loadLog().then(()=>load(false))},120000);
@@ -1534,23 +1534,23 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1794283274"></script>
-<script src="season.js?v=1794283274"></script>
-<script src="bets.js?v=1794283274"></script>
-<script src="trades.js?v=1794283274"></script>
-<script src="tradelab.js?v=1794283274"></script>
-<script src="betshub.js?v=1794283274"></script>
-<script src="sim.js?v=1794283274"></script>
-<script src="overunder.js?v=1794283274"></script>
-<script src="profile.js?v=1794283274"></script>
-<script src="ask.js?v=1794283274"></script>
-<script src="timeline.js?v=1794283274"></script>
-<script src="nav.js?v=1794283274"></script>
-<script src="hoops.js?v=1794283274"></script>
-<script src="insights.js?v=1794283274"></script>
-<script src="rostermoves.js?v=1794283274"></script>
-<script src="lineupedit.js?v=1794283274"></script>
-<script src="results.js?v=1794283274"></script>
-<script src="mood.js?v=1794283274"></script>
-<script src="live.js?v=1794283274"></script>
+<script src="arena.js?v=1794346661"></script>
+<script src="season.js?v=1794346661"></script>
+<script src="bets.js?v=1794346661"></script>
+<script src="trades.js?v=1794346661"></script>
+<script src="tradelab.js?v=1794346661"></script>
+<script src="betshub.js?v=1794346661"></script>
+<script src="sim.js?v=1794346661"></script>
+<script src="overunder.js?v=1794346661"></script>
+<script src="profile.js?v=1794346661"></script>
+<script src="ask.js?v=1794346661"></script>
+<script src="timeline.js?v=1794346661"></script>
+<script src="nav.js?v=1794346661"></script>
+<script src="hoops.js?v=1794346661"></script>
+<script src="insights.js?v=1794346661"></script>
+<script src="rostermoves.js?v=1794346661"></script>
+<script src="lineupedit.js?v=1794346661"></script>
+<script src="results.js?v=1794346661"></script>
+<script src="mood.js?v=1794346661"></script>
+<script src="live.js?v=1794346661"></script>
 </body></html>
