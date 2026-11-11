@@ -151,7 +151,43 @@ function sBox(){
     ${played.map(r=>{const o=O[r.id];const cls=typeof D!=="undefined"&&D&&+o===+D.me?"mine":typeof D!=="undefined"&&D&&+o===+D.opp?"opp":"";
       return `<tr class="${cls}"><td><span class="nm">${esc(r.n)}<small>${r.starter?"Starter":"Bench"}</small></span></td><td style="text-align:left">${otag(o)}</td>${BXCOLS.map(c=>`<td>${r[c[0]]}</td>`).join("")}<td>${r.fgm}-${r.fga}</td><td>${r.ftm}-${r.fta}</td><td>${esc(r.pm)}</td><td class="fp">${r.fp}</td></tr>`}).join("")}
     ${dnp.length?`<tr><td colspan="${BXCOLS.length+6}" class="faint" style="text-align:left;white-space:normal">Did not play: ${dnp.map(r=>esc(r.n)).join(", ")}</td></tr>`:""}</tbody></table></div></div>`};
+  if(matchMedia("(max-width:820px)").matches)return sBoxM(el,g,b,O);
   el.innerHTML=`<div class="bx">${g.state!=="post"?watchLinks(g):""}${team(g.away)}${team(g.home)}</div>`;
+}
+/* Phone box score: a scoreboard header, a switch between the two teams (plus "Rostered": every fantasy-owned player
+   in the game), and one card per player sorted by fantasy points. The FPTS number sits big on the right with a bar
+   for how it stacks up in this game; tap a player for the full line. Your guys glow gold, your opponent's red. */
+let SBtab=null,SBexp=null;
+function sBoxM(el,g,b,O){
+  const me=typeof D!=="undefined"&&D?+D.me:null,op=typeof D!=="undefined"&&D?+D.opp:null;
+  const live=b.rows.filter(r=>!r.dnp),top=Math.max(1,...live.map(r=>r.fp));
+  const owned=live.filter(r=>O[r.id]);
+  const tabs=[[g.away.abbr,g.away],[g.home.abbr,g.home]];
+  if(!SBtab||SBtab.g!==g.id){const mineT=live.find(r=>+O[r.id]===me);SBtab={g:g.id,t:owned.some(r=>+O[r.id]===me||+O[r.id]===op)?"own":mineT?mineT.tm:g.away.abbr}}
+  const t=SBtab.t;
+  const rows=(t==="own"?owned:live.filter(r=>r.tm===t)).slice().sort((a,c)=>c.fp-a.fp);
+  const dnp=t==="own"?[]:b.rows.filter(r=>r.dnp&&r.tm===t);
+  const sc=(x,lose)=>`<div class="bxt ${lose?"lose":""}"><img src="${esc(x.logo)}" alt=""><b>${x.score??"–"}</b><span>${esc(x.abbr)}</span></div>`;
+  const done=g.state==="post",as=+g.away.score,hs=+g.home.score;
+  const stat=(v,l,hi)=>`<span class="${hi?"hi":""}"><b>${v}</b>${l}</span>`;
+  const card=r=>{const o=O[r.id],cls=+o===me?"mine":+o===op?"opp":"",open=SBexp===r.id,neg=r.fp<0;
+    const extras=[r.stl?stat(r.stl,"STL",1):"",r.blk?stat(r.blk,"BLK",1):"",r.tpm?stat(r.tpm,"3PM"):"",r.to?stat(r.to,"TO"):""].join("");
+    return `<button type="button" class="bxp ${cls} ${open?"open":""}" data-p="${r.id}" aria-expanded="${open}">
+      <div class="bxl"><div class="bxn"><b>${esc(r.n)}</b>${t==="own"?`<em>${esc(r.tm)}</em>`:""}</div>
+        <div class="bxm2">${otag(o)}<span>${r.starter?"Starter":"Bench"} · ${r.min} min</span></div>
+        <div class="bxs">${stat(r.pts,"PTS",r.pts>=20)}${stat(r.reb,"REB",r.reb>=10)}${stat(r.ast,"AST",r.ast>=8)}${extras}</div></div>
+      <div class="bxf ${neg?"neg":""}"><b>${r.fp}</b><small>FPTS</small><i><u style="width:${Math.max(0,Math.min(100,r.fp/top*100)).toFixed(0)}%"></u></i></div>
+      ${open?`<div class="bxx">${[["MIN",r.min],["PTS",r.pts],["REB",r.reb],["AST",r.ast],["STL",r.stl],["BLK",r.blk],["3PM",r.tpm],["TO",r.to],["FG",r.fgm+"-"+r.fga],["FT",r.ftm+"-"+r.fta],["+/-",r.pm],["FPTS",r.fp]].map(([l,v])=>`<div><small>${l}</small><b>${esc(String(v))}</b></div>`).join("")}</div>`:""}
+    </button>`};
+  el.innerHTML=`<div class="bxw">
+    <div class="bxhead">${sc(g.away,done&&as<hs)}<div class="bxst">${g.state==="in"?`<span class="live">${esc(g.detail)}</span>`:esc(done?"Final":g.detail)}</div>${sc(g.home,done&&hs<as)}</div>
+    <div class="bxtabs" role="tablist">${owned.length?`<button type="button" role="tab" data-t="own" aria-selected="${t==="own"}">Rostered <small>${owned.length}</small></button>`:""}
+      ${tabs.map(([a,x])=>`<button type="button" role="tab" data-t="${esc(a)}" aria-selected="${t===a}"><img src="${esc(x.logo)}" alt="">${esc(a)}</button>`).join("")}</div>
+    <div class="bxlist">${rows.length?rows.map(card).join(""):`<div class="mute" style="padding:8px 2px">No one here has played yet.</div>`}</div>
+    ${dnp.length?`<p class="bxdnp">Did not play: ${dnp.map(r=>esc(r.n)).join(", ")}</p>`:""}
+    ${g.state!=="post"?watchLinks(g):""}</div>`;
+  el.querySelectorAll("[data-t]").forEach(x=>x.onclick=()=>{SBtab.t=x.dataset.t;SBexp=null;sBox()});
+  el.querySelectorAll("[data-p]").forEach(x=>x.onclick=()=>{SBexp=SBexp===x.dataset.p?null:x.dataset.p;sBox()});
 }
 
 const AVCOLS=[["gp","GP"],["min","MIN"],["pts","PTS"],["reb","REB"],["ast","AST"],["stl","STL"],["blk","BLK"],["tpm","3PM"],["to","TO"],["fg","FG%"],["ft","FT%"],["fp","FPTS/G"],["fpt","FPTS"]];
