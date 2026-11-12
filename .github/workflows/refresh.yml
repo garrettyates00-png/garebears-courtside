@@ -5,7 +5,7 @@ on:
     - cron: "7,37 * * * *"   # twice an hour, off the busy :00/:30 marks (GitHub may still delay)
   workflow_dispatch:          # "Run workflow" button for an instant refresh
   push:
-    paths: ["fetch.py", ".github/workflows/refresh.yml"]
+    paths: ["fetch.py", "notify.py", ".github/workflows/refresh.yml"]
 
 permissions:
   contents: write
@@ -29,9 +29,13 @@ jobs:
           ESPN_SWID: ${{ secrets.ESPN_SWID }}
           YT_API_KEY: ${{ secrets.YT_API_KEY }}
         run: python fetch.py
+      - name: Send alerts
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: python notify.py || echo "alerts failed, data still saved"
       - name: Commit data.json if it changed
         run: |
           git config user.name "courtside-bot"
           git config user.email "courtside-bot@users.noreply.github.com"
-          for f in data.json highlights.json season.json weekbase.json mgr.json timeline.json; do [ -f "$f" ] && git add "$f"; done
+          for f in data.json highlights.json season.json weekbase.json mgr.json timeline.json notify_state.json; do [ -f "$f" ] && git add "$f"; done
           git diff --cached --quiet || (git commit -m "Refresh ESPN data" && git pull --rebase -X theirs --autostash -q && git push)

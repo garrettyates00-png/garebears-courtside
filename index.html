@@ -1033,6 +1033,27 @@ body[data-view="fantasy"] .inslead,body[data-view="fantasy"] .rmwhy,body[data-vi
 .bxx small{font:600 9.5px var(--mono);letter-spacing:.12em;color:var(--faint)}.bxx b{font:700 15px var(--sans);font-variant-numeric:tabular-nums}
 .bxdnp{margin:2px 2px 0;font-size:12.5px;color:var(--faint);line-height:1.5}
 .bxw .watch{padding-top:4px}
+
+/* alerts */
+.alstate{display:inline-flex;align-items:center;gap:7px;font:600 12px var(--mono);letter-spacing:.06em;color:var(--faint);padding:5px 11px;border-radius:999px;border:1px solid var(--line)}
+.alstate i{width:8px;height:8px;border-radius:50%;background:var(--faint)}.alstate.on{color:var(--up);border-color:color-mix(in srgb,var(--up) 40%,transparent)}.alstate.on i{background:var(--up);box-shadow:0 0 8px var(--up)}
+.algrid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:22px;margin-top:6px}
+@media (max-width:900px){.algrid{grid-template-columns:1fr}}
+.alsteps{margin:0;padding:0;list-style:none;counter-reset:s;display:grid;gap:14px}
+.alsteps li{counter-increment:s;display:grid;gap:6px;padding-left:38px;position:relative}
+.alsteps li::before{content:counter(s);position:absolute;left:0;top:0;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:700 12.5px var(--mono);background:color-mix(in srgb,var(--a) 18%,transparent);color:var(--a);border:1px solid color-mix(in srgb,var(--a) 45%,transparent)}
+.alsteps b{font:650 14.5px var(--sans)}.alsteps span{font-size:13.5px;color:var(--mute);line-height:1.5}.alsteps .b{justify-self:start}
+.alsteps code,.alkinds code{font:500 12.5px var(--mono);padding:1px 6px;border-radius:5px;background:rgba(255,255,255,.07)}
+.altopic{display:flex;gap:6px;align-items:center;min-width:0}.altopic code{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:9px 12px;border-radius:10px;font-size:13.5px;border:1px solid var(--line)}
+.alkinds{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+.alkinds li{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start}.alkinds li>span{font-size:18px;line-height:1.2}
+.alkinds b{display:block;font:650 13.5px var(--sans)}.alkinds small{font-size:12.5px;color:var(--faint);line-height:1.45}
+.allog{display:grid;gap:8px}
+.alrow{display:grid;grid-template-columns:1fr auto;gap:10px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.035);border:1px solid var(--line);border-left:3px solid var(--line2)}
+.alrow.p4{border-left-color:var(--a)}.alrow.p5{border-left-color:var(--down)}
+.alrow b{display:block;font:650 13.5px var(--sans)}.alrow span{display:block;font-size:12.5px;color:var(--mute);line-height:1.45;margin-top:2px;white-space:pre-line}
+.alrow small{font:500 11px var(--mono);color:var(--faint);white-space:nowrap}
+.alact{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px;font-size:12.5px}
 </style></head><body>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div><div class="btmfade" aria-hidden="true"></div>
 
@@ -1085,6 +1106,7 @@ body[data-view="fantasy"] .inslead,body[data-view="fantasy"] .rmwhy,body[data-vi
 
   <section class="g pad" id="secOU"></section>
   <section class="g pad" id="secInsights"></section>
+  <section class="g pad" id="secAlerts"></section>
 
   <section class="g pad" id="secMoves">
     <div class="sec-h"><div><div class="eyebrow">Waiver wire</div><h2>Moves to make</h2></div></div>
@@ -1452,7 +1474,7 @@ function renderAll(){
   if(document.body.dataset.view!=="arena")$("#pulled").textContent="Updated "+D.pulled;$("#dot").classList.toggle("stale",age>75);
   if(!forcing){if(age>75)staleNote(age);else $("#status").textContent=""}
   // each part renders on its own, so one failing section can't blank out the ones after it
-  const parts=[()=>typeof renderMood==="function"&&renderMood(),()=>renderHero(),()=>renderCards(),()=>typeof renderResults==="function"&&renderResults(),()=>renderDays(),()=>renderPower(),()=>renderStrength(selTeam),()=>renderWire(),()=>renderScoring(),()=>renderNewsroom(),
+  const parts=[()=>typeof renderMood==="function"&&renderMood(),()=>renderHero(),()=>renderCards(),()=>typeof renderResults==="function"&&renderResults(),()=>typeof renderAlerts==="function"&&renderAlerts(),()=>renderDays(),()=>renderPower(),()=>renderStrength(selTeam),()=>renderWire(),()=>renderScoring(),()=>renderNewsroom(),
     ()=>typeof renderAsk==="function"&&!document.activeElement?.closest?.("#askF")&&renderAsk(),
     ()=>typeof renderTrades==="function"&&renderTrades(),()=>typeof renderOU==="function"&&renderOU(),()=>typeof renderInsights==="function"&&renderInsights(),
     ()=>{if(typeof renderSim==="function"){SIMR=null;if(PHONE)simWhenVisible();else renderSim()}},()=>typeof tlWhenVisible==="function"&&tlWhenVisible()];
@@ -1518,7 +1540,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1794371715";
+const BUILD="1794455608";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(()=>{if(!document.hidden)checkBuild()},90000);
 loadLog().then(()=>load(true));setInterval(()=>{if(!document.hidden)loadLog().then(()=>load(false))},120000);
@@ -1569,23 +1591,24 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1794371715"></script>
-<script src="season.js?v=1794371715"></script>
-<script src="bets.js?v=1794371715"></script>
-<script src="trades.js?v=1794371715"></script>
-<script src="tradelab.js?v=1794371715"></script>
-<script src="betshub.js?v=1794371715"></script>
-<script src="sim.js?v=1794371715"></script>
-<script src="overunder.js?v=1794371715"></script>
-<script src="profile.js?v=1794371715"></script>
-<script src="ask.js?v=1794371715"></script>
-<script src="timeline.js?v=1794371715"></script>
-<script src="nav.js?v=1794371715"></script>
-<script src="hoops.js?v=1794371715"></script>
-<script src="insights.js?v=1794371715"></script>
-<script src="rostermoves.js?v=1794371715"></script>
-<script src="lineupedit.js?v=1794371715"></script>
-<script src="results.js?v=1794371715"></script>
-<script src="mood.js?v=1794371715"></script>
-<script src="live.js?v=1794371715"></script>
+<script src="arena.js?v=1794455608"></script>
+<script src="season.js?v=1794455608"></script>
+<script src="bets.js?v=1794455608"></script>
+<script src="trades.js?v=1794455608"></script>
+<script src="tradelab.js?v=1794455608"></script>
+<script src="betshub.js?v=1794455608"></script>
+<script src="sim.js?v=1794455608"></script>
+<script src="overunder.js?v=1794455608"></script>
+<script src="profile.js?v=1794455608"></script>
+<script src="ask.js?v=1794455608"></script>
+<script src="timeline.js?v=1794455608"></script>
+<script src="nav.js?v=1794455608"></script>
+<script src="hoops.js?v=1794455608"></script>
+<script src="insights.js?v=1794455608"></script>
+<script src="rostermoves.js?v=1794455608"></script>
+<script src="lineupedit.js?v=1794455608"></script>
+<script src="alerts.js?v=1794455608"></script>
+<script src="results.js?v=1794455608"></script>
+<script src="mood.js?v=1794455608"></script>
+<script src="live.js?v=1794455608"></script>
 </body></html>

@@ -470,7 +470,8 @@ def main():
                        wclear=dt.datetime.fromtimestamp(wpd / 1000, TZ).strftime("%a %-I %p") if wpd else "", pos=POS.get(p["defaultPositionId"], ""), tm=pro_abbr.get(p["proTeamId"], "FA"),
                        inj="" if inj == "ACTIVE" else inj, av=AVAIL.get(inj, 1.0), pa=round(pj.get("appliedAverage", 0) or 0, 1),
                        el=[SLOT[s] for s in p.get("eligibleSlots", []) if s in (0, 1, 2, 3, 4)],
-                       days=[d.isoformat() for d in days if d in gd], cg=0, ca=None))
+                       days=[d.isoformat() for d in days if d in gd], cg=0, ca=None,
+                       wday=dt.datetime.fromtimestamp(wpd / 1000, TZ).date().isoformat() if wpd else None))
 
     # Streaming: best single add/drop for the rest of my week.
     # - A pickup isn't usable until the claim processes (waiver period, at least a day), so his games only count
@@ -508,12 +509,18 @@ def main():
                     drop=drop["n"] if drop else None, drop_id=drop["id"] if drop else None, drop_inj=drop["inj"] if drop else "",
                     ir=ir["n"] if ir else None, ir_id=ir["id"] if ir else None,
                     gain=round(gain, 1), net=round(gain - ros, 1), ros=round(ros, 1), games=len(f2["days"]),
-                    dropgames=len([x for x in drop["days"] if x >= first_ok.isoformat()]) if drop else 0,
-                    dropval=round(drop["pa"], 1) if drop else None, addval=round(f["pa"], 1), from_day=first_ok.strftime("%a"))
+                    dropgames=len([x for x in drop["days"] if x >= f2["first"].isoformat()]) if drop else 0,
+                    dropval=round(drop["pa"], 1) if drop else None, addval=round(f["pa"], 1),
+                    from_day="today" if f2["first"] == today else f2["first"].strftime("%a"))
     for f in fa[:40]:
         # never suggest an injured pickup or one I've already claimed
         if f["n"] in TECH or f["av"] < 0.85 or f["claimed"]: continue
-        f2 = dict(f, days=[x for x in f["days"] if x >= first_ok.isoformat()])
+        # a free agent (not on waivers) joins right away: today counts if it's before tonight's games start
+        if f["st"] == "FREEAGENT":
+            f_first = today if dt.datetime.now(TZ).hour < 17 else today + dt.timedelta(days=1)
+        else:
+            f_first = max(first_ok, dt.date.fromisoformat(f["wday"]) if f.get("wday") else first_ok)
+        f2 = dict(f, days=[x for x in f["days"] if x >= f_first.isoformat()], first=f_first)
         if not f2["days"]: continue
         # an open spot (or an OUT player who can go to IR) means no drop is needed
         if room > 0 or (ir_free > 0 and ir_cands):
@@ -524,8 +531,8 @@ def main():
             # don't cut injured players (stash or IR them), players already in a pending drop, or ones I just claimed
             if d["inj"] in ("OUT", "INJURY_RESERVE") or d["id"] in claim_drop or d["id"] in claim_add or d.get("slot") == "IR": continue
             keep = max(d["pa"], d.get("la") or 0, d["ca"] if (d.get("ca") is not None and d.get("cg", 0) >= 2) else 0)
-            if keep > repl: continue                     # better than what's on waivers: you'd never get him back
-            d2 = dict(d, days=[x for x in d["days"] if x < first_ok.isoformat()])
+            if keep > repl + 3: continue                 # clearly better than what's out there: never worth cutting
+            d2 = dict(d, days=[x for x in d["days"] if x < f2["first"].isoformat()])
             trial = [p for p in mine if p is not d] + [d2, f2]
             gain = week_plan(trial)[0] - base
             ros = max(0.0, d["pa"] - f["pa"]) * 3.4 * min(weeks_left, 4)  # what the downgrade costs after this week
@@ -683,7 +690,7 @@ def main():
     data = dict(pulled=dt.datetime.now(TZ).strftime("%b %-d, %-I:%M %p CT"), pulled_iso=dt.datetime.now(dt.timezone.utc).isoformat(), pending=pending, league=settings["name"], me=MY_TEAM, opp=opp,
                 plan=[{k: m[k] for k in ("n", "from", "to", "why")} for m in plan], plan_day=plan_day.strftime("%a %b ") + str(plan_day.day), period=cur_mp, week=[wk_start.isoformat(), wk_end.isoformat()], days=[d.isoformat() for d in days],
                 slots=slots, scoring=scoring, teams=teams, sim=sim, mgr=mgr_out, waiver=dict(hours=wait_h, from_day=first_ok.isoformat(), repl=repl), base=wk_base, week_hist=week_hist, act=act, all_days=[d.isoformat() for d in all_days], players=players, sched=sched, moves=top_moves, roster=roster_info,
-                fa=[{k: f[k] for k in ("id", "n", "pos", "tm", "inj", "pa", "claimed", "st", "wclear", "el")} | {"g": len(f["days"])} for f in fa[:40]],
+                fa=[{k: f[k] for k in ("id", "n", "pos", "tm", "inj", "pa", "claimed", "st", "wclear", "el")} | {"g": len(f["days"]), "today": today.isoformat() in f["days"]} for f in fa[:40]],
                 league_pending=league_pending, recent=recent_moves, injury=inj_drag, news=news, feed=feed[:220], yt=bool(os.environ.get("YT_API_KEY")))
     with open("data.json", "w") as fh:
         json.dump(data, fh, separators=(",", ":"))
