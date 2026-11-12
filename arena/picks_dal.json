@@ -148,5 +148,17 @@
   "result": "W",
   "profit": 90.91,
   "final": "125-122"
+ },
+ {
+  "id": "401909978",
+  "date": "2026-11-13T01:00Z",
+  "opp": "MIN",
+  "home": false,
+  "kind": "spread",
+  "side": "them",
+  "line": -5.5,
+  "edge": 3.3,
+  "price": -110,
+  "made": "2026-11-12T10:22:21.698229+00:00"
  }
 ]

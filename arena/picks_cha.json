@@ -163,5 +163,17 @@
   "result": "L",
   "profit": -100,
   "final": "124-112"
+ },
+ {
+  "id": "401909979",
+  "date": "2026-11-13T02:00Z",
+  "opp": "PHX",
+  "home": false,
+  "kind": "total",
+  "side": "under",
+  "line": 214.5,
+  "edge": 3.9,
+  "price": -110,
+  "made": "2026-11-12T10:22:21.698229+00:00"
  }
 ]
