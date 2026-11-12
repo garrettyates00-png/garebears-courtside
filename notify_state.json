@@ -7,7 +7,7 @@
   "4066328": "",
   "3064514": "",
   "4279888": "OUT",
-  "2595516": "OUT",
+  "2595516": "DAY_TO_DAY",
   "4591725": "DAY_TO_DAY",
   "4684742": "",
   "5041955": "",
@@ -26,7 +26,6 @@
   6589,
   2528210,
   2530530,
-  2583632,
   2991070,
   2991350,
   3032979,
@@ -42,8 +41,8 @@
   4397014,
   4431736,
   4431785,
+  4432241,
   4432810,
-  4576087,
   4592691,
   4593125,
   4594327,
@@ -52,6 +51,7 @@
   4683678,
   4683688,
   4683766,
+  4683778,
   4684793,
   4845374,
   4869780,
@@ -84,11 +84,18 @@
   "r|2026-11-11|8|ADD:Jared McCain",
   "r|2026-11-11|8|ADD:Nic Claxton|DROP:Myles Turner",
   "r|2026-11-12|1|ADD:Christian Braun|DROP:Pelle Larsson",
+  "r|2026-11-12|1|ADD:Peyton Watson|DROP:Jamal Shead",
   "r|2026-11-12|7|ADD:Daniss Jenkins|DROP:Derik Queen",
   "r|2026-11-12|7|ADD:Jordan Goodwin|DROP:Nolan Traore"
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-12T12:50-06:00",
+   "title": "Norman Powell: day-to-day",
+   "body": "Norman Powell is day-to-day.\nThe fantasy basketball crew gets together to answer the biggest questions from the early part of the season.",
+   "prio": 3
+  },
   {
    "at": "2026-11-12T04:55-06:00",
    "title": "Lineup check",
@@ -120,7 +127,7 @@
    "prio": 3
   }
  ],
- "at": "2026-11-12T04:55-06:00",
+ "at": "2026-11-12T12:50-06:00",
  "on": false,
  "lineup_day": "2026-11-12"
 }
