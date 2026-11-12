@@ -42,7 +42,6 @@
   4397014,
   4431736,
   4431785,
-  4432582,
   4432810,
   4576087,
   4592691,
@@ -55,6 +54,7 @@
   4683766,
   4684793,
   4845374,
+  4869780,
   4873153,
   4896372,
   5093267,
@@ -82,10 +82,37 @@
   "r|2026-11-10|7|ADD:Brook Lopez|DROP:Naji Marshall",
   "r|2026-11-11|5|ADD:Mo Bamba",
   "r|2026-11-11|8|ADD:Jared McCain",
-  "r|2026-11-11|8|ADD:Nic Claxton|DROP:Myles Turner"
+  "r|2026-11-11|8|ADD:Nic Claxton|DROP:Myles Turner",
+  "r|2026-11-12|1|ADD:Christian Braun|DROP:Pelle Larsson",
+  "r|2026-11-12|7|ADD:Daniss Jenkins|DROP:Derik Queen",
+  "r|2026-11-12|7|ADD:Jordan Goodwin|DROP:Nolan Traore"
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-12T04:55-06:00",
+   "title": "Lineup check",
+   "body": "Donovan Mitchell doesn't play today but is in your lineup. Jaylen Brown is on your bench and plays today. (10 starters aren't playing, 3 bench players are.)",
+   "prio": 4
+  },
+  {
+   "at": "2026-11-12T04:55-06:00",
+   "title": "\ud83c\udd93 Just dropped: Derik Queen",
+   "body": "Derik Queen (NO, 30.5 avg) is now available, on waivers until Sat 2 AM. Your weakest healthy player is Darryn Peterson (29.1).",
+   "prio": 3
+  },
+  {
+   "at": "2026-11-12T04:55-06:00",
+   "title": "\ud83d\udc40 Creamy Cropmen made a move",
+   "body": "Your opponent added Jordan Goodwin.",
+   "prio": 2
+  },
+  {
+   "at": "2026-11-12T04:55-06:00",
+   "title": "\ud83d\udc40 Creamy Cropmen made a move",
+   "body": "Your opponent added Daniss Jenkins.",
+   "prio": 2
+  },
   {
    "at": "2026-11-11T21:54-06:00",
    "title": "Grindex alerts are on",
@@ -93,6 +120,7 @@
    "prio": 3
   }
  ],
- "at": "2026-11-11T21:54-06:00",
- "on": false
+ "at": "2026-11-12T04:55-06:00",
+ "on": false,
+ "lineup_day": "2026-11-12"
 }
