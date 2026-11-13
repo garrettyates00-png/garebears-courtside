@@ -1138,6 +1138,10 @@ body[data-view="fantasy"] .inslead,body[data-view="fantasy"] .rmwhy,body[data-vi
 .htip{position:fixed;left:0;top:0;z-index:9999;display:none;max-width:300px;padding:10px 12px;border-radius:11px;background:rgba(16,18,26,.97);border:1px solid rgba(255,255,255,.14);box-shadow:0 12px 32px rgba(0,0,0,.45);font:400 12.5px/1.5 var(--sans);color:var(--mute);pointer-events:none}
 .htip b{display:block;color:var(--ink);font-weight:650;margin-bottom:2px}.htip hr{border:0;border-top:1px solid rgba(255,255,255,.08);margin:7px 0}
 .htip .tg{color:var(--up);font-weight:650}.htip .tr{color:var(--down);font-weight:650}
+
+.jamc{display:block;width:100%;max-width:1100px;margin:6px auto 0;aspect-ratio:16/9;image-rendering:pixelated;image-rendering:crisp-edges;border:3px solid #000;box-shadow:0 0 0 1px rgba(255,216,74,.35),0 18px 40px -18px rgba(0,0,0,.7);cursor:crosshair;outline:none;background:#0d0f1a}
+.jamc:focus-visible{box-shadow:0 0 0 2px #ffd84a}
+.jamhelp{font-size:12.5px;margin:10px 0 0;line-height:1.7}.jamhelp b{color:var(--ink);font-weight:600}
 </style></head><body>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div><div class="btmfade" aria-hidden="true"></div>
 
@@ -1621,7 +1625,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1794608369";
+const BUILD="1794610629";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(()=>{if(!document.hidden)checkBuild()},90000);
 loadLog().then(()=>load(true));setInterval(()=>{if(!document.hidden)loadLog().then(()=>load(false))},120000);
@@ -1672,24 +1676,24 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1794608369"></script>
-<script src="season.js?v=1794608369"></script>
-<script src="bets.js?v=1794608369"></script>
-<script src="trades.js?v=1794608369"></script>
-<script src="tradelab.js?v=1794608369"></script>
-<script src="betshub.js?v=1794608369"></script>
-<script src="sim.js?v=1794608369"></script>
-<script src="overunder.js?v=1794608369"></script>
-<script src="profile.js?v=1794608369"></script>
-<script src="ask.js?v=1794608369"></script>
-<script src="timeline.js?v=1794608369"></script>
-<script src="nav.js?v=1794608369"></script>
-<script src="hoops.js?v=1794608369"></script>
-<script src="insights.js?v=1794608369"></script>
-<script src="rostermoves.js?v=1794608369"></script>
-<script src="lineupedit.js?v=1794608369"></script>
-<script src="alerts.js?v=1794608369"></script>
-<script src="results.js?v=1794608369"></script>
-<script src="mood.js?v=1794608369"></script>
-<script src="live.js?v=1794608369"></script>
+<script src="arena.js?v=1794610629"></script>
+<script src="season.js?v=1794610629"></script>
+<script src="bets.js?v=1794610629"></script>
+<script src="trades.js?v=1794610629"></script>
+<script src="tradelab.js?v=1794610629"></script>
+<script src="betshub.js?v=1794610629"></script>
+<script src="sim.js?v=1794610629"></script>
+<script src="overunder.js?v=1794610629"></script>
+<script src="profile.js?v=1794610629"></script>
+<script src="ask.js?v=1794610629"></script>
+<script src="timeline.js?v=1794610629"></script>
+<script src="nav.js?v=1794610629"></script>
+<script src="hoops.js?v=1794610629"></script>
+<script src="insights.js?v=1794610629"></script>
+<script src="rostermoves.js?v=1794610629"></script>
+<script src="lineupedit.js?v=1794610629"></script>
+<script src="alerts.js?v=1794610629"></script>
+<script src="results.js?v=1794610629"></script>
+<script src="mood.js?v=1794610629"></script>
+<script src="live.js?v=1794610629"></script>
 </body></html>
