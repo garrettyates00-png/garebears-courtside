@@ -1,0 +1,23 @@
+{
+ "id": "q-mwfi9hva-uydh",
+ "q": "What players should I add for my matchup tonight to make it better? ANy players I could drop that are under performing and I could pick up that have more games? It says none are worth it but I don't know",
+ "at": "2026-11-13T21:46:18Z",
+ "short": "The tool is mostly right: you lead Creamy Cropmen 1625 to 1458 projected, and the best free agent swap (Myles Turner for Andrew Wiggins) is worth only about 5 points. Optional, not needed.",
+ "answer": "You are in good shape. Your projection this week is 1625 against Creamy Cropmen at 1458, a lead of about 167 points. Live score is 841 to 771. No single pickup moves that much.\n\nRoster check: you have 15 active players plus Anthony Edwards and Ja Morant filling both IR spots, so you are full at 15 and 2. Every add needs a drop. Both IR spots are used, so you can not stash anyone there.\n\nMost of your under performers are already playing tonight and all nine tonight starters are in the lineup with an empty bench, so there is little to swap around. Underperformers by season average: Mikal Bridges 16.8 FP per game, Andrew Wiggins 17.8, Ryan Rollins 23.7, John Collins 24.8. The projections still have Bridges and Wiggins at 25.8 each for the week with 2 games, which looks generous to me, so treat those as the soft spots.\n\nBest available swap: Myles Turner (MIL, free agent, instant add, plays tonight and again this week, 2 games). He averages 25.1 FP over 11 games and projects 28.4. He is C only, so he fits your UTIL slot, which Wiggins holds tonight. That is roughly +2.6 FP per game over Wiggins' 25.8 projection, so about 5 points across 2 games, and more if Wiggins keeps playing to his 17.8 average. Dropping Wiggins costs you a rotation forward but nothing you need this week.\n\nOther names: Derik Queen (NO, 30.5 projected, 26.1 season) is the best player available but is on waivers until Saturday 2 AM, so he misses tonight and your claim would not process until then. Keegan Murray (29.3 projected) has only 4 games played and 18.5 FP per game, so the projection is risky. Vucevic scores 9.5 FP per game in 9.9 minutes, skip him. Tobias Harris and Scotty Pippen Jr. are listed OUT.\n\nOne thing to watch: Norman Powell is day to day. My search found only that he was added to the Bulls injury report on Nov 8, with no reporting on his status tonight, so I am not sure whether he plays. Check the injury report before tip. If he sits, Turner or Murray would be the quick fill, but you would have to drop someone since you have no open spot.\n\nBottom line: the 'none worth it' message is basically right. Turner for Wiggins is a small upgrade, fine to do, but skipping it will not cost you the week.",
+ "moves": [
+  {
+   "do": "Optional: drop Andrew Wiggins, add Myles Turner (free agent) and put him in UTIL tonight",
+   "why": "Turner projects 28.4 and averages 25.1 versus Wiggins at 17.8 season average, both have 2 games left, worth about 5 points against a 167 point lead."
+  },
+  {
+   "do": "Check Norman Powell's status before tip and have Turner or Keegan Murray ready if he is out",
+   "why": "Powell is day to day and projects 27.9 for tonight; no reporting I found confirms his status."
+  }
+ ],
+ "sources": [
+  {
+   "title": "Norman Powell Added to Bulls Injury Report (Rotoballer)",
+   "url": "https://www.rotoballer.com/?p=1987454"
+  }
+ ]
+}
