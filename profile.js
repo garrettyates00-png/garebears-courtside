@@ -144,7 +144,7 @@ document.addEventListener("click",e=>{
 function advStats(pid){
   const sum=a=>a.reduce((s,b)=>s+(+b||0),0),poss=b=>sum(b.map(x=>x.fga))-sum(b.map(x=>x.oreb))+sum(b.map(x=>x.to))+.44*sum(b.map(x=>x.fta));
   const r={mp:0,fga:0,fgm:0,tpa:0,tpm:0,fta:0,ftm:0,pts:0,ast:0,to:0,stl:0,blk:0,pf:0,oreb:0,dreb:0,pm:0,
-    use:0,useD:0,astD:0,orD:0,drD:0,stD:0,bkD:0,dpts:0,dposs:0,gp:0,rim:0,mid:0,thr:0,shots:0};
+    use:0,useD:0,astD:0,orD:0,drD:0,stD:0,bkD:0,dpts:0,dposs:0,gp:0,rim:0,pnt:0,mid:0,thr:0,shots:0};
   for(const g of A.games){const b=g.box.find(x=>String(x.pid)===pid);if(!b||!b.min)continue;const T=g.box,O=g.obox||[];if(!O.length)continue;
     const tmp=sum(T.map(x=>x.min))||240,f=b.min/(tmp/5);
     for(const k of["fga","fgm","tpa","tpm","fta","ftm","pts","ast","to","stl","blk","pf","oreb","dreb","pm"])r[k]+=+b[k]||0;
@@ -155,7 +155,8 @@ function advStats(pid){
     r.drD+=f*(sum(T.map(x=>x.dreb))+sum(O.map(x=>x.oreb)));
     const op=poss(O);r.stD+=f*op;r.bkD+=f*(sum(O.map(x=>x.fga))-sum(O.map(x=>x.tpa)));
     r.dpts+=f*g.them;r.dposs+=f*op;   // team defense, weighted by his share of the minutes
-    for(const s of g.shots.filter(s=>String(s[0])===pid)){const z=zone14(s[1],s[2],s.length>6?s[6]===1:null);r.shots++;if(z==="ra")r.rim++;else if(/^(c3|w3|t3|deep)/.test(z))r.thr++;else if(z!=="paint")r.mid++}}
+    for(const s of g.shots.filter(s=>String(s[0])===pid)){const z=zone14(s[1],s[2],s.length>6?s[6]===1:null),c=z==="ra"?"rim":/^(c3|w3|t3|deep)/.test(z)?"thr":z==="paint"?"pnt":"mid";
+      r.shots++;r[c]++;r[c+"M"]=(r[c+"M"]||0)+(s[3]?1:0)}}
   if(!r.gp||r.mp<20)return null;
   const per36=v=>v/r.mp*36,tsa=r.fga+.44*r.fta;
   return {gp:r.gp,
@@ -167,7 +168,7 @@ function advStats(pid){
       ["AST/TO","Assists per turnover",r.to?r.ast/r.to:r.ast?r.ast:null,.8,1.8,3.5,"x"],
       ["FT rate","Free throw attempts per shot",r.fga?r.fta/r.fga:null,.10,.25,.45,"x2"],
       ["ORB%","Offensive rebounds grabbed of those available",r.orD?r.oreb/r.orD:null,.01,.05,.13,"pct"]],
-    diet:r.shots?{rim:r.rim/r.shots,mid:r.mid/r.shots,thr:r.thr/r.shots,n:r.shots}:null,
+    diet:r.shots?{n:r.shots,parts:[["rim","At the rim","Within 4 ft of the basket"],["pnt","Paint","In the lane, outside the restricted area"],["mid","Midrange","Inside the arc, outside the lane"],["thr","Three","Behind the arc"]].map(([k,l,w])=>({k,l,w,n:r[k],sh:r[k]/r.shots,fg:r[k]?(r[k+"M"]||0)/r[k]:null}))}:null,
     def:[["DRB%","Defensive rebounds grabbed of those available",r.drD?r.dreb/r.drD:null,.08,.15,.28,"pct"],
       ["STL%","Opponent possessions ending in his steal",r.stD?r.stl/r.stD:null,.005,.015,.03,"pct"],
       ["BLK%","Opponent two-point tries he blocked",r.bkD?r.blk/r.bkD:null,.002,.015,.06,"pct"],
@@ -180,13 +181,24 @@ function advHTML(pid){
   const S=advStats(pid);if(!S)return `<p class="faint" style="font-size:12.5px">Not enough minutes yet for advanced numbers.</p>`;
   const fmt=(v,k)=>v==null?"–":k==="pct"?(v*100).toFixed(1)+"%":k==="x2"?v.toFixed(2):k==="x1"?v.toFixed(1):k==="pm"?(v>0?"+":"")+v.toFixed(1):v.toFixed(1);
   const row=([l,why,v,lo,avg,hi,k])=>{if(v==null)return"";const t=Math.max(0,Math.min(1,(v-lo)/(hi-lo))),ta=(avg-lo)/(hi-lo),good=t>=ta+.08?"up":t<=ta-.08?"down":"";
-    return `<div class="adv"><div class="advt"><span title="${esc(why)}">${l}</span><b class="num ${good}">${fmt(v,k)}</b></div><div class="advb"><i class="${good}" style="width:${(t*100).toFixed(0)}%"></i><u style="left:${(ta*100).toFixed(0)}%"></u></div><small>${esc(why)}</small></div>`};
+    const inv=hi<lo,verdict=good==="up"?"better than league average":good==="down"?"worse than league average":"about league average";
+    const tip=`<b>${esc(l)}: ${fmt(v,k)}</b>${esc(why)}.<hr>League average ${fmt(avg,k)}. That's ${verdict}.<hr>The bar runs from ${fmt(lo,k)} (low end for NBA players) on the left to ${fmt(hi,k)} (high end) on the right${inv?", so for this stat a lower number fills more":""}. The white tick is league average.<hr><span class="tg">Green</span> = clearly better than average · <span class="tr">Red</span> = clearly worse · White = close to average`;
+    return `<div class="adv" data-tip="${esc(tip)}"><div class="advt"><span>${l}</span><b class="num ${good}">${fmt(v,k)}</b></div><div class="advb"><i class="${good}" style="width:${(t*100).toFixed(0)}%"></i><u style="left:${(ta*100).toFixed(0)}%"></u></div><small>${esc(why)}</small></div>`};
   const d=S.diet;
   return `<div class="advgrid">
     <div class="advcard"><div class="eyebrow">Offense</div>${S.off.map(row).join("")}
       ${d?`<div class="adv"><div class="advt"><span>Shot diet</span><b class="num faint" style="font-size:12px">${d.n} shots</b></div>
-        <div class="diet"><i style="flex:${d.rim}" class="r">${d.rim>=.12?"Rim "+Math.round(d.rim*100)+"%":""}</i><i style="flex:${Math.max(0,1-d.rim-d.mid-d.thr)}" class="p"></i><i style="flex:${d.mid}" class="m">${d.mid>=.12?"Mid "+Math.round(d.mid*100)+"%":""}</i><i style="flex:${d.thr}" class="t">${d.thr>=.12?"3PT "+Math.round(d.thr*100)+"%":""}</i></div>
-        <small>Where his shots come from: at the rim, the rest of the paint, midrange and threes</small></div>`:""}</div>
+        <div class="diet">${d.parts.filter(x=>x.n).map(x=>`<i style="flex:${x.sh}" class="${x.k}" data-tip="${esc(`<b>${x.l}: ${Math.round(x.sh*100)}% of his shots</b>${x.w}. ${x.n} shots, ${x.fg!=null?Math.round(x.fg*100)+"% made":""}.`)}">${x.sh>=.14?Math.round(x.sh*100)+"%":""}</i>`).join("")}</div>
+        <div class="dietleg">${d.parts.map(x=>`<span data-tip="${esc(`<b>${x.l}</b>${x.w}. ${x.n} shots${x.fg!=null?", "+Math.round(x.fg*100)+"% made":""}.`)}"><i class="${x.k}"></i>${x.l} <b>${Math.round(x.sh*100)}%</b>${x.fg!=null?` <em>${Math.round(x.fg*100)}% FG</em>`:""}</span>`).join("")}</div></div>`:""}</div>
     <div class="advcard"><div class="eyebrow">Defense</div>${S.def.map(row).join("")}</div>
-  </div><p class="faint" style="font-size:11.5px;margin:6px 0 0">From his last ${S.gp} games. Bars run from a low to a high NBA value; the tick is league average. Green is better than average.</p>`;
+  </div><p class="faint" style="font-size:11.5px;margin:6px 0 0">From his last ${S.gp} games. Bars run from a low to a high NBA value; the white tick is league average. Green is clearly better than average, red clearly worse.${matchMedia("(hover:hover)").matches?" Hover any stat for details.":""}</p>`;
 }
+
+/* hover tooltips (desktop): any element with data-tip shows a small card next to the pointer */
+(()=>{if(!matchMedia("(hover:hover) and (pointer:fine)").matches)return;let tip=null,cur=null;
+  const show=(el,e)=>{if(!tip){tip=document.createElement("div");tip.className="htip";document.body.appendChild(tip)}
+    if(cur!==el){cur=el;tip.innerHTML=el.dataset.tip}tip.style.display="block";
+    const w=tip.offsetWidth,h=tip.offsetHeight;let x=e.clientX+14,y=e.clientY+16;if(x+w>innerWidth-8)x=e.clientX-w-14;if(y+h>innerHeight-8)y=e.clientY-h-12;
+    tip.style.transform=`translate(${Math.max(8,x)}px,${Math.max(8,y)}px)`};
+  document.addEventListener("mousemove",e=>{const el=e.target.closest&&e.target.closest("[data-tip]");if(el)show(el,e);else if(tip){tip.style.display="none";cur=null}},{passive:true});
+  document.addEventListener("scroll",()=>{if(tip){tip.style.display="none";cur=null}},{passive:true,capture:true})})();
