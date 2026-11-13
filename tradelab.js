@@ -46,7 +46,10 @@ function txDay(ps,iso){
 function txWeek(ps,fromIso){return D.days.filter(d=>d>=fromIso&&d>=TODAY()).reduce((a,d)=>a+txDay(ps,d),0)}
 /* future week w: lineup capacity model (same as the simulator, without the randomness) */
 function txFut(ps,w){const S=D.sim,k=w-S.cur-1;let left=Math.round(D.slots.length*(S.days[w]||7)*.82),pts=0,used=0;
-  for(const p of ps.filter(p=>k>=txMiss(p)).sort((a,b)=>txFull(b)-txFull(a))){if(++used>TX_ACTIVE)break;const g=((S.gpw[p.tm]||{})[w])||0;const n=Math.min(g,Math.max(0,left));pts+=txFull(p)*n;left-=n}
+  const av=ps.filter(p=>k>=txMiss(p)).sort((a,b)=>txFull(b)-txFull(a));
+  for(const p of av){if(++used>TX_ACTIVE)break;const g=((S.gpw[p.tm]||{})[w])||0;const n=Math.min(g,Math.max(0,left));pts+=txFull(p)*n;left-=n}
+  // empty active spots (a 2-for-1, or injured guys not yet on IR) get filled from free agency at replacement level
+  if(typeof tpkRepl==="function"&&av.length<TX_ACTIVE){const R=tpkRepl(),n=Math.min((TX_ACTIVE-av.length)*R.g(w),Math.max(0,left));pts+=R.v*n}
   return pts}
 function txLast(){const S=D.sim;return Math.max(...Object.keys(S.days).map(Number).filter(w=>w<=S.reg+(S.rounds||2)*(S.plen||1)))}
 function txSide(t,outIds,inIds,effIso){

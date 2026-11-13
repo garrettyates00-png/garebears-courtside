@@ -104,7 +104,7 @@ function renderLive(){
   if(typeof renderMood==="function")try{renderMood()}catch(e){console.error(e)}
   if(typeof renderResults==="function")try{renderResults()}catch(e){console.error(e)}
   if(!D||!D.opp||!$("#hero"))return;
-  if(!isLiveWeek()){const el=$("#liveBox");if(el)el.innerHTML="";return}
+  if(!isLiveWeek()){const el=$("#liveBox");if(el)el.innerHTML="";renderHeroDays();return}
   const me=D.me,op=D.opp,T=D.teams;
   const sm=liveScore(me),so=liveScore(op),fm=r1(sm+remaining(me)),fo=r1(so+remaining(op));
   const bm=D.base&&D.base.teams[me]?D.base.teams[me].proj:null,bo=D.base&&D.base.teams[op]?D.base.teams[op].proj:null;
@@ -115,19 +115,9 @@ function renderLive(){
   const sub=(f,b,e,s)=>`Projected final <b class="num">${Math.round(f)}</b>${b!=null?` · started week at ${Math.round(b)}`:""}`;
   if(subs.length===2){subs[0].innerHTML=sub(fm,bm);subs[1].innerHTML=sub(fo,bo)}
   const lead=r1(sm-so),pace=(s,e)=>e==null?"":(()=>{const d=r1(s-e);return Math.abs(d)<2?`on pace`:d>0?`<span class="up">${d} ahead</span> of pace`:`<span class="down">${-d} behind</span> pace`})();
-  const mine=notes(me,6),theirs=notes(op,3),form=weekForm(me).filter(x=>x.g).sort((a,b)=>b.d-a.d);
-  const hot=form.filter(x=>x.d>=3).slice(0,3),cold=form.filter(x=>x.d<=-3).slice(-3).reverse();
   const liveG=Object.values(LV.games).filter((g,i,a)=>a.indexOf(g)===i&&g.state==="in").length;
-  $("#liveBox").innerHTML=`<div class="lvstrip">
-      <div><span class="lvdot ${liveG?"on":""}"></span><b>${lead===0?"Tied":lead>0?`Up ${lead}`:`Down ${-lead}`}</b> <span class="faint">${liveG?`· ${liveG} game${liveG>1?"s":""} live`:"· live score"}</span></div>
-      <div class="lvst">${(()=>{const pv=(s_,e_)=>{const d=Math.round(s_-e_);return `<b class="${d>=0?"up":"down"}">${d>=0?"+":"−"}${Math.abs(d)}</b>`};
-        return [em!=null?`<span title="${Math.round(sm)} scored vs ${Math.round(em)} expected by now">You ${pv(sm,em)} <small>vs pace</small></span>`:"",
-          eo!=null?`<span title="${Math.round(so)} scored vs ${Math.round(eo)} expected by now">${esc(last(T[op].name))} ${pv(so,eo)} <small>vs pace</small></span>`:"",
-          bm!=null?`<span>Final <b>${Math.round(fm)}</b> <small>(${fm-bm>=0?"+":"−"}${Math.abs(Math.round(fm-bm))} since Monday)</small></span>`:""].join("")})()}</div>
-    </div>
-    ${mine.length||theirs.length?`<div class="lvnotes"><div><div class="eyebrow">Your guys tonight</div><ul>${mine.map(n=>`<li>${n.t}</li>`).join("")||"<li class='faint'>None of your starters have tipped yet.</li>"}</ul></div>
-      <div><div class="eyebrow">${esc(T[op].name)}</div><ul>${theirs.map(n=>`<li>${n.t}</li>`).join("")||"<li class='faint'>None of their starters have tipped yet.</li>"}</ul></div></div>`:""}
-    ${hot.length||cold.length?`<div class="lvform">${hot.length?`<div><div class="eyebrow up">Beating projections this week</div>${hot.map(x=>`<span class="pill">${esc(x.n)} <span class="up">+${x.d}</span></span>`).join(" ")}</div>`:""}${cold.length?`<div><div class="eyebrow down">Falling short</div>${cold.map(x=>`<span class="pill">${esc(x.n)} <span class="down">${x.d}</span></span>`).join(" ")}</div>`:""}</div>`:""}`;
+  $("#liveBox").innerHTML="";   // the status card above already has pace; under the score it's just the days
+  renderHeroDays();
   const ex=$("#heroX");if(ex&&ex.classList.contains("open")){const dt=ex.querySelector("#dayTbl");if(dt)dt.outerHTML=dayTable(me,op)}
   const cx=$("#cardX");if(cx&&cx.classList.contains("open")){const dt=cx.querySelector("#dayTbl");if(dt&&dt.dataset.h&&dt.dataset.a)dt.outerHTML=dayTable(+dt.dataset.h,+dt.dataset.a)}
 }
@@ -186,7 +176,7 @@ function playersTbl(t,iso){
   const rows=dayPlayers(t,iso);if(!rows.length)return `<div class="dteam faint">No games.</div>`;
   const tot=rows.filter(r=>!isBench(r.slot));
   return `<div class="dteam"><table class="tbl dtbl"><thead><tr><th>${esc(D.teams[t].name)}</th><th>Slot</th><th>Proj</th><th>Actual</th><th>+/-</th></tr></thead><tbody>
-    ${rows.map(r=>{const d=r.act!=null&&r.proj!=null?r1(r.act-(r.exp??r.proj)):null;return `<tr class="${isBench(r.slot)?"bn":""}"><td><span class="nm">${esc(r.n)}<small>${esc(r.st||"")}</small></span></td><td>${esc(r.slot)}</td><td>${r.proj!=null?r1(r.proj):"–"}</td><td class="fp">${r.act!=null?r.act:"–"}</td><td class="${d==null?"":d>=0?"up":"down"}" ${r.exp!=null?`title="vs ${r1(r.exp)} expected by now"`:""}>${d==null?"":(d>0?"+":"")+d}${r.exp!=null?'<small class="faint"> pace</small>':""}</td></tr>`}).join("")}
+    ${rows.map(r=>{const d=r.act!=null&&r.proj!=null&&r.proj>0.5?r1(r.act-(r.exp??r.proj)):null;return `<tr class="${isBench(r.slot)?"bn":""}"><td><span class="nm">${esc(r.n)}<small>${esc(r.st||"")}</small></span></td><td>${esc(r.slot)}</td><td>${r.proj!=null?r1(r.proj):"–"}</td><td class="fp">${r.act!=null?r.act:"–"}</td><td class="${d==null?"":d>=0?"up":"down"}" ${r.exp!=null?`title="vs ${r1(r.exp)} expected by now"`:""}>${d==null?"":(d>0?"+":"")+d}${r.exp!=null?'<small class="faint"> pace</small>':""}</td></tr>`}).join("")}
     <tr class="tt"><td>Starters</td><td></td><td>${r1(tot.reduce((s,r)=>s+(r.proj||0),0))}</td><td class="fp">${tot.some(r=>r.act!=null)?r1(tot.reduce((s,r)=>s+(r.act||0),0)):"–"}</td><td></td></tr></tbody></table>${lineupNote(t,iso)}</div>`;
 }
 function dayTable(h,a){
@@ -209,3 +199,56 @@ function dayTable(h,a){
 document.addEventListener("click",e=>{const r=e.target.closest(".drow");if(!r)return;e.stopPropagation();openDay=openDay===r.dataset.iso?null:r.dataset.iso;const t=r.closest("#dayTbl");t.outerHTML=dayTable(+t.dataset.h,+t.dataset.a)},true);
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.classList&&e.target.classList.contains("drow"))e.target.click()});
 liveTick();
+
+/* ---------- hero: day by day ----------
+   One strip of days under the score: each day shows both teams' points (actual once played, projected after), with
+   a colored edge for who took the day. Tap a day for every player. Player deltas are against a real baseline: his
+   projection for that day, or his season average when the projection was 0 (listed out at the time), so a guy who
+   was projected 0 and scored 30 reads "30 · avg 28", not "+30". Live games compare against the share of his
+   projection that should be in by now. */
+let hDay=null,hSide="me";
+function hdBase(t,r){const p=D.players.find(x=>x.n===r.n);const avg=p?p.v:null;
+  if(r.proj!=null&&r.proj>0.5)return {b:r.proj,lab:"proj"};return avg?{b:avg,lab:"avg"}:{b:null,lab:""}}
+function hdRow(t,r){
+  const bn=isBench(r.slot),{b,lab}=hdBase(t,r),live=r.exp!=null,fin=r.act!=null&&!live;
+  let main,chip="";
+  if(r.act==null){main=`<b class="faint">${b!=null?Math.round(b):"–"}</b>`;chip=`<span class="hdc">${lab||"proj"}</span>`}
+  else{main=`<b>${Math.round(r.act)}</b>`;
+    const pl=D.players.find(x=>x.n===r.n),g=pl?gameOf(pl):null,base=live?(b!=null&&g?b*g.f:null):b;
+    if(base!=null){const d=Math.round(r.act-base),c=Math.abs(d)<3?"even":d>0?"up":"down";
+      chip=`<span class="hdc ${c}" title="${live?`vs ${Math.round(base)} expected by now`:`vs ${Math.round(b)} ${lab==="avg"?"season average (projected 0 that day)":"projected"}`}">${c==="even"?"even":(d>0?"+":"−")+Math.abs(d)}${live?" pace":lab==="avg"?" vs avg":""}</span>`}
+    else if(live)chip=`<span class="hdc">live</span>`}
+  const st=(r.st||"").replace(/^bench, has a game · /,"").replace("as of last update","");
+  return `<div class="hdp ${bn?"bn":""} ${live?"live":""}"><div><span class="n">${esc(r.n)}</span><small>${bn?"Bench · ":""}${esc(st||(r.act==null?"":"Final"))}</small></div><div class="v">${main}${chip}</div></div>`}
+function hdTeam(t,iso){const rows=dayPlayers(t,iso);
+  if(!rows.length)return `<div class="hdteam"><p class="faint" style="margin:6px 2px">No games this day.</p></div>`;
+  const on=rows.filter(r=>!isBench(r.slot)),bn=rows.filter(r=>isBench(r.slot));
+  return `<div class="hdteam">${on.map(r=>hdRow(t,r)).join("")}${bn.length?`<div class="hdgrp">Bench</div>${bn.map(r=>hdRow(t,r)).join("")}`:""}${lineupNote(t,iso)}</div>`}
+function heroDays(h,a){
+  const days=D.all_days||(D.teams[h].daily||[]).map(x=>x.iso),today=TODAY();if(!days.length)return "";
+  if(!hDay||!days.includes(hDay))hDay=days.includes(today)?today:(days.find(x=>x>today)||days[days.length-1]);
+  // today's plan total leaves out players whose game had started at the last pull, so add the lineup's projections back
+  const tp=t=>{const td=todayPlan(t)||{},pp=td.pp||{};return P(t).filter(p=>!isBench(p.slot)&&pp[p.id]!=null).reduce((a,p)=>a+pp[p.id],0)};
+  const val=(t,iso)=>{const x=dayInfo(t,iso);return x.actual!=null?{v:x.actual,act:true}:{v:iso===today?tp(t):(x.now??x.proj),act:false}};
+  let won=0,lost=0;
+  const chips=days.map(iso=>{const m=val(h,iso),o=val(a,iso),past=iso<today,isT=iso===today,diff=m.v-o.v;
+    if(past&&m.act){if(diff>0)won++;else if(diff<0)lost++}
+    const d=new Date(iso+"T12:00:00"),res=Math.abs(diff)<.5?"":diff>0?"w":"l";
+    return `<button type="button" class="hdd ${past?"past":isT?"today":"next"} ${res} ${hDay===iso?"sel":""}" data-hd="${iso}" aria-pressed="${hDay===iso}">
+      <span class="dn">${isT?"Today":d.toLocaleDateString("en-US",{weekday:"short"})}</span>
+      <b class="${m.act?"":"pj"}">${Math.round(m.v)}</b><small class="${o.act?"":"pj"}">${Math.round(o.v)}</small>${isT&&Object.values(LV.games).some(g=>g.state==="in")?'<i class="hdlive"></i>':""}</button>`}).join("");
+  const x=hDay,mi=dayInfo(h,x),oi=dayInfo(a,x),lb=new Date(x+"T12:00:00").toLocaleDateString("en-US",{weekday:"long",month:"short",day:"numeric"});
+  const mv=val(h,x).v,ov=val(a,x).v,act=mi.actual!=null;
+  const side=hSide==="me"?h:a;
+  return `<div class="hdays">
+    <div class="hdhead"><span class="eyebrow">Day by day</span>${won+lost?`<span class="hdrec">Days <b class="up">${won}</b>–<b class="down">${lost}</b></span>`:""}</div>
+    <div class="hdstrip" style="--n:${days.length}">${chips}</div>
+    <div class="hdpanel">
+      <div class="hdsum"><div><b>${lb}</b><small>${x<today?"Final":x===today?(Object.values(LV.games).some(g=>g.state!=="pre")?"Live":"Tonight"):"Projected"}</small></div>
+        <div class="hdscore"><span class="${mv>=ov?"":"faint"}">${Math.round(mv)}</span><em>${act?"–":"proj"}</em><span class="${ov>mv?"":"faint"}">${Math.round(ov)}</span></div></div>
+      <div class="hdtabs" role="tablist"><button type="button" data-hs="me" aria-selected="${hSide==="me"}">${esc(D.teams[h].name)}</button><button type="button" data-hs="op" aria-selected="${hSide==="op"}">${esc(D.teams[a].name)}</button></div>
+      <div class="hdcols"><div class="hdcol ${hSide==="me"?"on":""}">${hdTeam(h,x)}</div><div class="hdcol ${hSide==="op"?"on":""}">${hdTeam(a,x)}</div></div>
+    </div></div>`}
+function renderHeroDays(){const el=$("#heroDays");if(!el||!D||!D.opp)return;el.innerHTML=heroDays(D.me,D.opp)}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-hd],[data-hs]");if(!b||!b.closest("#heroDays"))return;
+  if(b.dataset.hd)hDay=b.dataset.hd;else hSide=b.dataset.hs;renderHeroDays()});
