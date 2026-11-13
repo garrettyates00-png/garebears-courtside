@@ -139,14 +139,18 @@ function courtSVG(){const L='stroke="rgba(255,255,255,.4)" stroke-width="2" fill
   <line x1="220" y1="40" x2="280" y2="40" ${L}/><circle cx="250" cy="52.5" r="7.5" ${L}/><path d="M210 52.5 A40 40 0 0 0 290 52.5" ${L}/>
   <path d="M30 1 V140 A237.5 237.5 0 0 0 470 140 V1" ${L}/><path d="M190 469 A60 60 0 0 1 310 469" ${L}/>`}
 /* ESPN shot coordinates are in feet: x across the court (0-50), y out from the rim (rim at 0). */
-function zoneOf(x,y,is3){const d=Math.hypot(x-25,y);if(is3||(y<8.75&&(x<3||x>47))||d>=23.75)return"three";return d<8?"paint":"mid"}
+/* Is this shot a three? ESPN's text flag misses some ("makes 26-foot jumper"), so also trust a 3-point score value,
+   and otherwise the spot (coordinates are rounded to the foot, so allow half a foot of slack at the line). */
+function shot3(s){return s[6]===1||s[4]===3||null}
+function geo3(x,y){return (y<8.75&&(x<=3.5||x>=46.5))||Math.hypot(x-25,y)>=23.25}
+function zoneOf(x,y,is3){if(is3===true||geo3(x,y))return"three";return Math.hypot(x-25,y)<8?"paint":"mid"}
 /* 14 shot zones (NBA style): restricted area, paint, five midrange, five threes (corners, wings, top).
    Coordinates in feet with the rim at (25, 0). */
 const ZONES=[["ra","Restricted area",.64],["paint","Paint",.42],["midLB","Left baseline mid",.41],["midL","Left elbow mid",.41],["midC","Top mid",.41],["midR","Right elbow mid",.41],["midRB","Right baseline mid",.41],
   ["c3L","Left corner 3",.385],["w3L","Left wing 3",.355],["t3","Top 3",.355],["w3R","Right wing 3",.355],["c3R","Right corner 3",.385],["deep","Deep 3",.30]];
 function zone14(x,y,is3){
   const d=Math.hypot(x-25,y),ang=Math.atan2(x-25,Math.max(y,.01))*180/Math.PI;
-  const three=is3===true||(is3==null&&((y<8.75&&(x<3||x>47))||d>=23.75));
+  const three=is3===true||geo3(x,y);
   if(three){if(d>=30)return"deep";if(y<8.75)return x<25?"c3L":"c3R";return ang<-22?"w3L":ang>22?"w3R":"t3"}
   if(d<4)return"ra";
   if(x>=17&&x<=33&&y<=13.75)return"paint";   // the lane: 16 ft wide, 19 ft from the baseline (rim is 5.25 ft in)
@@ -191,7 +195,7 @@ function zoneSVG(zs){
   // shapes with x<250 wedges are mirrored: angle sign follows x-25 (left is negative)
   return defs+ZONES.map((z,k)=>{const [sh,mk]=shape[z[0]];return `<g ${mk} fill="${zoneColor(z,zs[k][0],zs[k][1])}">${sh}</g>`}).join("");
 }
-function zoneStats(shots){const zs=ZONES.map(()=>[0,0]);shots.forEach(s=>{const k=ZONES.findIndex(z=>z[0]===zone14(s[1],s[2],s.length>6?s[6]===1:null));if(k>=0){zs[k][1]++;if(s[3])zs[k][0]++}});return zs}
+function zoneStats(shots){const zs=ZONES.map(()=>[0,0]);shots.forEach(s=>{const k=ZONES.findIndex(z=>z[0]===zone14(s[1],s[2],shot3(s)));if(k>=0){zs[k][1]++;if(s[3])zs[k][0]++}});return zs}
 function zoneChartHTML(zs,table=true){
   const ZM=zoneMap();
   const zl=ZONES.map((zz,k)=>{const c=ZM.cen[k];if(!c||!zs[k][1])return"";const pos={deep:[250,445,"middle"],c3L:[8,30,"start"],c3R:[492,30,"end"],ra:[250,72,"middle"],paint:[250,160,"middle"]}[zz[0]]||[c[0],c[1],"middle"];
@@ -205,7 +209,7 @@ function aShots(){
   let shots=games.flatMap(g=>g.shots);
   const ppl=[...new Map(A.games.flatMap(g=>g.box).map(b=>[b.pid,b.n])).entries()].sort((a,b)=>a[1].localeCompare(b[1]));
   if(aPlayer!=="all")shots=shots.filter(s=>s[0]===aPlayer);
-  const z={paint:[0,0],mid:[0,0],three:[0,0]};shots.forEach(s=>{const k=zoneOf(s[1],s[2],s.length>6?s[6]===1:null);z[k][1]++;if(s[3])z[k][0]++});
+  const z={paint:[0,0],mid:[0,0],three:[0,0]};shots.forEach(s=>{const k=zoneOf(s[1],s[2],shot3(s));z[k][1]++;if(s[3])z[k][0]++});
   const made=shots.filter(s=>s[3]).length;
   const zs=zoneStats(shots);
   const dots=shots.map(s=>{const x=s[1]*10,y=(s[2]+5.25)*10;return s[3]?`<circle cx="${x}" cy="${y}" r="6.5" class="mk"/>`:`<path d="M${x-5} ${y-5}L${x+5} ${y+5}M${x+5} ${y-5}L${x-5} ${y+5}" class="ms"/>`}).join("");

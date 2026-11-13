@@ -86,7 +86,7 @@ async function openProfile(pid){
     const G=GR[pid],T=A.team;
     const log=A.games.map(g=>({g,b:g.box.find(b=>String(b.pid)===pid)})).filter(x=>x.b).reverse();
     const shots=A.games.flatMap(g=>g.shots).filter(s=>String(s[0])===pid);
-    const z={paint:[0,0],mid:[0,0],three:[0,0]};shots.forEach(s=>{const k=zoneOf(s[1],s[2],s.length>6?s[6]===1:null);z[k][1]++;if(s[3])z[k][0]++});
+    const z={paint:[0,0],mid:[0,0],three:[0,0]};shots.forEach(s=>{const k=zoneOf(s[1],s[2],shot3(s));z[k][1]++;if(s[3])z[k][0]++});
     const dots=shots.map(s=>{const x=s[1]*10,y=(s[2]+5.25)*10;return s[3]?`<circle cx="${x}" cy="${y}" r="7" class="mk"/>`:`<path d="M${x-5} ${y-5}L${x+5} ${y+5}M${x+5} ${y-5}L${x-5} ${y+5}" class="ms"/>`}).join("");
     const tile=(l,v)=>`<div><span>${l}</span><b class="num">${v}</b></div>`;
     pane.innerHTML=`<button class="x" type="button" aria-label="Close">✕</button>
@@ -155,7 +155,7 @@ function advStats(pid){
     r.drD+=f*(sum(T.map(x=>x.dreb))+sum(O.map(x=>x.oreb)));
     const op=poss(O);r.stD+=f*op;r.bkD+=f*(sum(O.map(x=>x.fga))-sum(O.map(x=>x.tpa)));
     r.dpts+=f*g.them;r.dposs+=f*op;   // team defense, weighted by his share of the minutes
-    for(const s of g.shots.filter(s=>String(s[0])===pid)){const z=zone14(s[1],s[2],s.length>6?s[6]===1:null),c=z==="ra"?"rim":/^(c3|w3|t3|deep)/.test(z)?"thr":z==="paint"?"pnt":"mid";
+    for(const s of g.shots.filter(s=>String(s[0])===pid)){const z=zone14(s[1],s[2],shot3(s)),c=z==="ra"?"rim":/^(c3|w3|t3|deep)/.test(z)?"thr":z==="paint"?"pnt":"mid";
       r.shots++;r[c]++;r[c+"M"]=(r[c+"M"]||0)+(s[3]?1:0)}}
   if(!r.gp||r.mp<20)return null;
   const per36=v=>v/r.mp*36,tsa=r.fga+.44*r.fta;

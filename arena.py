@@ -159,7 +159,7 @@ def compact(j):
         if y > 41.75: continue  # ESPN measures from the rim; anything past half court is a heave
         part = (p.get("participants") or [{}])[0].get("athlete", {}).get("id")
         desc = (p.get("text", "") + " " + p.get("type", {}).get("text", "")).lower()
-        is3 = 1 if ("three point" in desc or "3-pt" in desc or "3pt" in desc) else 0
+        is3 = 1 if ("three point" in desc or "3-pt" in desc or "3pt" in desc or "three-point" in desc or p.get("scoreValue") == 3) else 0
         shots.append([str(part), round(x, 1), round(y, 1), 1 if p.get("scoringPlay") else 0, p.get("scoreValue", 0),
                       (p.get("period") or {}).get("number", 0), (p.get("team") or {}).get("id"), is3])
     odds = None
