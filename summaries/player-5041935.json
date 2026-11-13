@@ -1,7 +1,33 @@
-{"kind":"player","id":"5041935","name":"Cameron Boozer","at":"2026-11-02T22:05:00Z",
-"headline":"Rookie Cameron Boozer is filling the stat sheet for an unbeaten Grizzlies team even while his shot is still coming around.",
-"good":["He is averaging 17.7 points, 10.5 rebounds and 5.7 assists in 31.0 minutes over 6 starts, and Memphis is 6-0.","He posted his first career triple-double against Portland with 18 points, 12 rebounds and 12 assists, and the team was +20 with him on the floor.","He is shooting 96.6 percent at the line and 36.8 percent from three, and he hit the go-ahead jumper with 20 seconds left against Golden State on a 25 point, 13 rebound night.","He scored 27 points on 8 of 14 shooting in the 136-105 win over Sacramento, and his season grade is an A- (83)."],
-"bad":["His overall shooting is only 37.6 percent from the field (effective FG 45.9 percent), including a 2 of 15 opener against Utah and 6 of 21 at Sacramento.","He averages 3.0 turnovers a game, with 6 against Golden State and 7 against Sacramento on Saturday."],
-"fans":"The coverage I found is mostly positive, with AP calling Memphis perhaps the surprise of the NBA at 5-0 and pointing to Boozer and Ty Jerome as the leaders. He is also described as an early Rookie of the Year favorite. I did not find reliable subreddit threads, so I can't speak for fan sentiment beyond the headlines.",
-"outlook":"Memphis hosts New Orleans on Monday night (01:00 UTC tip) as a 5.5 point favorite, going for a 7th straight win. If his shot percentage climbs toward his free throw and three point marks, his numbers should keep rising, though the turnovers are worth watching.",
-"sources":[{"title":"Boozer posts first career triple-double in Grizzlies win over Blazers (ESPN)","url":"http://www.espn.com/nba/recap?gameId=401909895"},{"title":"Boozer, Stewart lead Memphis to a 136-105 victory over Kings (ESPN)","url":"http://www.espn.com/nba/recap?gameId=401909899"},{"title":"Cameron Boozer hits go-ahead jumper, Grizzlies rally to beat Warriors (ESPN)","url":"http://www.espn.com/nba/recap?gameId=401909850"},{"title":"Surprising Grizzlies are 5-0 with Boozer, Jerome leading charge (theScore)","url":"https://www.thescore.com/nba/news/3639464/sms:"},{"title":"Memphis takes on New Orleans, aims for 7th straight win (ESPN)","url":"http://www.espn.com/nba/preview?gameId=401909914"}]}
+{
+  "kind": "player",
+  "id": "5041935",
+  "name": "Cameron Boozer",
+  "at": "2026-11-13T21:50:44Z",
+  "headline": "Cameron Boozer is filling the stat sheet as a rookie, but the shot just is not falling yet.",
+  "good": [
+    "He is averaging 16.1 points, 9.9 rebounds and 5.5 assists in 32.2 minutes, starting all 11 games.",
+    "He hits the free throw line and cashes in: 91.5% from the stripe, including 9-for-10 in the preseason opener and 9-for-9 at Golden State (25 points, 13 rebounds).",
+    "He has real playmaking games, like 18 points, 12 rebounds and 12 assists at Portland, and 27 points against Sacramento.",
+    "His usage is 25%, and the model grades him B+ (72) for elite production for his minutes."
+  ],
+  "bad": [
+    "Efficiency is poor: 37% from the field, 29.4% from three and a 50.7% true shooting mark. He went 2-for-14 with 0-for-8 from deep against Oklahoma City (8 points, minus 30).",
+    "He gives it away 3.2 times a game, with 6 turnovers against Toronto and 7 against Sacramento on Nov. 1."
+  ],
+  "fans": "Coverage has focused on the shooting slump, with one outlet noting he missed 12 of 14 shots against OKC. Coach Tuomas Iisalo is also widening his role, using him more at center while Isaiah Stewart is out and featuring him in many different sets. Outside the box score, he still shows up as an early Rookie of the Year favorite in preseason coverage. I did not find any team subreddit threads.",
+  "outlook": "Memphis (7-4, eighth seed in the West) visits New Orleans on Nov. 14 as a 3.5 point favorite, and the Pelicans are 4-8. Boozer had 18 points, 9 rebounds and 5 assists in the 135-134 loss to them on Nov. 3, so expect the same all-around line, with the shooting the thing to watch.",
+  "sources": [
+    {
+      "title": "Roundtable: Tuomas Iisalo reveals how Grizzlies are expanding Cameron Boozer's role",
+      "url": "https://roundtable.io/sports/nba/grizzlies/news/tuomas-iisalo-reveals-how-grizzlies-are-expanding-cameron-boozer-s-role"
+    },
+    {
+      "title": "Newsweek: Grizzlies already have big expectations of Cam Boozer",
+      "url": "https://www.newsweek.com/sports/nba/grizzlies-already-have-big-expectations-of-cam-boozer-12333815"
+    },
+    {
+      "title": "SI: How Cameron Boozer fits with the Grizzlies",
+      "url": "https://www.si.com/nba/draft/nba-rookies/nba-draft-review-how-cameron-boozer-fits-with-the-grizzlies"
+    }
+  ]
+}
