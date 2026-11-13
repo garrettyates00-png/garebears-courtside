@@ -1,6 +1,14 @@
 [
  {
   "date": "2026-11-13",
+  "status": "ok",
+  "moved": [],
+  "note": "Lineup was already optimal.",
+  "at": "Nov 13, 3:31 PM CT",
+  "src": "schedule"
+ },
+ {
+  "date": "2026-11-13",
   "status": "saved",
   "moved": [
    "Bam Adebayo: BE to PF",
@@ -341,13 +349,5 @@
   ],
   "at": "Oct 28, 11:24 AM CT",
   "src": "button"
- },
- {
-  "date": "2026-10-27",
-  "status": "ok",
-  "moved": [],
-  "note": "Lineup was already optimal.",
-  "at": "Oct 27, 3:11 PM CT",
-  "src": "schedule"
  }
 ]
