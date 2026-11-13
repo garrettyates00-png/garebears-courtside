@@ -93,6 +93,12 @@
  "seeded": true,
  "log": [
   {
+   "at": "2026-11-13T01:11-06:00",
+   "title": "Lineup check",
+   "body": "Jaylen Brown doesn't play today but is in your lineup. Bam Adebayo is on your bench and plays today. (5 starters aren't playing, 3 bench players are.)",
+   "prio": 4
+  },
+  {
    "at": "2026-11-12T18:11-06:00",
    "title": "Ryan Rollins: back to full health",
    "body": "Ryan Rollins is back to full health.\nRollins (head) exited to the locker room in the fourth quarter of Wednesday's 123-112 loss to the Lakers and did not return, finishing with eight points (3-10 FG, 2-6 3Pt), seven rebounds, four assists and one steal across 24 minutes.",
@@ -135,7 +141,7 @@
    "prio": 3
   }
  ],
- "at": "2026-11-12T22:18-06:00",
+ "at": "2026-11-13T01:11-06:00",
  "on": false,
- "lineup_day": "2026-11-12"
+ "lineup_day": "2026-11-13"
 }
