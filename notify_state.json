@@ -8,7 +8,7 @@
   "3064514": "",
   "4279888": "OUT",
   "2595516": "DAY_TO_DAY",
-  "4591725": "DAY_TO_DAY",
+  "4591725": "",
   "4684742": "",
   "5041955": "",
   "5160992": "",
@@ -84,12 +84,20 @@
   "r|2026-11-11|8|ADD:Jared McCain",
   "r|2026-11-11|8|ADD:Nic Claxton|DROP:Myles Turner",
   "r|2026-11-12|1|ADD:Christian Braun|DROP:Pelle Larsson",
+  "r|2026-11-12|1|ADD:Draymond Green",
+  "r|2026-11-12|1|ADD:Naji Marshall",
   "r|2026-11-12|1|ADD:Peyton Watson|DROP:Jamal Shead",
   "r|2026-11-12|7|ADD:Daniss Jenkins|DROP:Derik Queen",
   "r|2026-11-12|7|ADD:Jordan Goodwin|DROP:Nolan Traore"
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-12T18:11-06:00",
+   "title": "Ryan Rollins: back to full health",
+   "body": "Ryan Rollins is back to full health.\nRollins (head) exited to the locker room in the fourth quarter of Wednesday's 123-112 loss to the Lakers and did not return, finishing with eight points (3-10 FG, 2-6 3Pt), seven rebounds, four assists and one steal across 24 minutes.",
+   "prio": 3
+  },
   {
    "at": "2026-11-12T12:50-06:00",
    "title": "Norman Powell: day-to-day",
@@ -127,7 +135,7 @@
    "prio": 3
   }
  ],
- "at": "2026-11-12T14:44-06:00",
+ "at": "2026-11-12T18:11-06:00",
  "on": false,
  "lineup_day": "2026-11-12"
 }
