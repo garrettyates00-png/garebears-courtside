@@ -107,7 +107,7 @@ async function openProfile(pid){
         <div><div class="eyebrow" style="margin-bottom:8px">Game log</div><div class="scroll"><table class="tbl plog"><thead><tr><th>Game</th><th>MIN</th><th>PTS</th><th>REB</th><th>AST</th><th>FG</th><th>+/-</th></tr></thead><tbody>
           ${log.map(({g,b})=>`<tr><td><span class="nm">${cday(g.date)} ${g.home?"vs":"@"} ${esc(g.opp)}<small class="${g.res==="W"?"up":"down"}">${g.res} ${g.us}-${g.them}</small></span></td><td>${b.min}</td><td><b>${b.pts}</b></td><td>${b.reb}</td><td>${b.ast}</td><td>${b.fgm}-${b.fga}</td><td class="${b.pm>0?"up":b.pm<0?"down":""}">${sign(b.pm)}</td></tr>`).join("")}</tbody></table></div></div>
       </div>
-      <p class="faint" style="font-size:12px;margin:4px 0 0">Advanced offense and defense breakdowns coming later.</p>`;
+      <div class="eyebrow" style="margin:18px 0 8px">Advanced</div>${advHTML(pid)}`;
     pane.querySelector(".x").onclick=close;
     pane.querySelectorAll("[data-sum]").forEach(b=>b.onclick=()=>requestSummary(b.dataset.sum,async()=>{S=await loadSummary("player",pid);if(sh.isConnected)draw()}));
     pane.querySelectorAll("[data-pm]").forEach(b=>b.onclick=()=>{pMode=b.dataset.pm;const st=pane.scrollTop;draw();pane.scrollTop=st});
@@ -135,3 +135,58 @@ document.addEventListener("click",e=>{
   const n=e.target.closest("[data-prof]");if(n){e.preventDefault();e.stopPropagation();openProfile(n.dataset.prof);return}
   const ts=e.target.closest("#aTeamSum");if(ts){openTeamSummary()}
 },true);
+
+/* ---------- advanced offense / defense (player profile) ----------
+   Built from every box score in the last games: the player's line, his team's totals and the opponent's totals for
+   each game he played, summed minutes-weighted. Formulas follow Basketball-Reference (usage, assist %, rebound %,
+   steal % and block % are shares of what was available while he was on the floor). The bar under each number runs
+   from a low to a high typical NBA value, with a tick at league average. */
+function advStats(pid){
+  const sum=a=>a.reduce((s,b)=>s+(+b||0),0),poss=b=>sum(b.map(x=>x.fga))-sum(b.map(x=>x.oreb))+sum(b.map(x=>x.to))+.44*sum(b.map(x=>x.fta));
+  const r={mp:0,fga:0,fgm:0,tpa:0,tpm:0,fta:0,ftm:0,pts:0,ast:0,to:0,stl:0,blk:0,pf:0,oreb:0,dreb:0,pm:0,
+    use:0,useD:0,astD:0,orD:0,drD:0,stD:0,bkD:0,dpts:0,dposs:0,gp:0,rim:0,mid:0,thr:0,shots:0};
+  for(const g of A.games){const b=g.box.find(x=>String(x.pid)===pid);if(!b||!b.min)continue;const T=g.box,O=g.obox||[];if(!O.length)continue;
+    const tmp=sum(T.map(x=>x.min))||240,f=b.min/(tmp/5);
+    for(const k of["fga","fgm","tpa","tpm","fta","ftm","pts","ast","to","stl","blk","pf","oreb","dreb","pm"])r[k]+=+b[k]||0;
+    r.mp+=b.min;r.gp++;
+    r.useD+=f*(sum(T.map(x=>x.fga))+.44*sum(T.map(x=>x.fta))+sum(T.map(x=>x.to)));
+    r.astD+=f*sum(T.map(x=>x.fgm))-b.fgm;
+    r.orD+=f*(sum(T.map(x=>x.oreb))+sum(O.map(x=>x.dreb)));
+    r.drD+=f*(sum(T.map(x=>x.dreb))+sum(O.map(x=>x.oreb)));
+    const op=poss(O);r.stD+=f*op;r.bkD+=f*(sum(O.map(x=>x.fga))-sum(O.map(x=>x.tpa)));
+    r.dpts+=f*g.them;r.dposs+=f*op;   // team defense, weighted by his share of the minutes
+    for(const s of g.shots.filter(s=>String(s[0])===pid)){const z=zone14(s[1],s[2],s.length>6?s[6]===1:null);r.shots++;if(z==="ra")r.rim++;else if(/^(c3|w3|t3|deep)/.test(z))r.thr++;else if(z!=="paint")r.mid++}}
+  if(!r.gp||r.mp<20)return null;
+  const per36=v=>v/r.mp*36,tsa=r.fga+.44*r.fta;
+  return {gp:r.gp,
+    off:[["TS%","True shooting: points per shot, free throws included",tsa?r.pts/(2*tsa):null,.50,.575,.66,"pct"],
+      ["eFG%","Field goal % with threes worth 1.5",r.fga?(r.fgm+.5*r.tpm)/r.fga:null,.46,.54,.62,"pct"],
+      ["USG%","Share of team plays he finishes while on the floor",r.useD?(r.fga+.44*r.fta+r.to)/r.useD:null,.12,.20,.33,"pct"],
+      ["AST%","Share of teammates' baskets he assisted while on the floor",r.astD>0?r.ast/r.astD:null,.05,.15,.40,"pct"],
+      ["TOV%","Turnovers per play he finishes (lower is better)",tsa+r.to?r.to/(tsa+r.to):null,.18,.12,.07,"pct"],
+      ["AST/TO","Assists per turnover",r.to?r.ast/r.to:r.ast?r.ast:null,.8,1.8,3.5,"x"],
+      ["FT rate","Free throw attempts per shot",r.fga?r.fta/r.fga:null,.10,.25,.45,"x2"],
+      ["ORB%","Offensive rebounds grabbed of those available",r.orD?r.oreb/r.orD:null,.01,.05,.13,"pct"]],
+    diet:r.shots?{rim:r.rim/r.shots,mid:r.mid/r.shots,thr:r.thr/r.shots,n:r.shots}:null,
+    def:[["DRB%","Defensive rebounds grabbed of those available",r.drD?r.dreb/r.drD:null,.08,.15,.28,"pct"],
+      ["STL%","Opponent possessions ending in his steal",r.stD?r.stl/r.stD:null,.005,.015,.03,"pct"],
+      ["BLK%","Opponent two-point tries he blocked",r.bkD?r.blk/r.bkD:null,.002,.015,.06,"pct"],
+      ["Stocks/36","Steals plus blocks per 36 minutes",per36(r.stl+r.blk),.6,1.8,3.5,"x"],
+      ["Fouls/36","Personal fouls per 36 minutes (lower is better)",per36(r.pf),5,3.2,1.8,"x"],
+      ["DRtg (team)","Opponent points per 100 possessions in his minutes (lower is better)",r.dposs?100*r.dpts/r.dposs:null,122,114,104,"x1"],
+      ["+/- per 36","Score margin while he's on the floor",per36(r.pm),-10,0,10,"pm"]]};
+}
+function advHTML(pid){
+  const S=advStats(pid);if(!S)return `<p class="faint" style="font-size:12.5px">Not enough minutes yet for advanced numbers.</p>`;
+  const fmt=(v,k)=>v==null?"–":k==="pct"?(v*100).toFixed(1)+"%":k==="x2"?v.toFixed(2):k==="x1"?v.toFixed(1):k==="pm"?(v>0?"+":"")+v.toFixed(1):v.toFixed(1);
+  const row=([l,why,v,lo,avg,hi,k])=>{if(v==null)return"";const t=Math.max(0,Math.min(1,(v-lo)/(hi-lo))),ta=(avg-lo)/(hi-lo),good=t>=ta+.08?"up":t<=ta-.08?"down":"";
+    return `<div class="adv"><div class="advt"><span title="${esc(why)}">${l}</span><b class="num ${good}">${fmt(v,k)}</b></div><div class="advb"><i class="${good}" style="width:${(t*100).toFixed(0)}%"></i><u style="left:${(ta*100).toFixed(0)}%"></u></div><small>${esc(why)}</small></div>`};
+  const d=S.diet;
+  return `<div class="advgrid">
+    <div class="advcard"><div class="eyebrow">Offense</div>${S.off.map(row).join("")}
+      ${d?`<div class="adv"><div class="advt"><span>Shot diet</span><b class="num faint" style="font-size:12px">${d.n} shots</b></div>
+        <div class="diet"><i style="flex:${d.rim}" class="r">${d.rim>=.12?"Rim "+Math.round(d.rim*100)+"%":""}</i><i style="flex:${Math.max(0,1-d.rim-d.mid-d.thr)}" class="p"></i><i style="flex:${d.mid}" class="m">${d.mid>=.12?"Mid "+Math.round(d.mid*100)+"%":""}</i><i style="flex:${d.thr}" class="t">${d.thr>=.12?"3PT "+Math.round(d.thr*100)+"%":""}</i></div>
+        <small>Where his shots come from: at the rim, the rest of the paint, midrange and threes</small></div>`:""}</div>
+    <div class="advcard"><div class="eyebrow">Defense</div>${S.def.map(row).join("")}</div>
+  </div><p class="faint" style="font-size:11.5px;margin:6px 0 0">From his last ${S.gp} games. Bars run from a low to a high NBA value; the tick is league average. Green is better than average.</p>`;
+}

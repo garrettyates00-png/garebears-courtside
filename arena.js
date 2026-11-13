@@ -134,22 +134,22 @@ function aGames(){
     $("#aBox").innerHTML=`<div class="scroll" style="margin-top:14px"><table class="box"><thead><tr><th>Player</th><th class="r">MIN</th><th class="r">PTS</th><th class="r">REB</th><th class="r">AST</th><th class="r">STL</th><th class="r">BLK</th><th class="r">TO</th><th class="r">FG</th><th class="r">3PT</th><th class="r">FT</th><th class="r">+/-</th></tr></thead><tbody>${bx.map(b=>`<tr><td><span style="font-weight:500" class="plink" data-prof="${b.pid}" role="button" tabindex="0">${esc(b.n)}</span>${gradeTag(b.pid)}${b.st?' <span class="faint" style="font-size:11px">S</span>':""}</td><td class="r num">${b.min}</td><td class="r num"><b>${b.pts}</b></td><td class="r num">${b.reb}</td><td class="r num">${b.ast}</td><td class="r num">${b.stl}</td><td class="r num">${b.blk}</td><td class="r num">${b.to}</td><td class="r num">${b.fgm}-${b.fga}</td><td class="r num">${b.tpm}-${b.tpa}</td><td class="r num">${b.ftm}-${b.fta}</td><td class="r num ${b.pm>0?"up":b.pm<0?"down":""}">${sign(b.pm)}</td></tr>`).join("")}</tbody></table></div>`}
 }
 /* shot chart */
-function courtSVG(){const L='stroke="rgba(255,255,255,.28)" stroke-width="2" fill="none"';
-  return `<rect x="1" y="1" width="498" height="468" ${L}/><rect x="170" y="1" width="160" height="190" ${L}/><circle cx="250" cy="190" r="60" ${L}/>
+function courtSVG(){const L='stroke="rgba(255,255,255,.4)" stroke-width="2" fill="none"';
+  return `<rect x="1.5" y="1.5" width="497" height="467" stroke="rgba(255,255,255,.5)" stroke-width="3" fill="none"/><rect x="170" y="1" width="160" height="190" ${L}/><circle cx="250" cy="190" r="60" ${L}/>
   <line x1="220" y1="40" x2="280" y2="40" ${L}/><circle cx="250" cy="52.5" r="7.5" ${L}/><path d="M210 52.5 A40 40 0 0 0 290 52.5" ${L}/>
   <path d="M30 1 V140 A237.5 237.5 0 0 0 470 140 V1" ${L}/><path d="M190 469 A60 60 0 0 1 310 469" ${L}/>`}
 /* ESPN shot coordinates are in feet: x across the court (0-50), y out from the rim (rim at 0). */
-function zoneOf(x,y,is3){const d=Math.hypot(x-25,y);if(is3||(y<8.75&&(x<3.5||x>46.5))||d>=23.25)return"three";return d<8?"paint":"mid"}
+function zoneOf(x,y,is3){const d=Math.hypot(x-25,y);if(is3||(y<8.75&&(x<3||x>47))||d>=23.75)return"three";return d<8?"paint":"mid"}
 /* 14 shot zones (NBA style): restricted area, paint, five midrange, five threes (corners, wings, top).
    Coordinates in feet with the rim at (25, 0). */
 const ZONES=[["ra","Restricted area",.64],["paint","Paint",.42],["midLB","Left baseline mid",.41],["midL","Left elbow mid",.41],["midC","Top mid",.41],["midR","Right elbow mid",.41],["midRB","Right baseline mid",.41],
   ["c3L","Left corner 3",.385],["w3L","Left wing 3",.355],["t3","Top 3",.355],["w3R","Right wing 3",.355],["c3R","Right corner 3",.385],["deep","Deep 3",.30]];
 function zone14(x,y,is3){
   const d=Math.hypot(x-25,y),ang=Math.atan2(x-25,Math.max(y,.01))*180/Math.PI;
-  const three=is3===true||(is3==null&&((y<8.75&&(x<3.5||x>46.5))||d>=23.75));
+  const three=is3===true||(is3==null&&((y<8.75&&(x<3||x>47))||d>=23.75));
   if(three){if(d>=30)return"deep";if(y<8.75)return x<25?"c3L":"c3R";return ang<-22?"w3L":ang>22?"w3R":"t3"}
   if(d<4)return"ra";
-  if(x>=17&&x<=33&&y<=14.75)return"paint";
+  if(x>=17&&x<=33&&y<=13.75)return"paint";   // the lane: 16 ft wide, 19 ft from the baseline (rim is 5.25 ft in)
   if(y<9)return x<25?"midLB":"midRB";
   return ang<-30?"midL":ang>30?"midR":"midC";
 }
@@ -158,19 +158,45 @@ function zoneMap(){if(ZMAP)return ZMAP;const W=500,H=470,m=new Uint8Array(W*H),i
   for(let j=0;j<H;j++)for(let i=0;i<W;i++){const x=i/10,y=j/10-5.25;m[j*W+i]=y<-4.9?255:ids.indexOf(zone14(x,y,null))}
   const cen=ZONES.map(()=>[0,0,0]);for(let j=0;j<H;j++)for(let i=0;i<W;i++){const k=m[j*W+i];if(k===255)continue;cen[k][0]+=i;cen[k][1]+=j;cen[k][2]++}
   ZMAP={W,H,m,cen:cen.map(([a,b,n])=>n?[a/n,b/n]:null)};return ZMAP}
-function drawZones(cv,stat){
-  const Z=zoneMap(),x=cv.getContext("2d"),img=x.createImageData(Z.W,Z.H);
-  const col=ZONES.map((z,k)=>{const [m,a]=stat[k];if(!a)return[255,255,255,10];const diff=m/a-z[2],t=Math.max(-1,Math.min(1,diff/.15)),al=Math.round((z[0]==="deep"?.4:1)*(60+Math.min(1,a/12)*120));
-    return t>=0?[90+ -40*t,200+40*t,140+20*t,al]:[230,110-40*(-t),110-40*(-t),al]});
-  for(let p=0;p<Z.m.length;p++){const k=Z.m[p];const c=k===255?[0,0,0,0]:col[k];img.data.set(c,p*4)}
-  cv.width=Z.W;cv.height=Z.H;x.putImageData(img,0,0);
+function zoneColor(z,m,a){if(!a)return "rgba(255,255,255,.045)";const diff=m/a-z[2],t=Math.max(-1,Math.min(1,diff/.15)),al=((z[0]==="deep"?.45:1)*(.28+Math.min(1,a/12)*.5)).toFixed(2);
+  return t>=0?`rgba(${Math.round(90-40*t)},${Math.round(200+40*t)},${Math.round(140+20*t)},${al})`:`rgba(230,${Math.round(110+40*t)},${Math.round(110+40*t)},${al})`}
+function drawZones(){}   // zones are drawn as vector shapes now (see zoneSVG)
+/* Each zone is an exact shape in court pixels (10 px per foot, rim at 250,52.5): a wedge from the rim cut to its
+   region with a mask, so the edges are clean and line up with the court lines. */
+let ZID=0;
+function zoneSVG(zs){
+  const id="z"+(++ZID),cx=250,cy=52.5,P=a=>{const r=a*Math.PI/180;return `${(cx+2000*Math.sin(r)).toFixed(1)} ${(cy+2000*Math.cos(r)).toFixed(1)}`};
+  const wedge=(a1,a2)=>`M${cx} ${cy}L${P(a1)}L${P((a1+a2)/2)}L${P(a2)}Z`;
+  const ARC="M30 0V140A237.5 237.5 0 0 0 470 140V0Z",RA=`<circle cx="${cx}" cy="${cy}" r="40"/>`,DEEP=`<circle cx="${cx}" cy="${cy}" r="300"/>`,LANE=`<rect x="170" y="0" width="160" height="190"/>`;
+  const defs=`<defs>
+    <mask id="${id}3"><rect width="500" height="470" fill="#000"/><g fill="#fff">${DEEP}</g><path d="${ARC}" fill="#000"/></mask>
+    <mask id="${id}d"><rect width="500" height="470" fill="#fff"/><g fill="#000">${DEEP}</g></mask>
+    <mask id="${id}m"><path d="${ARC}" fill="#fff"/><g fill="#000">${LANE}${RA}</g></mask>
+    <mask id="${id}p"><g fill="#fff">${LANE}</g><g fill="#000">${RA}</g></mask>
+    <clipPath id="${id}lo3"><rect x="0" y="0" width="500" height="140"/></clipPath><clipPath id="${id}hi3"><rect x="0" y="140" width="500" height="330"/></clipPath>
+    <clipPath id="${id}lom"><rect x="0" y="0" width="500" height="142.5"/></clipPath><clipPath id="${id}him"><rect x="0" y="142.5" width="500" height="330"/></clipPath></defs>`;
+  const shape={ra:[RA.replace("<circle",'<circle class="zs"'),""],
+    paint:[`<rect class="zs" width="500" height="470"/>`,`mask="url(#${id}p)"`],
+    midLB:[`<rect class="zs" x="0" y="0" width="250" height="470" clip-path="url(#${id}lom)"/>`,`mask="url(#${id}m)"`],
+    midRB:[`<rect class="zs" x="250" y="0" width="250" height="470" clip-path="url(#${id}lom)"/>`,`mask="url(#${id}m)"`],
+    midL:[`<path class="zs" d="${wedge(-180,-30)}" clip-path="url(#${id}him)"/>`,`mask="url(#${id}m)"`],
+    midC:[`<path class="zs" d="${wedge(-30,30)}" clip-path="url(#${id}him)"/>`,`mask="url(#${id}m)"`],
+    midR:[`<path class="zs" d="${wedge(30,180)}" clip-path="url(#${id}him)"/>`,`mask="url(#${id}m)"`],
+    c3L:[`<rect class="zs" x="0" y="0" width="250" height="470" clip-path="url(#${id}lo3)"/>`,`mask="url(#${id}3)"`],
+    c3R:[`<rect class="zs" x="250" y="0" width="250" height="470" clip-path="url(#${id}lo3)"/>`,`mask="url(#${id}3)"`],
+    w3L:[`<path class="zs" d="${wedge(-180,-22)}" clip-path="url(#${id}hi3)"/>`,`mask="url(#${id}3)"`],
+    t3:[`<path class="zs" d="${wedge(-22,22)}" clip-path="url(#${id}hi3)"/>`,`mask="url(#${id}3)"`],
+    w3R:[`<path class="zs" d="${wedge(22,180)}" clip-path="url(#${id}hi3)"/>`,`mask="url(#${id}3)"`],
+    deep:[`<rect class="zs" width="500" height="470"/>`,`mask="url(#${id}d)"`]};
+  // shapes with x<250 wedges are mirrored: angle sign follows x-25 (left is negative)
+  return defs+ZONES.map((z,k)=>{const [sh,mk]=shape[z[0]];return `<g ${mk} fill="${zoneColor(z,zs[k][0],zs[k][1])}">${sh}</g>`}).join("");
 }
 function zoneStats(shots){const zs=ZONES.map(()=>[0,0]);shots.forEach(s=>{const k=ZONES.findIndex(z=>z[0]===zone14(s[1],s[2],s.length>6?s[6]===1:null));if(k>=0){zs[k][1]++;if(s[3])zs[k][0]++}});return zs}
 function zoneChartHTML(zs,table=true){
   const ZM=zoneMap();
   const zl=ZONES.map((zz,k)=>{const c=ZM.cen[k];if(!c||!zs[k][1])return"";const pos={deep:[250,445,"middle"],c3L:[8,30,"start"],c3R:[492,30,"end"],ra:[250,72,"middle"],paint:[250,160,"middle"]}[zz[0]]||[c[0],c[1],"middle"];
     return `<text x="${pos[0]}" y="${pos[1]}" class="zpct" text-anchor="${pos[2]}">${Math.round(100*zs[k][0]/zs[k][1])}%</text><text x="${pos[0]}" y="${pos[1]+17}" class="zn" text-anchor="${pos[2]}">${zs[k][0]}/${zs[k][1]}</text>`}).join("");
-  return `<div class="zwrap"><canvas class="zcv" aria-hidden="true"></canvas><svg class="court zov" viewBox="0 0 500 470" role="img" aria-label="Shooting by zone">${courtSVG()}${zl}</svg></div>
+  return `<div class="zwrap"><svg class="court zov" viewBox="0 0 500 470" role="img" aria-label="Shooting by zone">${zoneSVG(zs)}<g class="zlines">${courtSVG()}</g>${zl}</svg></div>
     <div class="zleg faint"><span><i class="zg"></i>Above league average</span><span><i class="zr"></i>Below</span><span>Fainter = fewer shots</span></div>
     ${table?`<div class="ztbl">${ZONES.map((zz,k)=>zs[k][1]?`<div><span>${zz[1]}</span><b class="num ${zs[k][0]/zs[k][1]>=zz[2]?"up":"down"}">${Math.round(100*zs[k][0]/zs[k][1])}%</b><small class="faint num">${zs[k][0]}/${zs[k][1]}</small></div>`:"").join("")}</div>`:""}`;
 }
