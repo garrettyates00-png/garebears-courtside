@@ -21,11 +21,11 @@
  "upgrade": {},
  "stream": {},
  "fa_ids": [
-  6440,
   6478,
   6589,
   2528210,
   2530530,
+  2583632,
   2991070,
   2991350,
   3032979,
@@ -89,7 +89,8 @@
   "r|2026-11-12|1|ADD:Peyton Watson|DROP:Jamal Shead",
   "r|2026-11-12|7|ADD:Daniss Jenkins|DROP:Derik Queen",
   "r|2026-11-12|7|ADD:Jordan Goodwin|DROP:Nolan Traore",
-  "r|2026-11-13|7|ADD:Isaiah Jackson|DROP:Jordan Goodwin"
+  "r|2026-11-13|7|ADD:Isaiah Jackson|DROP:Jordan Goodwin",
+  "r|2026-11-13|8|ADD:Tobias Harris"
  ],
  "seeded": true,
  "log": [
@@ -148,7 +149,7 @@
    "prio": 3
   }
  ],
- "at": "2026-11-13T09:39-06:00",
+ "at": "2026-11-13T15:56-06:00",
  "on": false,
  "lineup_day": "2026-11-13"
 }
