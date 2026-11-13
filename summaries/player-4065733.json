@@ -1,21 +1,38 @@
-{"kind": "player", "id": "4065733", "name": "Ty Jerome",
- "at": "2026-10-26T21:22:00Z",
- "headline": "Ty Jerome is averaging 34.7 points on 69% true shooting and has Memphis sitting at 3-0.",
+{
+ "kind": "player",
+ "id": "4065733",
+ "name": "Ty Jerome",
+ "at": "2026-11-13T22:00:52Z",
+ "headline": "Ty Jerome is playing like Memphis's top scorer at 26.2 points a night, but the team has slid to 1-4 in its last five.",
  "good": [
-  "Scoring binge: 34.7 points, 5.7 assists and 4.3 rebounds per game in 32 minutes across three starts, with a 45-point opener against Utah (17-of-25, 5-of-10 from three).",
-  "Efficiency is elite: 56.2% from the field, 42.9% from three, 88.5% from the line and a 68.9% true shooting mark, even with a 34.1% usage rate.",
-  "He was perfect at the line against Sacramento, going 14-of-14 on the way to 31 points and a +27 mark, and he is averaging +19.7 per game overall.",
-  "His grade in the dashboard is an A+ (95), with production and efficiency both called out."
+  "He is averaging 26.2 points, 4.8 assists and 3.5 rebounds in 30.8 minutes over 10 games, all as a starter.",
+  "He is very efficient for a high-volume guard: 62.5% true shooting on a 32.1% usage rate, with 36.6% from three and 89.7% at the line.",
+  "He has had two huge nights: 45 points on 17 of 25 against Utah on Oct 22 and 40 points on 14 of 22 against New Orleans on Nov 3.",
+  "The grade file gives him an A (90) for elite production in his minutes, and his impact score is 42.0 with a +8.4 plus-minus per game."
  ],
  "bad": [
-  "Turnovers can spike: he had 4 against Golden State while shooting 11-of-22 for 28 points, and he averages 2.0 per game.",
-  "The three-point shot was cold against Sacramento (1-of-6) and he needed 17 shots for his 8 field goals, so some of that night's scoring came from free throws.",
-  "It is only three games, so the shooting and the 34.1% usage are very likely to come down, and the grade itself flags the small sample."
+  "Scoring has cooled off a bit since the 40-point game: 23, 21, 27 and 22 points in the next four, and he shot 1 of 5 from three against Denver on Nov 12.",
+  "He has had quiet shooting nights, like 3 of 12 against Portland (10 points) and 4 of 15 against Utah on Oct 27 (15 points).",
+  "He turns it over 2.5 times a game, with 5 giveaways in the preseason opener and 4 each against Golden State, New Orleans and Indiana."
  ],
- "fans": "The local coverage from the last few days is built around Jerome. The ESPN recap of the Kings game led with his 31 points and 14-for-14 free throw line. Earlier Daily Memphian coverage from his debut season framed him as a guard who gives fans what they want to see. I could not find fresh subreddit or beat writer threads from the past two weeks, so I am not claiming more than that.",
- "outlook": "Expect Memphis to lean on him as the lead guard again Monday night at Utah (tip is 9:00 PM ET, Jazz favored by 1.5 per DraftKings), a rematch of the 123-103 Memphis win on Oct 21 when he scored 45. Some regression in his shooting is likely, but the volume and role look secure for now.",
+ "fans": "Coverage has focused on his scoring breakout, with Roundtable crediting more shot volume, better conditioning and a looser mindset for the jump to roughly 26 points a game. NBA.com and CBS Sports describe him as an unlikely scoring leader who is locked in as the starting point guard. I did not find reddit threads or much critical analysis in the search results, so the fan mood here is mostly positive but thinly sourced.",
+ "outlook": "Memphis (7-4) visits New Orleans (4-8) tonight, Friday Nov 13, with the Grizzlies listed as 3.5 point favorites. The Pelicans were the team he scored 40 against earlier this month, so expect a big scoring role again as Memphis tries to snap a 1-4 stretch.",
  "sources": [
-  {"title": "Ty Jerome scores 31 points to lead the Grizzlies to a 123-112 win over the Kings (ESPN)", "url": "http://www.espn.com/nba/recap?gameId=401909867"},
-  {"title": "Grizzlies play the Jazz, aim for 4th straight win (ESPN)", "url": "http://www.espn.com/nba/preview?gameId=401909875"},
-  {"title": "Ty Jerome makes a splash in Grizzlies debut, but Memphis falls to Minnesota (Daily Memphian)", "url": "https://dailymemphian.com/article/59506"}
- ]}
+  {
+   "title": "Ty Jerome explains what changed to fuel his Grizzlies scoring breakout (Roundtable)",
+   "url": "https://roundtable.io/sports/nba/grizzlies/news/ty-jerome-explains-what-changed-to-fuel-his-grizzlies-scoring-breakout"
+  },
+  {
+   "title": "Inside Ty Jerome's scoring breakout (NBA.com)",
+   "url": "https://www.nba.com/news/inside-ty-jerome-scoring-breakout-2026-27"
+  },
+  {
+   "title": "Nuggets beat Grizzlies 123-118 (ESPN)",
+   "url": "http://www.espn.com/nba/recap?gameId=401909970"
+  },
+  {
+   "title": "Pelicans host Grizzlies Friday for NBA Cup group stage matchup (ESPN)",
+   "url": "http://www.espn.com/nba/preview?gameId=401909300"
+  }
+ ]
+}
