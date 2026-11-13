@@ -1,22 +1,34 @@
-{"kind": "team", "id": "mem", "name": "Memphis Grizzlies",
- "at": "2026-11-09T12:00:00Z",
- "headline": "The Grizzlies started 6-0 against the regular-season slate but have now dropped three straight, including a 128-97 loss to OKC.",
+{
+ "kind": "team",
+ "id": "mem",
+ "name": "Memphis Grizzlies",
+ "at": "2026-11-13T21:51:05Z",
+ "headline": "The Grizzlies are 7-4 and outscoring teams by 6 a game, but they have lost four of their last six.",
  "good": [
-  "Memphis is 6-3 with a +6.1 net margin: 117.9 points per game scored against 111.8 allowed, with a 113.4 offensive rating and 107.5 defensive rating.",
-  "Ty Jerome is carrying the offense at 26.6 points and 5.1 assists on 62.9 percent true shooting, with a 32.5 percent usage rate.",
-  "Cedric Coward is efficient and active: 13.5 points, 8.8 rebounds, 1.6 steals, 48.8 percent from three, and a team-best plus-77 total plus/minus.",
-  "Rookie Cameron Boozer averages 15.8 points, 10.0 rebounds and 5.2 assists, and the team shoots 37.9 percent from three and 83.9 percent from the line."
+  "Memphis averages 117.9 points and allows 111.9, a net of +6.0, with a 115.2 offensive rating and 109.4 defensive rating.",
+  "Ty Jerome leads the way at 26.2 points a game on 62.5% true shooting, and he scored 27 in the win at Toronto that made Memphis 5-0 on the road.",
+  "Rookie Cameron Boozer is at 16.1 points, 9.9 rebounds and 5.5 assists, and had a triple-double against Portland.",
+  "The team shoots 38.9% from three and 85.3% at the line, and it started 6-0 before the recent slide."
  ],
  "bad": [
-  "The three-game skid: a 134-135 loss to New Orleans, a 103-107 home loss to Indiana, then the 97-128 blowout by Oklahoma City on Friday (Ajay Mitchell had a career-high 35).",
-  "Boozer is shooting only 34.7 percent from the field (50.1 percent true shooting) with 3.0 turnovers per game, and the team turns it over 15.8 times a night versus 14.2 for opponents.",
-  "Memphis gets outrebounded 48.6 to 42.8 on average on the opponent side, wait, no: it grabs 48.6 per game to opponents' 42.8, but it forces fewer steals (6.2 vs 8.2) and blocks (5.0 vs 6.8) than it allows, so the defense creates little havoc."
+  "Memphis lost 134-135 to New Orleans, 103-107 to Indiana, 97-128 to Oklahoma City and 118-123 to Denver, four losses in its last six games.",
+  "Turnovers are a problem at 15.5 a game against 13.2 forced, and the team also trails opponents in steals (5.9 vs 7.7) and blocks (4.9 vs 7.3).",
+  "Boozer shoots only 50.7% true shooting on a 25% usage rate, and Jaylen Wells is at 12.0 points with just 2.7 rebounds."
  ],
- "fans": "Before the slide, ESPN's Tim MacMahon called Memphis the most pleasant surprise in the West and compared them to last year's Suns, while noting it is easier to picture this group improving over the next few seasons. The skid has cooled that buzz a bit, and the Oklahoma City result was lopsided. I could not find recent subreddit or beat-writer takes to quote, so the fan mood here is inferred from the ESPN piece only.",
- "outlook": "Memphis visits Toronto tonight (tipoff 12:30 AM UTC on Nov 10, about 7:30 PM Central on Nov 9), where DraftKings has the Raptors at -3.5 and our model gives Memphis a 32.4 percent win chance. Toronto is 5-4 with a similar +5.4 point differential, so this is a real chance to stop the slide but not an easy one.",
+ "fans": "Early coverage has been enthusiastic about Boozer and Jerome, with one outlet calling Memphis 6-1 and ESPN ran a Windhorst and MacMahon piece on the staying power of Memphis. Preseason previews had tempered expectations after the Ja Morant and Jaren Jackson Jr. trades, so the fast start has been a pleasant surprise. I could not find specific subreddit threads, so fan mood beyond the media coverage is not confirmed.",
+ "outlook": "Memphis visits New Orleans on Friday night in an NBA Cup group game as a 3.5 point favorite, and the Pelicans are 4-8 and allow 124.3 points a game. The model gives Memphis a 65.3% chance to win, so a bounce back is reasonable if the turnovers get cleaned up.",
  "sources": [
-  {"title": "Windhorst & MacMahon: What league insiders are seeing from Philly's 8-1 start", "url": "https://abc7news.com/post/windhorst-macmahon-what-league-insiders-are-seeing-phillys-8-1-start/20019833/"},
-  {"title": "Ty Jerome scores 31 as Grizzlies top Kings to stay unbeaten", "url": "https://www.cbssports.com/nba/gametracker/recap/NBA_20261025_MEM@SAC/"},
-  {"title": "Memphis faces Toronto, looks to break 3-game slide (ESPN preview)", "url": "http://www.espn.com/nba/preview?gameId=401909955"},
-  {"title": "Ajay Mitchell scores a career-high 35 points as Thunder rout Grizzlies 128-97", "url": "http://www.espn.com/nba/recap?gameId=401909291"}
- ]}
+  {
+   "title": "Pelicans host Grizzlies Friday for NBA Cup group stage matchup (ESPN)",
+   "url": "http://www.espn.com/nba/preview?gameId=401909300"
+  },
+  {
+   "title": "Jamal Murray, Nikola Jokic lead Nuggets to 123-118 win over Grizzlies (ESPN)",
+   "url": "http://www.espn.com/nba/recap?gameId=401909970"
+  },
+  {
+   "title": "Cameron Boozer tallies first triple-double, Grizzlies remain unbeaten (Deadspin)",
+   "url": "https://deadspin.com/cameron-boozer-tallies-first-triple-double-grizzlies-remain-unbeaten/"
+  }
+ ]
+}
