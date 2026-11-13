@@ -88,10 +88,17 @@
   "r|2026-11-12|1|ADD:Naji Marshall",
   "r|2026-11-12|1|ADD:Peyton Watson|DROP:Jamal Shead",
   "r|2026-11-12|7|ADD:Daniss Jenkins|DROP:Derik Queen",
-  "r|2026-11-12|7|ADD:Jordan Goodwin|DROP:Nolan Traore"
+  "r|2026-11-12|7|ADD:Jordan Goodwin|DROP:Nolan Traore",
+  "r|2026-11-13|7|ADD:Isaiah Jackson|DROP:Jordan Goodwin"
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-13T09:39-06:00",
+   "title": "\ud83d\udc40 Creamy Cropmen made a move",
+   "body": "Your opponent added Isaiah Jackson.",
+   "prio": 2
+  },
   {
    "at": "2026-11-13T01:11-06:00",
    "title": "Lineup check",
@@ -141,7 +148,7 @@
    "prio": 3
   }
  ],
- "at": "2026-11-13T01:11-06:00",
+ "at": "2026-11-13T09:39-06:00",
  "on": false,
  "lineup_day": "2026-11-13"
 }
