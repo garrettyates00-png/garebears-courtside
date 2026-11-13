@@ -1,0 +1,18 @@
+{
+ "id": "q-mween6nn-qce7",
+ "q": "What player has the highest fantasy points in a single game this year?",
+ "at": "2026-11-13T03:16:56.351950+00:00",
+ "short": "I can't verify a single-game fantasy high: the league data only has per-game averages and web reporting I found was thin and conflicting. Victor Wembanyama leads the season average at 73.8 FP per game.",
+ "answer": "Your dashboard only stores season averages, not game logs, so I can't tell you the exact top single-game fantasy score in your scoring. Anything I'd name would be a guess.\n\nWhat the data does show: Victor Wembanyama leads everyone in FP per game at 73.8 over 12 games (30.2 pts, 11.7 reb, 4.4 blk), and he is on team 8, Angel Reese. Next are Nikola Jokic at 67.4 (team 10), Luka Doncic at 66.6 (team 7), Giannis Antetokounmpo at 60.2 (team 9) and Cooper Flagg at 56.2 (team 4). Wembanyama is the most likely owner of the single-game high given his average and block totals, but that is an inference.\n\nOn the web side, one page listed Luka Doncic with a 52 point season high, while another site said no one has hit 50 this season. Searches for Wembanyama surfaced a 52 point game that looks like it is from a prior season. Reporting is low confidence, and I could not tie any of it to a fantasy point total.\n\nFor a firm answer, check a game log tool such as Basketball-Reference's game finder sorted by your league's scoring.",
+ "moves": [],
+ "sources": [
+  {
+   "title": "Legion Report: NBA 50 point games",
+   "url": "https://legionreport.com/nba-50-point-games/"
+  },
+  {
+   "title": "Land of Basketball: 2026-27 top performances",
+   "url": "https://www.landofbasketball.com/yearbyyear/2026_2027_top_performances_rs.htm"
+  }
+ ]
+}
