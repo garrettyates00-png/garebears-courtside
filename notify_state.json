@@ -1,13 +1,13 @@
 {
  "inj": {
   "4594268": "OUT",
-  "3908809": "",
+  "3908809": "DAY_TO_DAY",
   "4066261": "",
   "3917376": "",
-  "4066328": "",
+  "4066328": "DAY_TO_DAY",
   "3064514": "",
   "4279888": "OUT",
-  "2595516": "",
+  "2595516": "DAY_TO_DAY",
   "4591725": "",
   "4684742": "",
   "5041955": "",
@@ -98,6 +98,24 @@
  "seeded": true,
  "log": [
   {
+   "at": "2026-11-14T14:39-06:00",
+   "title": "\ud83d\udea8 Donovan Mitchell: day-to-day",
+   "body": "Donovan Mitchell is day-to-day. He's in your lineup today.\nMitchell (knee) is listed as questionable for Saturday's game against the Mavericks.",
+   "prio": 4
+  },
+  {
+   "at": "2026-11-14T14:39-06:00",
+   "title": "\ud83d\udea8 Jarrett Allen: day-to-day",
+   "body": "Jarrett Allen is day-to-day. He's in your lineup today.\nAllen (knee) is listed as questionable for Saturday's game against Dallas.",
+   "prio": 4
+  },
+  {
+   "at": "2026-11-14T14:39-06:00",
+   "title": "\ud83d\udea8 Norman Powell: day-to-day",
+   "body": "Norman Powell is day-to-day. He's in your lineup today.\nPowell (back) is listed as questionable for Saturday's game against Minnesota.",
+   "prio": 4
+  },
+  {
    "at": "2026-11-14T10:04-06:00",
    "title": "\ud83d\udc40 Creamy Cropmen made a move",
    "body": "Your opponent added Derik Queen.",
@@ -170,7 +188,7 @@
    "prio": 3
   }
  ],
- "at": "2026-11-14T10:04-06:00",
+ "at": "2026-11-14T14:39-06:00",
  "on": false,
  "lineup_day": "2026-11-14"
 }
