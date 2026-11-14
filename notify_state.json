@@ -54,11 +54,11 @@
   4683766,
   4684793,
   4845374,
-  4869780,
   4873153,
   4896372,
   5093267,
   5101761,
+  5105550,
   5107173,
   5254165
  ],
@@ -92,10 +92,17 @@
   "r|2026-11-13|7|ADD:Isaiah Jackson|DROP:Jordan Goodwin",
   "r|2026-11-13|8|ADD:Rui Hachimura|DROP:Precious Achiuwa",
   "r|2026-11-13|8|ADD:Tobias Harris",
+  "r|2026-11-14|7|ADD:Derik Queen|DROP:Isaiah Jackson",
   "r|2026-11-14|9|ADD:Jared McCain"
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-14T10:04-06:00",
+   "title": "\ud83d\udc40 Creamy Cropmen made a move",
+   "body": "Your opponent added Derik Queen.",
+   "prio": 2
+  },
   {
    "at": "2026-11-14T03:21-06:00",
    "title": "Lineup check",
@@ -163,7 +170,7 @@
    "prio": 3
   }
  ],
- "at": "2026-11-14T03:21-06:00",
+ "at": "2026-11-14T10:04-06:00",
  "on": false,
  "lineup_day": "2026-11-14"
 }
