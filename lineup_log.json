@@ -1,5 +1,19 @@
 [
  {
+  "date": "2026-11-14",
+  "status": "saved",
+  "moved": [
+   "Julius Randle: BE to UTIL, plays today (34.9 proj)",
+   "Ryan Rollins: UTIL to BE, slot needed for a player with a game",
+   "Ausar Thompson: BE to UTIL, plays today (32.5 proj)",
+   "Darryn Peterson: UTIL to BE, slot needed for a player with a game",
+   "Ivica Zubac: UTIL to BE, slot needed for a player with a game",
+   "John Collins: BE to UTIL, plays today (28.7 proj)"
+  ],
+  "at": "Nov 14, 2:02 PM CT",
+  "src": "schedule"
+ },
+ {
   "date": "2026-11-13",
   "status": "ok",
   "moved": [],
@@ -336,18 +350,5 @@
   "note": "Lineup was already optimal.",
   "at": "Oct 28, 3:29 PM CT",
   "src": "schedule"
- },
- {
-  "date": "2026-10-28",
-  "status": "saved",
-  "moved": [
-   "Jaylen Brown: BE to SF, plays today (38.6 proj)",
-   "Ja Morant: PG to BE, slot needed for a player with a game",
-   "Jakob Poeltl: BE to UTIL, plays today (31.7 proj)",
-   "Darryn Peterson: BE to PG, plays today (29.1 proj)",
-   "Day'Ron Sharpe: UTIL to BE, slot needed for a player with a game"
-  ],
-  "at": "Oct 28, 11:24 AM CT",
-  "src": "button"
  }
 ]
