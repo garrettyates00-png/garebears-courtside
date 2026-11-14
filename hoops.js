@@ -25,7 +25,7 @@ function jNew(){
 function jMine(t){return J.p.filter(p=>p.team===t)}
 function jMate(p){return J.p.find(x=>x.team===p.team&&x!==p)}
 function jNearest(team,t){return jMine(team).sort((a,b)=>jd(a,t)-jd(b,t))[0]}
-function jSay(t,c){J.msg={t,c:c||"#ffe27a"};J.msgT=1.4}
+function jSay(t,c){J.msg={t,c:c||"#ffe27a"};J.msgT=1.4;if(J.touch&&t&&navigator.vibrate)try{navigator.vibrate(/REJECT|BOOM|FIRE|STOLEN|PICKED OFF/.test(t)?[30,40,30]:12)}catch(e){}}
 function jTip(team){   // team takes it out at its own end and brings it up
   const own=HOOP[team===0?0:1],dir=team===0?1:-1;
   J.p.forEach(p=>{const mine=p.team===team,k=p.i;
@@ -45,7 +45,7 @@ function jKeys(){
 function jOffense(){return J.ball.st==="held"&&J.ball.own&&J.ball.own.team===0}
 function jPress(down){
   if(J.state!=="play")return;const me=J.ctrl;
-  if(down){if(J.ball.st==="held"&&J.ball.own===me)jStartShot(me,!!J.keys.shift);else if(me.z===0&&me.stun<=0)me.vz=165}
+  if(down){if(J.ball.st==="held"&&J.ball.own===me)jStartShot(me,jTurbo());else if(me.z===0&&me.stun<=0)me.vz=165}
   else if(me.shoot)jRelease(me);
 }
 function jAlt(){if(J.state!=="play")return;const me=J.ctrl;
@@ -122,9 +122,10 @@ function jAI(p,dt){
   }else if(b.st==="loose"||b.st==="shot"){const g=b.st==="loose"?b:b.h;tx=g.x+(b.st==="shot"?(p.i?9:-9):0);ty=g.y+(b.st==="shot"?(p.i?7:-7):0);turbo=true}
   jMove(p,tx-p.x,ty-p.y,turbo,dt,true);
 }
-function jMove(p,dx,dy,turbo,dt,ai){
+function jTurbo(){return !!J.keys.shift||(J.joy&&Math.hypot(J.joy.x,J.joy.y)>.92)}
+function jMove(p,dx,dy,turbo,dt,ai,slow=1){
   const n=Math.hypot(dx,dy/SQ);if((ai&&n<3)||p.stun>0||p.shoot){p.vx=p.vy=0;return}
-  const has=J.ball.st==="held"&&J.ball.own===p,sp=(turbo&&p.turbo>.05?94:60)*(has?.9:1)*(ai&&p.team===1?JD.spd:1);
+  const has=J.ball.st==="held"&&J.ball.own===p,sp=(turbo&&p.turbo>.05?94:60)*(has?.9:1)*(ai&&p.team===1?JD.spd:1)*slow;
   if(turbo&&n>0)p.turbo=Math.max(0,p.turbo-dt*.45);
   p.vx=n?dx/n*sp:0;p.vy=n?dy/n*sp:0;p.x=clamp(p.x+p.vx*dt,COURT.x0+4,COURT.x1-4);p.y=clamp(p.y+p.vy*dt,COURT.y0+4,COURT.y1-2);
 }
@@ -133,11 +134,13 @@ function jMove(p,dx,dy,turbo,dt,ai){
 function jStep(dt){
   J.t+=dt;J.msgT=Math.max(0,J.msgT-dt);J.shake=Math.max(0,J.shake-dt);
   const b=J.ball,me=J.ctrl;
-  const dx=(J.keys.d?1:0)-(J.keys.a?1:0),dy=(J.keys.s?1:0)-(J.keys.w?1:0);
-  jMove(me,dx,dy*SQ,!!J.keys.shift,dt,false);
+  let dx=(J.keys.d?1:0)-(J.keys.a?1:0),dy=(J.keys.s?1:0)-(J.keys.w?1:0);
+  if(J.joy&&(J.joy.x||J.joy.y)){dx=J.joy.x;dy=J.joy.y}   // touch stick: how far you push sets the speed, pushed all the way is turbo
+  const jm=Math.min(1,Math.hypot(dx,dy));
+  jMove(me,dx,dy*SQ,jTurbo(),dt,false,jm<.25&&J.joy&&(J.joy.x||J.joy.y)?.45:1);
   for(const p of J.p){if(p!==me)jAI(p,dt);
     p.anim+=dt*(Math.hypot(p.vx,p.vy)>5?9:3);p.cd=Math.max(0,p.cd-dt);p.stun=Math.max(0,p.stun-dt);p.hold=Math.max(0,p.hold-dt);p.swipe=Math.max(0,p.swipe-dt);p.roll=Math.max(0,p.roll-dt);
-    if(!(p===me&&J.keys.shift))p.turbo=Math.min(1,p.turbo+dt*.18);
+    if(!(p===me&&jTurbo()))p.turbo=Math.min(1,p.turbo+dt*.18);
     if(p.vz||p.z>0){p.z+=p.vz*dt;p.vz-=430*dt;if(p.z<=0){p.z=0;p.vz=0}}
     if(p.shoot){p.shoot.t+=dt;if(p.shoot.t>p.shoot.dur*1.45)jRelease(p,true)}
     if(p.screen){p.screen.t-=dt;const d=p.screen.d;
@@ -242,12 +245,14 @@ function jDraw(){
   x.font="bold 5px monospace";x.fillStyle="#ffe27a";x.fillText(`TO ${WIN} · ${Object.keys(JDIFF).find(k=>JDIFF[k]===JD).toUpperCase()}`,160,20);
   const me=J.ctrl;x.fillStyle="rgba(0,0,0,.6)";x.fillRect(8,168,56,7);x.fillStyle=me.turbo>.15?"#3dd6ff":"#ff5a5a";x.fillRect(9,169,54*me.turbo,5);
   x.fillStyle="#fff";x.font="bold 4.5px monospace";x.textAlign="left";x.fillText("TURBO",66,173.5);
-  x.textAlign="right";x.fillStyle="rgba(255,255,255,.75)";x.fillText(jOffense()?"F screen · E pass":"E steal · SPACE block · Q switch",312,173.5);
+  x.textAlign="right";x.fillStyle="rgba(255,255,255,.75)";if(!J.touch)x.fillText(jOffense()?"F screen · E pass":"E steal · SPACE block · Q switch",312,173.5);
   if(J.fire[0]){x.textAlign="left";x.fillStyle="#ff8a2a";x.fillText("ON FIRE",92,173.5)}
   if(J.msgT>0&&J.msg&&J.msg.t){x.font="bold 12px monospace";x.textAlign="center";x.fillStyle="rgba(0,0,0,.7)";x.fillText(J.msg.t,161,56);x.fillStyle=J.msg.c;x.fillText(J.msg.t,160,55)}
   if(J.state!=="play"){x.fillStyle="rgba(5,6,16,.72)";x.fillRect(0,0,JW,JH);x.textAlign="center";x.fillStyle="#ffe27a";x.font="bold 16px monospace";const H=jLoad();
-    if(J.state==="over"){x.fillText(J.result,160,76);x.font="bold 11px monospace";x.fillStyle="#fff";x.fillText(`${J.score[0]} - ${J.score[1]}`,160,94);x.font="6px monospace";x.fillStyle="#aab";x.fillText(`Record ${H.w||0}-${(H.g||0)-(H.w||0)} · click to play again`,160,112)}
-    else if(J.state==="paused"){x.fillText("PAUSED",160,84);x.font="6px monospace";x.fillStyle="#fff";x.fillText("Click to keep playing",160,100)}
+    if(J.state==="over"){x.fillText(J.result,160,76);x.font="bold 11px monospace";x.fillStyle="#fff";x.fillText(`${J.score[0]} - ${J.score[1]}`,160,94);x.font="6px monospace";x.fillStyle="#aab";x.fillText(`Record ${H.w||0}-${(H.g||0)-(H.w||0)} · ${J.touch?"tap SHOOT":"click"} to play again`,160,112)}
+    else if(J.state==="paused"){x.fillText("PAUSED",160,84);x.font="6px monospace";x.fillStyle="#fff";x.fillText(J.touch?"Tap SHOOT to keep playing":"Click to keep playing",160,100)}
+    else if(J.touch){x.fillText("GRINDEX JAM",160,62);x.font="6px monospace";x.fillStyle="#fff";
+      ["Tap SHOOT to start · first to 21","Left thumb: drag to move · push all the way to sprint","SHOOT: hold, let go at the top · sprint at the rim to dunk","PASS / STEAL · SCREEN / SWITCH · SHOOT jumps on D"].forEach((t,i)=>x.fillText(t,160,82+i*12))}
     else{x.fillText("GRINDEX JAM",160,58);x.font="6px monospace";x.fillStyle="#fff";
       [`Click to start · 2 on 2 · first to 21 · ${Object.keys(JDIFF).find(k=>JDIFF[k]===JD)}`,"WASD move · SHIFT turbo","HOLD mouse/SPACE, let go at the top of the meter to shoot","SHIFT + shoot at the rim to dunk","E / right-click: pass, or steal on defense","F: call a screen · SPACE on defense: jump to block · Q: switch"].forEach((t,i)=>x.fillText(t,160,76+i*11));
       if(H.g){x.fillStyle="#aab";x.fillText(`Your record ${H.w||0}-${H.g-(H.w||0)}`,160,150)}}}
@@ -258,9 +263,9 @@ function jPause(){if(J.state!=="play")return;J.state="paused";J.keys={};J.mouse=
 
 function renderHoops(){
   const el=$("#aHoops");if(!el)return;
-  if(!matchMedia("(hover:hover) and (pointer:fine)").matches||innerWidth<900){el.hidden=true;return}   // desktop only
   if(el.dataset.ready)return;el.dataset.ready="1";
   let dv="easy";try{dv=localStorage.getItem("grindex-jam-diff")||"easy"}catch(e){}JD=JDIFF[dv]||JDIFF.easy;
+  if(!matchMedia("(hover:hover) and (pointer:fine)").matches||innerWidth<900)return jMobile(el,dv);
   el.innerHTML=`<div class="sec-h"><div><div class="eyebrow">Arcade · 2 on 2 · first to ${WIN}</div><h2>Grindex Jam</h2></div>
       <div class="hgmodes" role="group" aria-label="Difficulty">${["easy","normal","hard"].map(k=>`<button type="button" class="hgm ${k===dv?"on":""}" data-jd="${k}">${k[0].toUpperCase()+k.slice(1)}</button>`).join("")}</div></div>
     <canvas id="jamC" class="jamc" width="${JW*SC}" height="${JH*SC}" tabindex="0" aria-label="Grindex Jam, a 2 on 2 basketball game. Click to play."></canvas>
@@ -276,5 +281,53 @@ function renderHoops(){
   document.addEventListener("visibilitychange",()=>{if(document.hidden)jPause()});
   new IntersectionObserver(es=>{if(!es[0].isIntersecting)jPause()},{threshold:.2}).observe(J.cv);
   jKeys();
+}
+/* ---------- phones and tablets: a full-screen court with a thumb stick and three buttons ----------
+   Portrait: court on top, controls underneath. Landscape: court fills the screen, controls float over the corners.
+   Left thumb drags anywhere in the left half to move (all the way out is turbo); right thumb has SHOOT (hold and let
+   go at the top; jump on defense), PASS / STEAL, and SCREEN / SWITCH. */
+function jMobile(el,dv){
+  J.touch=true;
+  el.innerHTML=`<div class="sec-h"><div><div class="eyebrow">Arcade · 2 on 2 · first to ${WIN}</div><h2>Grindex Jam</h2></div></div>
+    <button type="button" class="jamcard" id="jamOpen"><canvas id="jamPrev" width="${JW*SC}" height="${JH*SC}" aria-hidden="true"></canvas><span class="jamplay"><b>▶ PLAY</b><small>Full screen · thumb controls</small></span></button>`;
+  const prev=$("#jamPrev");J.cv=prev;J.ctx=prev.getContext("2d");J.ctx.imageSmoothingEnabled=false;J.bg=jBg();jNew();
+  for(let i=0;i<90;i++)jStep(1/60);J.state="play";jDraw();J.state="idle";jNew();   // a clean shot of the court for the card
+  const fs=document.createElement("div");fs.className="jamfs";fs.hidden=true;
+  fs.innerHTML=`<div class="jamtop"><button type="button" class="jx" aria-label="Close">✕</button>
+      <div class="jdiff">${["easy","normal","hard"].map(k=>`<button type="button" data-jd="${k}" class="${k===dv?"on":""}">${k}</button>`).join("")}</div></div>
+    <div class="jamstage"><canvas id="jamC" width="${JW*SC}" height="${JH*SC}"></canvas></div>
+    <div class="jamjumbo"><div class="jjs"><span class="jsr">0</span><em>FIRST TO 21</em><span class="jsb">0</span></div><div class="jjm">Hold SHOOT, let go at the top</div><small>Turn your phone sideways for a bigger court</small></div>
+    <div class="jampad"><div class="jzone" aria-label="Move"><div class="jbase"><i class="jknob"></i></div></div>
+      <div class="jbtns"><button type="button" class="jb jalt">PASS</button><button type="button" class="jb jctx">SCREEN</button><button type="button" class="jb jshoot">SHOOT</button></div></div>`;
+  document.body.appendChild(fs);
+  const cv=fs.querySelector("#jamC"),zone=fs.querySelector(".jzone"),base=fs.querySelector(".jbase"),knob=fs.querySelector(".jknob");
+  const bAlt=fs.querySelector(".jalt"),bCtx=fs.querySelector(".jctx"),bShoot=fs.querySelector(".jshoot");
+  J.joy={x:0,y:0};let lab="";
+  const labels=()=>{const o=jOffense(),k=o?"o":"d";if(k===lab)return;lab=k;bAlt.textContent=o?"PASS":"STEAL";bCtx.textContent=o?"SCREEN":"SWITCH";bShoot.textContent=o?"SHOOT":"JUMP"};
+  const jr=fs.querySelector(".jsr"),jb=fs.querySelector(".jsb"),jm=fs.querySelector(".jjm");let lastS="",lastM="";
+  const loopHook=()=>{if(fs.hidden)return;labels();const sc=J.score.join("-");if(sc!==lastS){lastS=sc;jr.textContent=J.score[0];jb.textContent=J.score[1];jr.parentNode.classList.remove("pop");void jr.offsetWidth;jr.parentNode.classList.add("pop")}
+    const m=J.msgT>0&&J.msg&&J.msg.t?J.msg.t:"";if(m&&m!==lastM){jm.textContent=m;jm.style.color=J.msg.c;jm.classList.remove("pop");void jm.offsetWidth;jm.classList.add("pop")}lastM=m;requestAnimationFrame(loopHook)};
+  const open=()=>{J.cv=cv;J.ctx=cv.getContext("2d");J.ctx.imageSmoothingEnabled=false;fs.hidden=false;document.documentElement.classList.add("jamon");
+    if(J.state==="idle"||J.state==="over")jNew();J.state="paused";jDraw();lab="";loopHook()};
+  const close=()=>{jPause();fs.hidden=true;document.documentElement.classList.remove("jamon");J.cv=prev;J.ctx=prev.getContext("2d");J.ctx.imageSmoothingEnabled=false;jDraw()};
+  $("#jamOpen").onclick=open;fs.querySelector(".jx").onclick=close;
+  fs.querySelectorAll("[data-jd]").forEach(b=>b.onclick=()=>{JD=JDIFF[b.dataset.jd];try{localStorage.setItem("grindex-jam-diff",b.dataset.jd)}catch(e){}
+    fs.querySelectorAll("[data-jd]").forEach(x=>x.classList.toggle("on",x===b));jPause();jNew();J.state="idle";jDraw()});
+  // floating thumb stick
+  let sid=null,cx=0,cy=0;const R=46;
+  zone.addEventListener("pointerdown",e=>{e.preventDefault();sid=e.pointerId;try{zone.setPointerCapture(sid)}catch(_){}const r=zone.getBoundingClientRect();cx=e.clientX;cy=e.clientY;
+    base.style.left=(cx-r.left)+"px";base.style.top=(cy-r.top)+"px";base.classList.add("on");knob.style.transform="translate(-50%,-50%)"});
+  zone.addEventListener("pointermove",e=>{if(e.pointerId!==sid)return;let dx=e.clientX-cx,dy=e.clientY-cy;const n=Math.hypot(dx,dy);if(n>R){dx*=R/n;dy*=R/n}
+    J.joy={x:dx/R,y:dy/R};knob.style.transform=`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px))`;knob.classList.toggle("turbo",Math.hypot(J.joy.x,J.joy.y)>.92)});
+  const up=e=>{if(e.pointerId!==sid)return;sid=null;J.joy={x:0,y:0};base.classList.remove("on");knob.classList.remove("turbo")};
+  zone.addEventListener("pointerup",up);zone.addEventListener("pointercancel",up);
+  const btn=(b,down,upf)=>{b.addEventListener("pointerdown",e=>{e.preventDefault();try{b.setPointerCapture(e.pointerId)}catch(_){}b.classList.add("down");down()});
+    const u=e=>{b.classList.remove("down");upf&&upf()};b.addEventListener("pointerup",u);b.addEventListener("pointercancel",u)};
+  btn(bShoot,()=>{if(J.state!=="play"){jGo();return}jPress(true)},()=>{if(J.state==="play")jPress(false)});
+  btn(bAlt,()=>{if(J.state==="play")jAlt()});
+  btn(bCtx,()=>{if(J.state!=="play")return;if(jOffense())jCallScreen(J.ctrl);else jSwitch()});
+  cv.addEventListener("pointerdown",e=>{e.preventDefault();if(J.state!=="play")jGo()});
+  fs.addEventListener("touchmove",e=>e.preventDefault(),{passive:false});
+  document.addEventListener("visibilitychange",()=>{if(document.hidden)jPause()});
 }
 renderHoops();
