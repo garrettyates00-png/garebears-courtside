@@ -42,6 +42,7 @@
   4431736,
   4431785,
   4432241,
+  4432582,
   4432810,
   4592691,
   4593125,
@@ -51,7 +52,6 @@
   4683678,
   4683688,
   4683766,
-  4683778,
   4684793,
   4845374,
   4869780,
@@ -91,10 +91,17 @@
   "r|2026-11-12|7|ADD:Jordan Goodwin|DROP:Nolan Traore",
   "r|2026-11-13|7|ADD:Isaiah Jackson|DROP:Jordan Goodwin",
   "r|2026-11-13|8|ADD:Rui Hachimura|DROP:Precious Achiuwa",
-  "r|2026-11-13|8|ADD:Tobias Harris"
+  "r|2026-11-13|8|ADD:Tobias Harris",
+  "r|2026-11-14|9|ADD:Jared McCain"
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-14T03:21-06:00",
+   "title": "Lineup check",
+   "body": "Ryan Rollins doesn't play today but is in your lineup. Julius Randle is on your bench and plays today. (6 starters aren't playing, 3 bench players are.)",
+   "prio": 4
+  },
   {
    "at": "2026-11-13T20:16-06:00",
    "title": "Norman Powell: back to full health",
@@ -156,7 +163,7 @@
    "prio": 3
   }
  ],
- "at": "2026-11-13T20:16-06:00",
+ "at": "2026-11-14T03:21-06:00",
  "on": false,
- "lineup_day": "2026-11-13"
+ "lineup_day": "2026-11-14"
 }
