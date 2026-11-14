@@ -163,5 +163,17 @@
   "result": "W",
   "profit": 90.91,
   "final": "94-133"
+ },
+ {
+  "id": "401909981",
+  "date": "2026-11-15T00:30Z",
+  "opp": "CLE",
+  "home": false,
+  "kind": "spread",
+  "side": "them",
+  "line": 4.5,
+  "edge": 9.5,
+  "price": -110,
+  "made": "2026-11-14T20:46:03.203674+00:00"
  }
 ]
