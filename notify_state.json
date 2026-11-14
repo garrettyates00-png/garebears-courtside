@@ -7,7 +7,7 @@
   "4066328": "",
   "3064514": "",
   "4279888": "OUT",
-  "2595516": "DAY_TO_DAY",
+  "2595516": "",
   "4591725": "",
   "4684742": "",
   "5041955": "",
@@ -33,12 +33,12 @@
   3102530,
   3133628,
   3138196,
-  4066648,
   4278129,
   4351852,
   4395626,
   4395723,
   4397014,
+  4431679,
   4431736,
   4431785,
   4432241,
@@ -90,10 +90,17 @@
   "r|2026-11-12|7|ADD:Daniss Jenkins|DROP:Derik Queen",
   "r|2026-11-12|7|ADD:Jordan Goodwin|DROP:Nolan Traore",
   "r|2026-11-13|7|ADD:Isaiah Jackson|DROP:Jordan Goodwin",
+  "r|2026-11-13|8|ADD:Rui Hachimura|DROP:Precious Achiuwa",
   "r|2026-11-13|8|ADD:Tobias Harris"
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-13T20:16-06:00",
+   "title": "Norman Powell: back to full health",
+   "body": "Norman Powell is back to full health.\nPowell (shoulder) is available for Friday's game against the Hawks and will not face a minutes restriction, Joel Lorenzi of The Athletic reports.",
+   "prio": 3
+  },
   {
    "at": "2026-11-13T09:39-06:00",
    "title": "\ud83d\udc40 Creamy Cropmen made a move",
@@ -149,7 +156,7 @@
    "prio": 3
   }
  ],
- "at": "2026-11-13T15:56-06:00",
+ "at": "2026-11-13T20:16-06:00",
  "on": false,
  "lineup_day": "2026-11-13"
 }
