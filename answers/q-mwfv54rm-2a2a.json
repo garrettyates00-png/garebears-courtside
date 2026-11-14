@@ -1,0 +1,27 @@
+{
+ "id": "q-mwfv54rm-2a2a",
+ "q": "Looking at Sunday. It\u2019s too close. He\u2019s above projection all week. I need more games. What can I do",
+ "at": "2026-11-14T03:45:00Z",
+ "short": "You have no open spot (15 of 15 active, both IR spots used by Edwards and Morant), and no free agent beats the player you would drop, so I would not churn the roster. Your lead is about 56 points live and 64 projected.",
+ "answer": "Where it stands: you lead 1014 to 958 live, and the projection is 1503.7 to 1439.8, a gap of about 64 points. Remaining projection is 489.7 for you and 481.8 for him. He has 17 starts to your 15 and a lot of Sunday volume (247 projected Sunday points versus your 218).\n\nRoster room: you have 15 active players and 2 on IR (Anthony Edwards and Ja Morant, both OUT). That is full on both counts, so any add needs a drop, and a drop costs you a game. Your Saturday lineup has 8 players for 11 slots and Sunday has 7 for 11, so you do have empty slots, but the only way to fill them is with players who have games those days.\n\nThe problem is that every free agent has at most one game left after tonight, and every player on your roster also has one or two. Swapping a player for a free agent is a one game for one game trade, so it only helps if the free agent is better. None is. Your Sunday players project 28 to 39 per game (Brown 38.6, Sarr 36.6, Zubac 35.5, Bridges 32.8, Pritchard 31.6, Rollins 31.9, Peterson 29.1). The best Sunday free agents are Keegan Murray (SAC, 29.3) and Myles Turner (MIL, 28.4). On Saturday, Derik Queen (NO, 30.5, on waivers until Sat 2 AM) is below Wiggins (32.0) and Collins (31.8). Vucevic, Pippen and Nurkic are either Friday only or OUT.\n\nThe one real swing is on his side: Luka Doncic is on his bench with a day-to-day tag and about 54 projected on Sunday. I could not find any current report on his status (my search only returned older stories), so treat that as unknown. Check the injury report Sunday before lock.\n\nWhat I would do: keep your lineup full each day, make sure every player with a game is in a slot (Randle, Thompson and Collins on Saturday, Brown on Sunday), and recheck Sunday morning. If a player of yours is ruled out Sunday, swap in Murray or Turner as a free agent, which is instant, but you would need to drop that injured player or another one to make room.",
+ "moves": [
+  {
+   "do": "Make sure Randle, Ausar Thompson and John Collins start Saturday and Jaylen Brown starts Sunday (they show BE now)",
+   "why": "Saturday has 8 players for 11 slots and Sunday 7 for 11, so benched players with games are free points (Randle 37.0, Brown 38.6 projected)."
+  },
+  {
+   "do": "Do not drop anyone for a free agent right now",
+   "why": "Best free agents (Murray 29.3, Turner 28.4, Queen 30.5) project below your weakest players with games left (Wiggins 32.0, Bridges 32.8, Collins 31.8), so a swap loses points."
+  },
+  {
+   "do": "Recheck Sunday morning: if anyone of yours is ruled out, pick up Keegan Murray or Myles Turner (instant free agents with Sunday games)",
+   "why": "They are the best Sunday free agents at 29.3 and 28.4, above the 30.2 replacement level only for Murray's rough value, and far better than an empty slot."
+  }
+ ],
+ "sources": [
+  {
+   "title": "Luka Doncic injury status search (older reports only, nothing current)",
+   "url": "https://www.si.com/nba/lakers/onsi/injuries/lakers-luka-doncic-injury-update"
+  }
+ ]
+}
