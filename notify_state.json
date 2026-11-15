@@ -1,10 +1,10 @@
 {
  "inj": {
   "4594268": "OUT",
-  "3908809": "OUT",
+  "3908809": "DAY_TO_DAY",
   "4066261": "",
   "3917376": "",
-  "4066328": "OUT",
+  "4066328": "DAY_TO_DAY",
   "3064514": "",
   "4279888": "OUT",
   "2595516": "",
@@ -23,6 +23,7 @@
   "4|4351852|3908845": "2026-11-14"
  },
  "fa_ids": [
+  3978,
   6478,
   6589,
   2528210,
@@ -34,15 +35,16 @@
   3064482,
   3102530,
   3138196,
+  4066262,
   4278129,
   4351852,
   4395626,
   4395723,
   4397014,
+  4397688,
   4431679,
   4431736,
   4431785,
-  4432241,
   4432582,
   4432810,
   4592691,
@@ -52,15 +54,13 @@
   4683634,
   4683678,
   4683688,
-  4683747,
   4683766,
   4684793,
   4845374,
+  4869780,
   4873153,
   4896372,
-  5093267,
   5101761,
-  5105550,
   5107173,
   5254165
  ],
@@ -96,10 +96,53 @@
   "r|2026-11-13|8|ADD:Tobias Harris",
   "r|2026-11-14|7|ADD:Derik Queen|DROP:Isaiah Jackson",
   "r|2026-11-14|7|ADD:Myles Turner|DROP:Jalen Smith",
-  "r|2026-11-14|9|ADD:Jared McCain"
+  "r|2026-11-14|9|ADD:Jared McCain",
+  "r|2026-11-15|10|ADD:Collin Murray-Boyles|DROP:DeMar DeRozan",
+  "r|2026-11-15|10|ADD:Jamal Shead|DROP:Trey Murphy III",
+  "r|2026-11-15|10|ADD:Jordan Goodwin|DROP:Andre Drummond",
+  "r|2026-11-15|10|ADD:Sandro Mamukelashvili|DROP:Malik Monk",
+  "r|2026-11-15|1|ADD:Klay Thompson",
+  "r|2026-11-15|1|ADD:Zaccharie Risacher|DROP:Klay Thompson",
+  "r|2026-11-15|7|ADD:Tari Eason|DROP:Derik Queen"
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-15T09:36-06:00",
+   "title": "Donovan Mitchell: day-to-day",
+   "body": "Donovan Mitchell is day-to-day.\nMitchell (knee) has been ruled out for Saturday's game against the Mavericks.",
+   "prio": 3
+  },
+  {
+   "at": "2026-11-15T09:36-06:00",
+   "title": "Jarrett Allen: day-to-day",
+   "body": "Jarrett Allen is day-to-day.\nAllen (knee) has been ruled out for Saturday's game against the Mavericks.",
+   "prio": 3
+  },
+  {
+   "at": "2026-11-15T09:36-06:00",
+   "title": "\ud83c\udd93 Just dropped: Derik Queen",
+   "body": "Derik Queen (NO, 30.5 avg) is now available. Your weakest healthy player is Darryn Peterson (29.1).",
+   "prio": 3
+  },
+  {
+   "at": "2026-11-15T09:36-06:00",
+   "title": "\ud83c\udd93 Just dropped: DeMar DeRozan",
+   "body": "DeMar DeRozan (DEN, 29.8 avg) is now available, on waivers until Tue 2 AM. Your weakest healthy player is Darryn Peterson (29.1).",
+   "prio": 3
+  },
+  {
+   "at": "2026-11-15T09:36-06:00",
+   "title": "\ud83c\udd93 Just dropped: Malik Monk",
+   "body": "Malik Monk (SAC, 27.7 avg) is now available, on waivers until Tue 2 AM. Your weakest healthy player is Darryn Peterson (29.1).",
+   "prio": 3
+  },
+  {
+   "at": "2026-11-15T09:36-06:00",
+   "title": "\ud83d\udc40 Creamy Cropmen made a move",
+   "body": "Your opponent added Tari Eason.",
+   "prio": 2
+  },
   {
    "at": "2026-11-15T01:47-06:00",
    "title": "Lineup check",
@@ -233,7 +276,7 @@
    "prio": 3
   }
  ],
- "at": "2026-11-15T01:47-06:00",
+ "at": "2026-11-15T09:36-06:00",
  "on": false,
  "lineup_day": "2026-11-15"
 }
