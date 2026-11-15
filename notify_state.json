@@ -101,6 +101,12 @@
  "seeded": true,
  "log": [
   {
+   "at": "2026-11-15T01:47-06:00",
+   "title": "Lineup check",
+   "body": "Donovan Mitchell is out but is in your lineup. Jaylen Brown is on your bench and plays today. (8 starters aren't playing, 4 bench players are.)",
+   "prio": 4
+  },
+  {
    "at": "2026-11-14T18:58-06:00",
    "title": "\ud83d\udea8 Donovan Mitchell: OUT",
    "body": "Donovan Mitchell is OUT. He's in your lineup today. Nobody on your bench plays today. Free agent Cameron Johnson (DEN, 26 avg) does.\nMitchell (knee) has been ruled out for Saturday's game against the Mavericks.",
@@ -227,7 +233,7 @@
    "prio": 3
   }
  ],
- "at": "2026-11-14T18:58-06:00",
+ "at": "2026-11-15T01:47-06:00",
  "on": false,
- "lineup_day": "2026-11-14"
+ "lineup_day": "2026-11-15"
 }
