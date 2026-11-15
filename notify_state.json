@@ -8,10 +8,10 @@
   "3064514": "",
   "4279888": "OUT",
   "2595516": "",
-  "4591725": "",
+  "4591725": "DAY_TO_DAY",
   "4684742": "",
   "5041955": "",
-  "5160992": "DAY_TO_DAY",
+  "5160992": "",
   "4066354": "",
   "3059319": "",
   "4017837": "",
@@ -107,6 +107,18 @@
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-15T14:33-06:00",
+   "title": "\ud83d\udea8 Ryan Rollins: day-to-day",
+   "body": "Ryan Rollins is day-to-day. He's in your lineup today.\nRollins (illness) is questionable to play in Sunday's game against the Hawks.",
+   "prio": 4
+  },
+  {
+   "at": "2026-11-15T14:33-06:00",
+   "title": "Alex Sarr: back to full health",
+   "body": "Alex Sarr is back to full health.\nSarr (illness) is available to play in Sunday's game against Houston.",
+   "prio": 3
+  },
   {
    "at": "2026-11-15T09:36-06:00",
    "title": "Donovan Mitchell: day-to-day",
@@ -276,7 +288,7 @@
    "prio": 3
   }
  ],
- "at": "2026-11-15T09:36-06:00",
+ "at": "2026-11-15T14:33-06:00",
  "on": false,
  "lineup_day": "2026-11-15"
 }
