@@ -2,9 +2,15 @@ name: Set lineup
 
 on:
   schedule:
-    # Target 10:30 AM Central. GitHub often starts scheduled runs late or drops them, so there are
-    # hourly backup attempts through the afternoon. The gate lets the first one after 10:30 CT through,
-    # once a day; the rest skip in seconds. Players whose game already tipped are never moved.
+    # Early pass: 12:30 AM Central, right after the new day starts, so every player with a game is in the lineup before
+    # anything tips. GitHub often starts scheduled runs late or drops them, so there are backups through the night.
+    # Late pass: from 10:30 AM, for injury news during the day. Each pass runs once a day (the gate below), and a
+    # player whose game already tipped is never moved.
+    - cron: "31 6 * * *"
+    - cron: "41 7 * * *"
+    - cron: "41 8 * * *"
+    - cron: "41 10 * * *"
+    - cron: "41 12 * * *"
     - cron: "31 15 * * *"
     - cron: "31 16 * * *"
     - cron: "41 17 * * *"
@@ -39,16 +45,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Gate scheduled runs to once a day, from 10:30 AM to 5 PM Central
+      - name: Gate scheduled runs to two passes a day (early 12:30-10:30 AM, late 10:30 AM-5 PM Central)
         id: gate
         run: |
-          go=1
+          go=1; pass=""
           if [ "${{ github.event_name }}" = "schedule" ]; then
             hm=$(TZ=America/Chicago date +%H%M); today=$(TZ=America/Chicago date +%F)
-            if [ "$hm" -lt 1030 ] || [ "$hm" -ge 1700 ]; then go=0; fi
-            if [ -f lineup_log.json ] && python3 -c "import json,sys;sys.exit(0 if any(e.get('src')=='schedule' and e.get('date')=='$today' and e.get('status')!='error' for e in json.load(open('lineup_log.json'))) else 1)"; then go=0; fi
+            if [ "$hm" -ge 0030 ] && [ "$hm" -lt 1030 ]; then pass=early; elif [ "$hm" -ge 1030 ] && [ "$hm" -lt 1700 ]; then pass=late; else go=0; fi
+            if [ "$go" = 1 ] && [ -f lineup_log.json ] && python3 -c "import json,sys;sys.exit(0 if any(e.get('src')=='schedule' and e.get('date')=='$today' and e.get('pass','late')=='$pass' and e.get('status')!='error' for e in json.load(open('lineup_log.json'))) else 1)"; then go=0; fi
           fi
-          echo "go=$go" >> "$GITHUB_OUTPUT"
+          echo "go=$go" >> "$GITHUB_OUTPUT"; echo "pass=$pass" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-python@v5
         if: steps.gate.outputs.go == '1'
         with:
@@ -62,6 +68,7 @@ jobs:
           ESPN_SWID: ${{ secrets.ESPN_SWID }}
           DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
           RUN_SRC: ${{ github.event_name }}
+          RUN_PASS: ${{ steps.gate.outputs.pass }}
           CUSTOM_LINEUP: ${{ inputs.lineup }}
           LINEUP_DAY: ${{ inputs.day }}
         run: python setlineup.py

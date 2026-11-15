@@ -15,7 +15,9 @@ function rmToday(x){   // {k: today|live|done|off, t: label}
   const tm=g&&g.date?new Date(g.date).toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"}):"";return {k:"today",t:"Today"+(tm?" "+tm:"")}}
 function rmLeft(x){return x.days?x.days.length:(x.g||0)}                       // games left this week, today included
 function rmNext(x){const S=D.sim||{};return ((S.gpw||{})[x.tm]||{})[(D.period||0)+1]??null}
-function rmUsableToday(f){const t=rmToday(f);return f.st!=="WAIVERS"&&t.k==="today"}
+// In this league an add made during the day shows up on ESPN's roster from the next day (Keegan Murray, Nov 15:
+// added before his game, still not on today's roster), so a pickup never counts today.
+function rmUsableToday(f){return false}
 const rmEl=(p,slot)=>{const e=p.el||[];if(slot==="UTIL")return e.some(x=>["PG","SG","SF","PF","C"].includes(x));if(slot==="G")return e.includes("PG")||e.includes("SG");if(slot==="F")return e.includes("SF")||e.includes("PF");return e.includes(slot)};
 // best possible starting lineup points for one day: players who play that day, matched to slots by eligibility
 function rmLineup(ps){const slots=D.slots,own=new Array(slots.length).fill(null);let pts=0;
@@ -118,7 +120,7 @@ function renderMovesX(){
     el.innerHTML=(ST.txt?`<div class="rmstake ${ST.w>2?"hot":""}">${ST.w>2?"🔥 ":""}${esc(ST.txt)}</div>`:"")+(L.pick.length?L.pick.map((o,i)=>{const f=o.f,a=o.a,t=rmToday(f);
       return `<div class="rmcard"><div class="rmhead"><div><b>Add ${esc(f.n)}</b> <span class="faint">${esc(f.tm)} · ${esc(f.pos)} · ${f.pa.toFixed(1)}/g</span>${f.inj?" "+injTag(f.inj):""}
           <div class="rmsub">drop <b>${esc(a.p.n)}</b>${a.p.inj?" "+injTag(a.p.inj):""} <span class="faint">${esc(a.p.pos||"")} · ${a.p.pa.toFixed(1)}/g</span></div>
-          <div class="rmchips"><span class="tchip ${rmUsableToday(f)?"use":t.k}">${rmUsableToday(f)?"Plays for you today":esc(t.t)}</span><span class="gchip">${rmLeft(f)} left this wk</span><span class="gchip">${rmNext(f)??"–"} next wk</span>${rmLim(f.pos)?`<span class="gchip">${esc(f.pos)} ${rmPosCount(f.pos)-(a.p.pos===f.pos?1:0)+1}/${rmLim(f.pos)} after</span>`:""}</div></div>
+          <div class="rmchips"><span class="tchip ${t.k}">${esc(t.t)}</span><span class="gchip">${rmLeft(f)} left this wk</span><span class="gchip">${rmNext(f)??"–"} next wk</span>${rmLim(f.pos)?`<span class="gchip">${esc(f.pos)} ${rmPosCount(f.pos)-(a.p.pos===f.pos?1:0)+1}/${rmLim(f.pos)} after</span>`:""}</div></div>
         <span class="rmgain up">+${Math.round(a.score)}</span></div>
         <div class="rmwhy">${rmReason(f,a,ST)}. <span class="faint">${esc(rmWhen(f))}.</span></div>
         <div class="rmbtns"><button class="b primary" type="button" data-rms="${i}">Execute</button></div></div>`}).join("")
@@ -133,12 +135,12 @@ function renderMovesX(){
     const hr0=tb.querySelector("thead tr");if(hr0&&!hr0.querySelector(".rmth")){const a=document.createElement("th");a.className="rmth";a.textContent="Today";hr0.children[1].after(a);
       hr0.children[3].textContent="Left";hr0.children[3].title="Games left this week, today included";const n=document.createElement("th");n.className="r";n.textContent="Next wk";n.title="Games next week";hr0.children[3].after(n)}
     tb.querySelectorAll("tbody tr").forEach((tr,k)=>{const f=D.fa[k];if(!f||tr.dataset.k)return;tr.dataset.k=k;
-      const t=rmToday(f),use=rmUsableToday(f);tr.classList.add("fa-"+t.k);if(use)tr.classList.add("fa-use");
+      const t=rmToday(f),use=rmUsableToday(f);tr.classList.add("fa-"+t.k);if(t.k==="today")tr.classList.add("fa-use");
       const td=document.createElement("td");td.innerHTML=`<span class="tchip ${t.k}">${esc(t.t)}</span>${t.k==="today"&&f.st==="WAIVERS"?`<div class="faint" style="font-size:11px">claim won't clear in time</div>`:""}`;tr.children[1].after(td);
       const nx=document.createElement("td");nx.className="r num mute";const nv=rmNext(f);nx.textContent=nv==null?"–":nv;tr.children[3].after(nx);
 });
     if(!$("#faFilt")){const bar=document.createElement("div");bar.id="faFilt";bar.className="fafilt";
-      bar.innerHTML=`<button type="button" data-ff="all" class="on">All</button><button type="button" data-ff="today">Plays today</button><button type="button" data-ff="games">Most games</button><span class="faint">Green = can be added and played today</span>`;
+      bar.innerHTML=`<button type="button" data-ff="all" class="on">All</button><button type="button" data-ff="today">Plays today</button><button type="button" data-ff="games">Most games</button><span class="faint">Green = has a game today. New adds join your roster tomorrow, so they won't score today.</span>`;
       tb.parentNode.insertBefore(bar,tb);
       bar.querySelectorAll("[data-ff]").forEach(b=>b.onclick=()=>{bar.querySelectorAll("[data-ff]").forEach(x=>x.classList.toggle("on",x===b));const k=b.dataset.ff,body=tb.querySelector("tbody"),rows=[...body.rows];
         rows.forEach(r=>{const f=D.fa[+r.dataset.k];r.hidden=k==="today"&&!rmPlaysToday(f)});
@@ -172,7 +174,7 @@ function rmSheet(o){
     m.innerHTML=`<div class="box rmbox" role="dialog" aria-label="Roster move">
       <h2 style="margin:0">${o.dropOnly?"Drop a player":`Add ${esc(f?f.n:rmName(o.add))}`}</h2>
       ${f?`<p class="mute" style="margin:0;font-size:14px">${esc(f.tm)} · ${esc(f.pos)} · ${f.pa.toFixed(1)}/g · ${f.g} left this week${rmNext(f)!=null?` · ${rmNext(f)} next week`:""}${f.inj?" · "+esc(injWord(f.inj)):""}. ${esc(rmWhen(f))}.</p>
-        <div class="rmchips"><span class="tchip ${rmToday(f).k}">${esc(rmToday(f).t)}</span>${rmUsableToday(f)?`<span class="tchip use">Can play for you today</span>`:rmToday(f).k==="today"?`<span class="tchip off">Won't count today (waivers)</span>`:""}</div>`:""}
+        <div class="rmchips"><span class="tchip ${rmToday(f).k}">${esc(rmToday(f).t)}</span>${rmToday(f).k==="today"?`<span class="tchip off">Joins your roster tomorrow, won't score today</span>`:""}</div>`:""}
       ${f&&rmLim(f.pos)&&!rmPosOK(f,null)?`<div class="rmstake hot">You're at the ${esc(f.pos)} limit (${rmPosCount(f.pos)}/${rmLim(f.pos)} by default position), so adding ${esc(last(f.n))} means dropping a ${esc(f.pos)}.</div>`:""}
       ${o.add?`<div class="rmstate">${R.room>0?`You have <b>${R.room}</b> open spot${R.room>1?"s":""}, so a drop is optional.`:`Your roster is full${(R.claim_add||[]).length?" once your pending claims go through":""}. Pick someone to drop${irOpts.length&&R.ir_free?", or move an OUT player to IR":""}.`}</div>`:""}
       ${o.add&&irOpts.length&&R.ir_free?`<div class="eyebrow">Move to IR instead</div><div class="rmopts">${irOpts.map(p=>`<button type="button" class="rmopt ${o.ir===p.id?"on":""}" data-ir="${p.id}"><span><b>${esc(p.n)}</b>${injTag(p.inj)}<small>${esc(p.tm)} · ${p.pa.toFixed(1)}/g · keeps him, frees a spot</small></span></button>`).join("")}</div>`:""}
