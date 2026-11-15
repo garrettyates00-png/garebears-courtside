@@ -1,5 +1,18 @@
 [
  {
+  "req": "r-mwichcm4",
+  "add": 3978,
+  "drop": 5041955,
+  "ir": null,
+  "names": {
+   "add": "DeMar DeRozan",
+   "drop": "Darryn Peterson"
+  },
+  "status": "claim",
+  "kind": "WAIVER",
+  "at": "Nov 15, 3:27 PM CT"
+ },
+ {
   "req": "r-mwia4ofd",
   "add": 4351852,
   "drop": 3908845,
