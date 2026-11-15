@@ -1,5 +1,22 @@
 [
  {
+  "date": "2026-11-15",
+  "status": "error",
+  "moved": [
+   "Donovan Mitchell: G to BE",
+   "Jarrett Allen: C to BE",
+   "Julius Randle: UTIL to BE",
+   "Norman Powell: SF to BE",
+   "Ryan Rollins: BE to PG",
+   "Darryn Peterson: BE to UTIL",
+   "Payton Pritchard: PG to SG",
+   "Mikal Bridges: SG to G"
+  ],
+  "error": "Jaylen Brown's game has started, so he can't move; Ivica Zubac's game has started, so he can't move",
+  "at": "Nov 15, 2:00 PM CT",
+  "src": "button"
+ },
+ {
   "date": "2026-11-14",
   "status": "error",
   "moved": [
@@ -342,18 +359,6 @@
   "moved": [],
   "note": "Lineup was already optimal.",
   "at": "Oct 30, 3:00 PM CT",
-  "src": "schedule"
- },
- {
-  "date": "2026-10-29",
-  "status": "saved",
-  "moved": [
-   "Ja Morant: BE to UTIL, plays today (37.5 proj)",
-   "Jakob Poeltl: UTIL to BE, slot needed for a player with a game",
-   "Darryn Peterson: PG to BE, slot needed for a player with a game",
-   "Scotty Pippen Jr.: BE to PG, plays today (30.6 proj)"
-  ],
-  "at": "Oct 29, 3:28 PM CT",
   "src": "schedule"
  }
 ]
