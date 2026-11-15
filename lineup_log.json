@@ -1,6 +1,19 @@
 [
  {
   "date": "2026-11-14",
+  "status": "error",
+  "moved": [
+   "Jaylen Brown: BE to SF",
+   "Ryan Rollins: BE to UTIL",
+   "Darryn Peterson: BE to UTIL",
+   "Ivica Zubac: BE to UTIL"
+  ],
+  "error": "Bam Adebayo's game has started, so he can't move; Julius Randle's game has started, so he can't move; Norman Powell's game has started, so he can't move; Ausar Thompson's game has started, so he can't move; Andrew Wiggins's game has started, so he can't move; John Collins's game has started, so he c",
+  "at": "Nov 14, 11:49 PM CT",
+  "src": "button"
+ },
+ {
+  "date": "2026-11-14",
   "status": "saved",
   "moved": [
    "Julius Randle: BE to UTIL, plays today (34.9 proj)",
@@ -341,14 +354,6 @@
    "Scotty Pippen Jr.: BE to PG, plays today (30.6 proj)"
   ],
   "at": "Oct 29, 3:28 PM CT",
-  "src": "schedule"
- },
- {
-  "date": "2026-10-28",
-  "status": "ok",
-  "moved": [],
-  "note": "Lineup was already optimal.",
-  "at": "Oct 28, 3:29 PM CT",
   "src": "schedule"
  }
 ]
