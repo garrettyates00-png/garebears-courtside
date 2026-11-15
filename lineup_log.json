@@ -1,6 +1,14 @@
 [
  {
   "date": "2026-11-15",
+  "status": "ok",
+  "moved": [],
+  "note": "Lineup was already optimal.",
+  "at": "Nov 15, 2:29 PM CT",
+  "src": "schedule"
+ },
+ {
+  "date": "2026-11-15",
   "status": "error",
   "moved": [
    "Donovan Mitchell: G to BE",
@@ -352,13 +360,5 @@
   ],
   "at": "Oct 31, 11:41 AM CT",
   "src": "button"
- },
- {
-  "date": "2026-10-30",
-  "status": "ok",
-  "moved": [],
-  "note": "Lineup was already optimal.",
-  "at": "Oct 30, 3:00 PM CT",
-  "src": "schedule"
  }
 ]
