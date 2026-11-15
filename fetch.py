@@ -547,6 +547,7 @@ def main():
                        active_after=active_after, room=room, ir_used=len(on_ir), ir_free=ir_free,
                        ir_cands=[p["id"] for p in ir_cands], claim_add=sorted(claim_add), claim_drop=sorted(claim_drop),
                        # ESPN's per-position roster caps (by default position), e.g. at most 4 centers; 0 or missing = no cap
+                       lock=settings["rosterSettings"].get("lineupLocktimeType", ""),   # INDIVIDUAL_GAME or FIRST_GAME_OF_SCORING_PERIOD
                        pos_limits={POS[int(k)]: v for k, v in (settings["rosterSettings"].get("positionLimits") or {}).items() if int(k) in POS and v and v > 0})
 
     if pending:
