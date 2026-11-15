@@ -18,7 +18,9 @@
   "3908845": "",
   "3147657": ""
  },
- "upgrade": {},
+ "upgrade": {
+  "3908845": 31.8
+ },
  "stream": {
   "4|4351852|3908845": "2026-11-14"
  },
@@ -35,6 +37,7 @@
   3064482,
   3102530,
   3138196,
+  3908845,
   4066262,
   4278129,
   4351852,
@@ -49,7 +52,6 @@
   4432810,
   4592691,
   4593125,
-  4594327,
   4601023,
   4683634,
   4683678,
@@ -103,10 +105,23 @@
   "r|2026-11-15|10|ADD:Sandro Mamukelashvili|DROP:Malik Monk",
   "r|2026-11-15|1|ADD:Klay Thompson",
   "r|2026-11-15|1|ADD:Zaccharie Risacher|DROP:Klay Thompson",
+  "r|2026-11-15|3|ADD:Keegan Murray|DROP:John Collins",
   "r|2026-11-15|7|ADD:Tari Eason|DROP:Derik Queen"
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-15T15:40-06:00",
+   "title": "\u2b06\ufe0f Upgrade: John Collins",
+   "body": "John Collins (DET, 31.8 avg) is a on waivers, clears Tue 2 AM. Your weakest healthy player is Darryn Peterson (29.1).",
+   "prio": 4
+  },
+  {
+   "at": "2026-11-15T15:40-06:00",
+   "title": "\u2705 Your move went through",
+   "body": "Added Keegan Murray \u00b7 Dropped John Collins",
+   "prio": 3
+  },
   {
    "at": "2026-11-15T14:33-06:00",
    "title": "\ud83d\udea8 Ryan Rollins: day-to-day",
@@ -288,7 +303,7 @@
    "prio": 3
   }
  ],
- "at": "2026-11-15T15:19-06:00",
+ "at": "2026-11-15T15:40-06:00",
  "on": false,
  "lineup_day": "2026-11-15"
 }
