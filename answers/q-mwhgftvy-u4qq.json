@@ -1,0 +1,35 @@
+{
+ "id": "q-mwhgftvy-u4qq",
+ "q": "At this point I\u2019m borderline going to lose. What can I do. Don\u2019t be a pussy. Be honest.",
+ "at": "2026-11-15T06:29:00Z",
+ "short": "It is a coin flip, not a loss: you project 1617.6 to Ben's 1616.4 with one day left. Set all 7 Sunday players active right now and swap your dead roster spots for free agents who play today.",
+ "answer": "Honest read: you are not borderline losing, you are in a dead heat. You lead 1403 to 1381 live, and the remaining projection is 214.6 for you against 235.4 for Ben (Creamy Cropmen), which nets out to 1617.6 to 1616.4. Any one bad game decides it.\n\nFirst problem: your lineup is not set for Sunday. Jaylen Brown (38.8), Darryn Peterson (31.6), Ivica Zubac (33.4) and Ryan Rollins (27.4) are showing on the bench, and those are 4 of your 7 players with a game today. About 131 projected points are sitting there. Alex Sarr (28.7) is also questionable with an illness against Houston, so he is your biggest risk. Ben has Luka Doncic (63.2) on his bench in the data too, so expect him to fix that. Do not count on him missing it.\n\nSecond: you have 11 lineup slots and only 7 players with a game today, so 4 slots will be empty. Your roster is full at 15 active and both IR spots are used (Edwards, Morant), so you have no room to add anyone without dropping. Anything you drop who has no game today (John Collins 27.8 value, Andrew Wiggins, Ausar Thompson, Randle, Norman Powell, Bam Adebayo, all finished Saturday) gives you zero points this week. Free agents are instant, so swap them for players with a game today. The best listed are Cameron Johnson DEN (26.1), Tre Jones CHI (25.8), Isaiah Stewart MEM (25.3), Danny Wolf BKN (24.7) and Mikel Brown Jr. BKN (24.0). Mitchell Robinson BOS (30.3) is the top name, but the data does not flag him as playing today and the schedule sources I found conflict, so confirm he has a game before using him. Four fills at about 25 each is roughly 100 extra points against a 1.2 point gap, which is the whole matchup.\n\nWho to drop: Collins and Wiggins are the cheapest cuts since both are replaceable at about 29 FP per game waiver level. I would not cut Mitchell or Allen (both OUT, but long-term stars) unless you are sure you can get them back. Anything you cut could be claimed by someone else, so only cut players you are fine losing. The tradeoff is real: you give up a little rest-of-season depth for a much better shot at this win.\n\nCertainty: the numbers come from your league data, which was pulled at 11:49 PM CT Saturday. Web schedule results for today were contradictory, so verify each add actually has a game today before dropping anyone, and check Sarr's status before lock.",
+ "moves": [
+  {
+   "do": "Move Jaylen Brown, Darryn Peterson, Ivica Zubac and Ryan Rollins from bench into active slots for Sunday",
+   "why": "They hold 38.8, 31.6, 33.4 and 27.4 projected points, about 131 combined, and all have a game today."
+  },
+  {
+   "do": "Drop John Collins and Andrew Wiggins (no game today), add two free agents with a game today such as Cameron Johnson and Tre Jones",
+   "why": "Two empty UTIL slots become about 26 and 26 projected points against a 1.2 point projected gap."
+  },
+  {
+   "do": "Confirm Mitchell Robinson plays today; if so drop another no-game player (Ausar Thompson or Randle) and add him",
+   "why": "He projects 30.3, the best free agent, and you have 4 open lineup slots today."
+  },
+  {
+   "do": "Check Alex Sarr's illness status before lock and have a free agent ready to start in his F slot if he is out",
+   "why": "He projects 28.7 and is questionable; a replacement like Isaiah Stewart (25.3) limits the loss to about 3 points."
+  }
+ ],
+ "sources": [
+  {
+   "title": "NBA schedule november 2026 (Legion Report)",
+   "url": "https://legionreport.com/nba-schedule-november-2026/"
+  },
+  {
+   "title": "NBA Daily Summary: Nov 15, 2026",
+   "url": "https://www.landofbasketball.com/nba_daily_summary/20261115.htm"
+  }
+ ]
+}
