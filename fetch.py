@@ -105,7 +105,7 @@ def main():
             inj = p.get("injuryStatus", "ACTIVE")
             gd = games.get(p["proTeamId"], set())
             players.append(dict(
-                t=t["id"], id=p["id"], n=p["fullName"], tm=pro_abbr.get(p["proTeamId"], "FA"),
+                t=t["id"], id=p["id"], n=p["fullName"], tm=pro_abbr.get(p["proTeamId"], "FA"), pos=POS.get(p.get("defaultPositionId"), ""),
                 el=[SLOT[s] for s in p["eligibleSlots"] if s in (0, 1, 2, 3, 4)],
                 inj="" if inj == "ACTIVE" else inj, av=AVAIL.get(inj, 1.0),
                 slot=SLOT.get(e["lineupSlotId"], "BE"),
@@ -545,7 +545,9 @@ def main():
         if len(top_moves) == 3: break
     roster_info = dict(active_max=active_max, ir_max=ir_max, active_now=len([p for p in mine_all if p["slot"] != "IR"]),
                        active_after=active_after, room=room, ir_used=len(on_ir), ir_free=ir_free,
-                       ir_cands=[p["id"] for p in ir_cands], claim_add=sorted(claim_add), claim_drop=sorted(claim_drop))
+                       ir_cands=[p["id"] for p in ir_cands], claim_add=sorted(claim_add), claim_drop=sorted(claim_drop),
+                       # ESPN's per-position roster caps (by default position), e.g. at most 4 centers; 0 or missing = no cap
+                       pos_limits={POS[int(k)]: v for k, v in (settings["rosterSettings"].get("positionLimits") or {}).items() if int(k) in POS and v and v > 0})
 
     if pending:
         after = [p for p in mine_all if p["id"] not in claim_drop] + [fa_by_id[i] for i in claim_add if i in fa_by_id]

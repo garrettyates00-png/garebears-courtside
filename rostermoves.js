@@ -44,6 +44,10 @@ function rmStakes(){
     :wp>.95?`This week is basically won (${Math.round(wp*100)}%), so moves are judged on next week and beyond.`
     :`You're ${gap<0?"down":"up"} about ${Math.abs(Math.round(gap))} ${left} (${Math.round(wp*100)}% to win). Points this week count ${w.toFixed(1)}× in these picks.`;
   return {w,txt,wp,gap,days:days.length}}
+/* ESPN caps how many players of each default position you can roster (e.g. 4 centers). An add has to fit under it. */
+function rmLim(pos){return ((D.roster||{}).pos_limits||{})[pos]||0}
+function rmPosOK(f,drop){const L=rmLim(f.pos);if(!L||!f.pos)return true;return P(D.me).filter(p=>p.pos===f.pos&&p!==drop).length+1<=L}
+function rmPosCount(pos){return P(D.me).filter(p=>p.pos===pos).length}
 function rmAdvice(f,ST){
   ST=ST||rmStakes();
   const all=P(D.me),mine=all.filter(p=>p.slot!=="IR");   // IR spots don't open an active spot, so they can't make room for an add
@@ -59,17 +63,18 @@ function rmAdvice(f,ST){
   const restBase=rest.length?restVal(all,false):0;
   const nw=(D.period||0)+1,nxt=p=>healthy(p)||(typeof txWeeksOut==="function"&&txWeeksOut(p)<=1)?rmGpw(p,nw)/7:0;
   const nBase=rmExp(all,nxt);
-  const H=Math.max(0,Math.min(6,((D.sim||{}).reg||nw+6)-nw)),lr=p=>{const out=healthy(p)?0:(typeof txWeeksOut==="function"?txWeeksOut(p):4);return rmAvgG(p)/7*Math.max(0,1-Math.max(0,out-1)/Math.max(1,H))};
+  const H=Math.max(0,((D.sim||{}).reg||nw+6)-nw),   // the rest of the regular season after next week
+    lr=p=>{const out=healthy(p)?0:(typeof txWeeksOut==="function"?txWeeksOut(p):4);return rmAvgG(p)/7*Math.max(0,1-Math.max(0,out-1)/Math.max(1,H))};
   const lBase=rmExp(all,lr);
   return mine.map(p=>{
     const ros=all.filter(x=>x!==p),after=ros.concat([{...f,slot:"BE",_seat:p.id}]);
     const today=(usable?rmLineup(rmTodayPool(ros.concat([fa]))).pts:rmLineup(rmTodayPool(ros)).pts)-base;
     const restW=rest.length?restVal(ros,true)-restBase:0;
-    const next=rmExp(after,nxt)-nBase,long=(rmExp(after,lr)-lBase)*H*.45;
+    const next=rmExp(after,nxt)-nBase,long=(rmExp(after,lr)-lBase)*H*.6;   // discounted: projections drift and you can re-pick later
     const fx=after[after.length-1],sr=rmStart(after,nxt,fx);   // how often he'd actually be in your lineup when he plays
     const crowd=sr<.7;
-    const score=ST.w*(today+restW)+next+long;
-    return {p,today,restW,next,long,per:f.pa-p.pa,score,crowd,sr,hurt:!healthy(p)}}).sort((a,b)=>b.score-a.score);
+    const ok=rmPosOK(f,p),score=ok?ST.w*(today+restW)+next+long:-1e6;   // over a position cap: ESPN won't allow it
+    return {p,today,restW,next,long,per:f.pa-p.pa,score,crowd,sr,ok,hurt:!healthy(p)}}).sort((a,b)=>b.score-a.score);
 }
 /* the moves worth making right now, across every available player */
 let RMS={key:null,list:null,busy:false};
@@ -113,7 +118,7 @@ function renderMovesX(){
     el.innerHTML=(ST.txt?`<div class="rmstake ${ST.w>2?"hot":""}">${ST.w>2?"🔥 ":""}${esc(ST.txt)}</div>`:"")+(L.pick.length?L.pick.map((o,i)=>{const f=o.f,a=o.a,t=rmToday(f);
       return `<div class="rmcard"><div class="rmhead"><div><b>Add ${esc(f.n)}</b> <span class="faint">${esc(f.tm)} · ${esc(f.pos)} · ${f.pa.toFixed(1)}/g</span>${f.inj?" "+injTag(f.inj):""}
           <div class="rmsub">drop <b>${esc(a.p.n)}</b>${a.p.inj?" "+injTag(a.p.inj):""} <span class="faint">${esc(a.p.pos||"")} · ${a.p.pa.toFixed(1)}/g</span></div>
-          <div class="rmchips"><span class="tchip ${rmUsableToday(f)?"use":t.k}">${rmUsableToday(f)?"Plays for you today":esc(t.t)}</span><span class="gchip">${rmLeft(f)} left this wk</span><span class="gchip">${rmNext(f)??"–"} next wk</span></div></div>
+          <div class="rmchips"><span class="tchip ${rmUsableToday(f)?"use":t.k}">${rmUsableToday(f)?"Plays for you today":esc(t.t)}</span><span class="gchip">${rmLeft(f)} left this wk</span><span class="gchip">${rmNext(f)??"–"} next wk</span>${rmLim(f.pos)?`<span class="gchip">${esc(f.pos)} ${rmPosCount(f.pos)-(a.p.pos===f.pos?1:0)+1}/${rmLim(f.pos)} after</span>`:""}</div></div>
         <span class="rmgain up">+${Math.round(a.score)}</span></div>
         <div class="rmwhy">${rmReason(f,a,ST)}. <span class="faint">${esc(rmWhen(f))}.</span></div>
         <div class="rmbtns"><button class="b primary" type="button" data-rms="${i}">Execute</button></div></div>`}).join("")
@@ -154,11 +159,11 @@ function rmSheet(o){
   const need=o.add?(R.room>0?0:1):0;   // a drop or IR move is needed when the roster is full
   const m=document.createElement("div");m.className="modal rms";
   const draw=()=>{
-    const ok=o.dropOnly?!!o.drop:(!need||o.drop||o.ir);
+    const okPos=!f||rmPosOK(f,o.drop?D.players.find(p=>p.id===o.drop):null),ok=okPos&&(o.dropOnly?!!o.drop:(!need||o.drop||o.ir));
     const ST=rmStakes(),adv=f?rmAdvice(f,ST):null,best=adv&&adv[0]&&adv[0].score>0?adv[0].p.id:null,A=id=>adv&&adv.find(a=>a.p.id===id);
-    const verdict=a=>!a?"":a.p.id===best?["best","Best drop"]:a.score>0?["ok","Fine to drop"]:a.score>-15?["close","Close call"]:["keep","Keep"];
+    const verdict=a=>!a?"":!a.ok?["keep",`Over ${esc(f.pos)} limit`]:a.p.id===best?["best","Best drop"]:a.score>0?["ok","Fine to drop"]:a.score>-15?["close","Close call"]:["keep","Keep"];
     const opt=p=>{const t=rmToday(p),a=A(p.id),v=verdict(a),nx=rmNext(p);
-      const why=a?rmReason(f,a,ST):"";
+      const why=a?(a.ok?rmReason(f,a,ST):`Not allowed: you would have ${rmPosCount(f.pos)+1} ${esc(f.pos)} (limit ${rmLim(f.pos)}). Drop a ${esc(f.pos)} to add him.`):"";
       return `<button type="button" class="rmopt ${o.drop===p.id?"on":""} ${v?"v-"+v[0]:""}" data-d="${p.id}"><span><b>${esc(p.n)}</b>${injTag(p.inj)}${v?`<em class="verd ${v[0]}">${v[1]}</em>`:""}
           <small>${esc(p.tm)} · ${esc((p.el||[]).filter(x=>x.length<=2).join("/"))} · ${p.pa.toFixed(1)}/g${(R.claim_drop||[]).includes(p.id)?" · in a pending drop":""}</small>
           <span class="rmchips"><span class="tchip ${t.k}">${esc(t.t)}</span><span class="gchip">${rmLeft(p)} left this wk</span>${nx!=null?`<span class="gchip">${nx} next wk</span>`:""}</span>
@@ -168,6 +173,7 @@ function rmSheet(o){
       <h2 style="margin:0">${o.dropOnly?"Drop a player":`Add ${esc(f?f.n:rmName(o.add))}`}</h2>
       ${f?`<p class="mute" style="margin:0;font-size:14px">${esc(f.tm)} · ${esc(f.pos)} · ${f.pa.toFixed(1)}/g · ${f.g} left this week${rmNext(f)!=null?` · ${rmNext(f)} next week`:""}${f.inj?" · "+esc(injWord(f.inj)):""}. ${esc(rmWhen(f))}.</p>
         <div class="rmchips"><span class="tchip ${rmToday(f).k}">${esc(rmToday(f).t)}</span>${rmUsableToday(f)?`<span class="tchip use">Can play for you today</span>`:rmToday(f).k==="today"?`<span class="tchip off">Won't count today (waivers)</span>`:""}</div>`:""}
+      ${f&&rmLim(f.pos)&&!rmPosOK(f,null)?`<div class="rmstake hot">You're at the ${esc(f.pos)} limit (${rmPosCount(f.pos)}/${rmLim(f.pos)} by default position), so adding ${esc(last(f.n))} means dropping a ${esc(f.pos)}.</div>`:""}
       ${o.add?`<div class="rmstate">${R.room>0?`You have <b>${R.room}</b> open spot${R.room>1?"s":""}, so a drop is optional.`:`Your roster is full${(R.claim_add||[]).length?" once your pending claims go through":""}. Pick someone to drop${irOpts.length&&R.ir_free?", or move an OUT player to IR":""}.`}</div>`:""}
       ${o.add&&irOpts.length&&R.ir_free?`<div class="eyebrow">Move to IR instead</div><div class="rmopts">${irOpts.map(p=>`<button type="button" class="rmopt ${o.ir===p.id?"on":""}" data-ir="${p.id}"><span><b>${esc(p.n)}</b>${injTag(p.inj)}<small>${esc(p.tm)} · ${p.pa.toFixed(1)}/g · keeps him, frees a spot</small></span></button>`).join("")}</div>`:""}
       <div class="eyebrow">${o.dropOnly?"Who goes":"Drop"}${o.add&&!need?" (optional)":""}</div>
