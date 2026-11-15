@@ -1,17 +1,17 @@
 {
  "inj": {
   "4594268": "OUT",
-  "3908809": "DAY_TO_DAY",
+  "3908809": "OUT",
   "4066261": "",
   "3917376": "",
-  "4066328": "DAY_TO_DAY",
+  "4066328": "OUT",
   "3064514": "",
   "4279888": "OUT",
-  "2595516": "DAY_TO_DAY",
+  "2595516": "",
   "4591725": "",
   "4684742": "",
   "5041955": "",
-  "5160992": "",
+  "5160992": "DAY_TO_DAY",
   "4066354": "",
   "3059319": "",
   "4017837": "",
@@ -19,7 +19,9 @@
   "3147657": ""
  },
  "upgrade": {},
- "stream": {},
+ "stream": {
+  "4|4351852|3908845": "2026-11-14"
+ },
  "fa_ids": [
   6478,
   6589,
@@ -31,7 +33,6 @@
   3032979,
   3064482,
   3102530,
-  3133628,
   3138196,
   4278129,
   4351852,
@@ -51,6 +52,7 @@
   4683634,
   4683678,
   4683688,
+  4683747,
   4683766,
   4684793,
   4845374,
@@ -93,10 +95,47 @@
   "r|2026-11-13|8|ADD:Rui Hachimura|DROP:Precious Achiuwa",
   "r|2026-11-13|8|ADD:Tobias Harris",
   "r|2026-11-14|7|ADD:Derik Queen|DROP:Isaiah Jackson",
+  "r|2026-11-14|7|ADD:Myles Turner|DROP:Jalen Smith",
   "r|2026-11-14|9|ADD:Jared McCain"
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-14T18:58-06:00",
+   "title": "\ud83d\udea8 Donovan Mitchell: OUT",
+   "body": "Donovan Mitchell is OUT. He's in your lineup today. Nobody on your bench plays today. Free agent Cameron Johnson (DEN, 26 avg) does.\nMitchell (knee) has been ruled out for Saturday's game against the Mavericks.",
+   "prio": 5
+  },
+  {
+   "at": "2026-11-14T18:58-06:00",
+   "title": "\ud83d\udea8 Jarrett Allen: OUT",
+   "body": "Jarrett Allen is OUT. He's in your lineup today. Nobody on your bench plays today. Free agent Cameron Johnson (DEN, 26 avg) does.\nAllen (knee) has been ruled out for Saturday's game against the Mavericks.",
+   "prio": 5
+  },
+  {
+   "at": "2026-11-14T18:58-06:00",
+   "title": "Norman Powell: back to full health",
+   "body": "Norman Powell is back to full health.\nPowell (back) is available for Saturday's game against the Timberwolves, K.C. Johnson of Chicago Sports Network reports.",
+   "prio": 3
+  },
+  {
+   "at": "2026-11-14T18:58-06:00",
+   "title": "Alex Sarr: day-to-day",
+   "body": "Alex Sarr is day-to-day.\nSarr (illness) is listed as questionable for Sunday's game against Houston.",
+   "prio": 3
+  },
+  {
+   "at": "2026-11-14T18:58-06:00",
+   "title": "\ud83d\udcc8 Pickup: +30 this week",
+   "body": "Add Mitchell Robinson (BOS, 1 games from Sun), drop John Collins. About +30 points this week, about 20 less after that.",
+   "prio": 4
+  },
+  {
+   "at": "2026-11-14T18:58-06:00",
+   "title": "\ud83d\udc40 Creamy Cropmen made a move",
+   "body": "Your opponent added Myles Turner.",
+   "prio": 2
+  },
   {
    "at": "2026-11-14T14:39-06:00",
    "title": "\ud83d\udea8 Donovan Mitchell: day-to-day",
@@ -188,7 +227,7 @@
    "prio": 3
   }
  ],
- "at": "2026-11-14T14:39-06:00",
+ "at": "2026-11-14T18:58-06:00",
  "on": false,
  "lineup_day": "2026-11-14"
 }
