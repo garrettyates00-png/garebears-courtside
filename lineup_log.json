@@ -1,6 +1,18 @@
 [
  {
   "date": "2026-11-15",
+  "status": "error",
+  "moved": [
+   "Ausar Thompson: BE to UTIL",
+   "Andrew Wiggins: BE to F"
+  ],
+  "error": "Darryn Peterson's game has started, so he can't move; Alex Sarr's game has started, so he can't move; Payton Pritchard's game has started, so he can't move; Mikal Bridges's game has started, so he can't move",
+  "at": "Nov 15, 11:54 PM CT",
+  "src": "button",
+  "pass": ""
+ },
+ {
+  "date": "2026-11-15",
   "status": "ok",
   "moved": [],
   "note": "Lineup was already optimal.",
@@ -343,22 +355,6 @@
   "moved": [],
   "note": "Lineup was already optimal.",
   "at": "Oct 31, 11:43 AM CT",
-  "src": "button"
- },
- {
-  "date": "2026-10-31",
-  "status": "saved",
-  "moved": [
-   "Jarrett Allen: BE to UTIL, plays today (36.9 proj)",
-   "Ryan Rollins: BE to SG, plays today (30.2 proj)",
-   "Darryn Peterson: BE to UTIL, plays today (28.2 proj)",
-   "Scotty Pippen Jr.: BE to PG, plays today (23.2 proj)",
-   "Quentin Grimes: SG to BE, slot needed for a player with a game",
-   "Alex Sarr: UTIL to BE, slot needed for a player with a game",
-   "Payton Pritchard: PG to BE, slot needed for a player with a game",
-   "Aaron Gordon: UTIL to BE, slot needed for a player with a game"
-  ],
-  "at": "Oct 31, 11:41 AM CT",
   "src": "button"
  }
 ]
