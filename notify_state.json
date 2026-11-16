@@ -1,14 +1,14 @@
 {
  "inj": {
   "4594268": "OUT",
-  "3908809": "DAY_TO_DAY",
+  "3908809": "",
   "4066261": "",
   "3917376": "",
-  "4066328": "DAY_TO_DAY",
+  "4066328": "",
   "3064514": "",
   "4279888": "OUT",
   "2595516": "",
-  "4591725": "DAY_TO_DAY",
+  "4591725": "OUT",
   "4684742": "",
   "5041955": "",
   "5160992": "",
@@ -39,6 +39,7 @@
   3138196,
   3908845,
   4066262,
+  4278067,
   4278129,
   4351852,
   4395626,
@@ -48,7 +49,6 @@
   4431679,
   4431736,
   4431785,
-  4432582,
   4432810,
   4592691,
   4593125,
@@ -67,6 +67,7 @@
   5254165
  ],
  "tx": [
+  "p|Donovan Mitchell>8|Fred VanVleet>3|Joel Embiid>3",
   "r|2026-11-07|3|ADD:John Collins|DROP:Aaron Gordon",
   "r|2026-11-07|3|ADD:Mikal Bridges|DROP:Quentin Grimes",
   "r|2026-11-07|5|ADD:Obi Toppin",
@@ -110,6 +111,36 @@
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-15T18:20-06:00",
+   "title": "Donovan Mitchell: back to full health",
+   "body": "Donovan Mitchell is back to full health.\nMitchell (knee) has been ruled out for Saturday's game against the Mavericks.",
+   "prio": 3
+  },
+  {
+   "at": "2026-11-15T18:20-06:00",
+   "title": "Jarrett Allen: back to full health",
+   "body": "Jarrett Allen is back to full health.\nAllen (knee) has been ruled out for Saturday's game against the Mavericks.",
+   "prio": 3
+  },
+  {
+   "at": "2026-11-15T18:20-06:00",
+   "title": "\ud83d\udea8 Ryan Rollins: OUT",
+   "body": "Ryan Rollins is OUT. He's in your lineup today. Swap in Jaylen Brown (39 avg), he plays today.\nRollins (illness) is out for Sunday's game against the Hawks.",
+   "prio": 5
+  },
+  {
+   "at": "2026-11-15T18:20-06:00",
+   "title": "\ud83c\udd93 Just dropped: Nic Claxton",
+   "body": "Nic Claxton (CHI, 30.3 avg) is now available, on waivers until Tue 2 AM. Your weakest healthy player is Darryn Peterson (29.1).",
+   "prio": 3
+  },
+  {
+   "at": "2026-11-15T18:20-06:00",
+   "title": "\ud83e\udd1d Trade offer",
+   "body": "You get Joel Embiid, Fred VanVleet for Donovan Mitchell. Run it in the Trade lab before you answer.",
+   "prio": 5
+  },
   {
    "at": "2026-11-15T15:40-06:00",
    "title": "\u2b06\ufe0f Upgrade: John Collins",
@@ -303,7 +334,7 @@
    "prio": 3
   }
  ],
- "at": "2026-11-15T15:42-06:00",
+ "at": "2026-11-15T18:20-06:00",
  "on": false,
  "lineup_day": "2026-11-15"
 }
