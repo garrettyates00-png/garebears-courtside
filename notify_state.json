@@ -107,6 +107,7 @@
   "r|2026-11-15|1|ADD:Klay Thompson",
   "r|2026-11-15|1|ADD:Zaccharie Risacher|DROP:Klay Thompson",
   "r|2026-11-15|3|ADD:Keegan Murray|DROP:John Collins",
+  "r|2026-11-15|5|ADD:Klay Thompson|DROP:Ziaire Williams",
   "r|2026-11-15|7|ADD:Tari Eason|DROP:Derik Queen"
  ],
  "seeded": true,
@@ -334,7 +335,7 @@
    "prio": 3
   }
  ],
- "at": "2026-11-15T18:20-06:00",
+ "at": "2026-11-16T01:12-06:00",
  "on": false,
  "lineup_day": "2026-11-15"
 }
