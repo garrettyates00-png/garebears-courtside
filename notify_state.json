@@ -8,21 +8,22 @@
   "3064514": "",
   "4279888": "OUT",
   "2595516": "",
-  "4591725": "OUT",
+  "4591725": "DAY_TO_DAY",
   "4684742": "",
   "5041955": "",
   "5160992": "",
   "4066354": "",
   "3059319": "",
   "4017837": "",
-  "3908845": "",
-  "3147657": ""
+  "3147657": "",
+  "4594327": ""
  },
  "upgrade": {
-  "3908845": 31.8
+  "3908845": 31.8,
+  "3062679": 33.0
  },
  "stream": {
-  "4|4351852|3908845": "2026-11-14"
+  "5|3062679|4594327": "2026-11-16"
  },
  "fa_ids": [
   3978,
@@ -34,6 +35,7 @@
   2991070,
   2991350,
   3032979,
+  3062679,
   3064482,
   3102530,
   3138196,
@@ -59,7 +61,6 @@
   4683766,
   4684793,
   4845374,
-  4869780,
   4873153,
   4896372,
   5101761,
@@ -108,10 +109,32 @@
   "r|2026-11-15|1|ADD:Zaccharie Risacher|DROP:Klay Thompson",
   "r|2026-11-15|3|ADD:Keegan Murray|DROP:John Collins",
   "r|2026-11-15|5|ADD:Klay Thompson|DROP:Ziaire Williams",
-  "r|2026-11-15|7|ADD:Tari Eason|DROP:Derik Queen"
+  "r|2026-11-15|7|ADD:Tari Eason|DROP:Derik Queen",
+  "r|2026-11-16|1|ADD:Tyrese Proctor|DROP:Josh Hart",
+  "r|2026-11-16|4|ADD:Derik Queen",
+  "r|2026-11-16|5|ADD:Jalen Smith|DROP:Robert Williams III",
+  "r|2026-11-16|7|ADD:Nolan Traore|DROP:Aaron Wiggins"
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-16T11:23-06:00",
+   "title": "Ryan Rollins: day-to-day",
+   "body": "Ryan Rollins is day-to-day.\nRollins (illness) is out for Sunday's game against the Hawks.",
+   "prio": 3
+  },
+  {
+   "at": "2026-11-16T11:23-06:00",
+   "title": "\u2b06\ufe0f Upgrade: Josh Hart",
+   "body": "Josh Hart (NY, 33.0 avg) is a on waivers, clears Wed 2 AM. Your weakest healthy player is Darryn Peterson (29.1).",
+   "prio": 4
+  },
+  {
+   "at": "2026-11-16T11:23-06:00",
+   "title": "\ud83d\udcc8 Pickup: +45 this week",
+   "body": "Add Josh Hart (NY, 3 games from Wed), drop Keegan Murray. About +45 points this week.",
+   "prio": 4
+  },
   {
    "at": "2026-11-15T18:20-06:00",
    "title": "Donovan Mitchell: back to full health",
@@ -335,7 +358,7 @@
    "prio": 3
   }
  ],
- "at": "2026-11-16T01:12-06:00",
+ "at": "2026-11-16T11:23-06:00",
  "on": false,
  "lineup_day": "2026-11-15"
 }
