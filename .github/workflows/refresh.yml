@@ -23,6 +23,19 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install requests numpy scipy
+      # GitHub drops many scheduled runs, so any refresh that does run also sets the lineup if today's pass hasn't
+      # happened yet (early pass 12:30-10:30 AM Central, late pass 10:30 AM-5 PM), same rules as the Set lineup job.
+      - name: Set lineup if this pass hasn't run today
+        env:
+          ESPN_S2: ${{ secrets.ESPN_S2 }}
+          ESPN_SWID: ${{ secrets.ESPN_SWID }}
+          RUN_SRC: schedule
+        run: |
+          hm=$(TZ=America/Chicago date +%H%M); today=$(TZ=America/Chicago date +%F); pass=""
+          if [ "$hm" -ge 0030 ] && [ "$hm" -lt 1030 ]; then pass=early; elif [ "$hm" -ge 1030 ] && [ "$hm" -lt 1700 ]; then pass=late; fi
+          if [ -n "$pass" ] && ! python3 -c "import json,sys;sys.exit(0 if any(e.get('src')=='schedule' and e.get('date')=='$today' and e.get('pass','late')=='$pass' and e.get('status')!='error' for e in json.load(open('lineup_log.json'))) else 1)"; then
+            RUN_PASS=$pass python setlineup.py || echo "lineup step failed, refreshing anyway"
+          fi
       - name: Pull league from ESPN
         env:
           ESPN_S2: ${{ secrets.ESPN_S2 }}
@@ -37,5 +50,5 @@ jobs:
         run: |
           git config user.name "courtside-bot"
           git config user.email "courtside-bot@users.noreply.github.com"
-          for f in data.json highlights.json season.json weekbase.json mgr.json timeline.json notify_state.json; do [ -f "$f" ] && git add "$f"; done
+          for f in data.json highlights.json season.json weekbase.json mgr.json timeline.json notify_state.json lineup_log.json; do [ -f "$f" ] && git add "$f"; done
           git diff --cached --quiet || (git commit -m "Refresh ESPN data" && git pull --rebase -X theirs --autostash -q && git push)
