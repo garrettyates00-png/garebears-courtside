@@ -1,5 +1,18 @@
 [
  {
+  "date": "2026-11-16",
+  "status": "saved",
+  "moved": [
+   "Jaylen Brown: BE to SG, plays today (38.8 proj)",
+   "Ryan Rollins: UTIL to BE, slot needed for a player with a game",
+   "Andrew Wiggins: BE to UTIL, plays today (24.8 proj)",
+   "Mikal Bridges: SG to BE, slot needed for a player with a game"
+  ],
+  "at": "Nov 16, 10:13 AM CT",
+  "src": "schedule",
+  "pass": "early"
+ },
+ {
   "date": "2026-11-15",
   "status": "error",
   "moved": [
@@ -348,13 +361,5 @@
   "note": "Lineup was already optimal.",
   "at": "Oct 31, 2:29 PM CT",
   "src": "schedule"
- },
- {
-  "date": "2026-10-31",
-  "status": "ok",
-  "moved": [],
-  "note": "Lineup was already optimal.",
-  "at": "Oct 31, 11:43 AM CT",
-  "src": "button"
  }
 ]
