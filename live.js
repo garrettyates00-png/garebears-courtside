@@ -24,7 +24,7 @@ async function liveTick(){
     boxes.flat().forEach(r=>{rows[r.id]=r});
     LV={games,rows,at:Date.now(),ok:true};
   }catch(e){LV.ok=false}
-  renderLive();
+  renderLive();window.__liveDone=true;   // the loading screen waits for this
   const anyLive=Object.values(LV.games).some(g=>g.state==="in"),anySoon=Object.values(LV.games).some(g=>g.state==="pre");
   lvTimer=setTimeout(liveTick,anyLive?45000:anySoon?180000:900000);
 }

@@ -8,11 +8,11 @@
   const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
   let done=false;
   function ready(){return typeof D!=="undefined"&&D&&document.querySelector("#hero .big,#hero .mute")}
-  function liveIn(){return typeof LV!=="undefined"&&LV.ok}
+  function liveIn(){return !!window.__liveDone}
   function tick(){
     if(done)return;const el=performance.now()-t0;
-    if(ready()&&(liveIn()||el>2600||!(typeof isLiveWeek==="function"&&isLiveWeek()))&&el>650)return reveal();
-    if(el>6000&&ready())return reveal();
+    if(ready()&&liveIn()&&el>500)return requestAnimationFrame(()=>requestAnimationFrame(reveal));   // live scores in and drawn
+    if(el>10000&&ready())return reveal();
     if(el>9000)return reveal();
     setTimeout(tick,80);
   }
