@@ -1,6 +1,15 @@
 [
  {
   "date": "2026-11-17",
+  "status": "ok",
+  "moved": [],
+  "note": "Lineup was already optimal.",
+  "at": "Nov 17, 11:04 AM CT",
+  "src": "schedule",
+  "pass": "late"
+ },
+ {
+  "date": "2026-11-17",
   "status": "saved",
   "moved": [
    "Ausar Thompson: BE to UTIL, plays today (33.0 proj)",
@@ -352,15 +361,5 @@
   "note": "Lineup was already optimal.",
   "at": "Nov 3, 3:12 PM CT",
   "src": "schedule"
- },
- {
-  "date": "2026-11-02",
-  "status": "saved",
-  "moved": [
-   "Alex Sarr: UTIL to BE, out",
-   "Andrew Wiggins: BE to UTIL, plays today (29.6 proj)"
-  ],
-  "at": "Nov 2, 4:05 PM CT",
-  "src": "button"
  }
 ]
