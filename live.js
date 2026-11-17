@@ -90,14 +90,6 @@ function notes(t,limit){
   }
   return out.sort((a,b)=>Math.abs(b.s)-Math.abs(a.s)).slice(0,limit||99);
 }
-function weekForm(t){
-  const B=D.base&&D.base.teams[t];if(!B)return [];const today=TODAY(),acc={};
-  for(const [iso,day] of Object.entries(D.act||{})){if(iso>=today)continue;const bd=B.days[iso]||{pp:{}};
-    for(const [id,n,slot,fp] of (day[t]||{}).pl||[]){if(isBench(slot))continue;const pr=bd.pp[id];if(pr==null)continue;const a=acc[id]||(acc[id]={n,act:0,proj:0,g:0});a.act+=fp;a.proj+=pr;a.g++}}
-  if(LV.ok)for(const p of P(t)){if(isBench(p.slot))continue;const g=gameOf(p);if(!g||g.state!=="post")continue;const r=LV.rows[p.id];if(!r||r.dnp)continue;
-    const pr=((B.days[today]||{}).pp||{})[p.id];if(pr==null)continue;const a=acc[p.id]||(acc[p.id]={n:p.n,act:0,proj:0,g:0});a.act+=r.fp;a.proj+=pr;a.g++}
-  return Object.values(acc).map(a=>({...a,d:r1(a.act-a.proj)}));
-}
 
 /* ---------- render: hero live block ---------- */
 function renderLive(){
@@ -118,7 +110,6 @@ function renderLive(){
   const liveG=Object.values(LV.games).filter((g,i,a)=>a.indexOf(g)===i&&g.state==="in").length;
   $("#liveBox").innerHTML="";   // the status card above already has pace; under the score it's just the days
   renderHeroDays();
-  const ex=$("#heroX");if(ex&&ex.classList.contains("open")){const dt=ex.querySelector("#dayTbl");if(dt)dt.outerHTML=dayTable(me,op)}
   const cx=$("#cardX");if(cx&&cx.classList.contains("open")){const dt=cx.querySelector("#dayTbl");if(dt&&dt.dataset.h&&dt.dataset.a)dt.outerHTML=dayTable(+dt.dataset.h,+dt.dataset.a)}
 }
 

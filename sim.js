@@ -165,10 +165,6 @@ function sbResHTML(r){const d=(x,y)=>{const v=Math.round((y-x)*1000)/10;return `
     ${line("Playoffs",r.a.po,r.b.po)}${line("Title",r.a.t,r.b.t)}
     <div class="cmp"><span>Wins</span><div><b>${r.a.w.toFixed(1)}</b></div><div><b>${r.b.w.toFixed(1)}</b></div><span class="${r.b.w-r.a.w>0.05?"up":r.b.w-r.a.w<-0.05?"down":"faint"}">${r.b.w-r.a.w>=0?"+":""}${(r.b.w-r.a.w).toFixed(1)}</span></div>
     ${r.them?`<p class="faint" style="margin:10px 0 0;font-size:12.5px">${esc(r.them.name)}'s playoff odds: ${pct1(r.them.a)} → ${pct1(r.them.b)}. Same random draws in both runs, so the difference is the move, not luck.</p>`:""}</div>`}
-/* used by the Trades tab "Simulate" buttons */
-function simTrade(giveIds,getIds,team){sbGive=new Set(giveIds);sbGet=new Set(getIds);sbTeam=team;sbRes=null;
-  const go=()=>{renderSandbox();const sb=$("#sandbox");sb.scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"});setTimeout(()=>$("#sbRun")&&$("#sbRun").click(),500)};
-  if(!SIMR)renderSim().then(go);else go()}
 
 /* phones: only simulate once the simulator section is about to scroll into view */
 let simIO=null;

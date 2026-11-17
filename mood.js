@@ -219,25 +219,6 @@ function goldMode(on){
   }else if(typeof applyColors==="function")applyColors();
 }
 
-/* Highlight reel behind the win: last night's ESPN clips (streamed from ESPN, muted), cut every few seconds,
-   washed in sepia grain under the gold, then faded out. */
-async function winReel(){
-  if(document.querySelector(".reel")||matchMedia("(prefers-reduced-motion: reduce)").matches)return;
-  let clips=[];try{clips=((await (await fetch("arena/reel.json?t="+Date.now(),{cache:"no-store"})).json()).clips)||[]}catch(e){}
-  clips=clips.filter(c=>c.mp4).slice(0,6);if(!clips.length)return;
-  const box=document.createElement("div");box.className="reel";box.setAttribute("aria-hidden","true");
-  box.innerHTML=`<video muted playsinline preload="auto"></video><video muted playsinline preload="auto"></video><div class="rgrain"></div><div class="rtint"></div>`;
-  document.body.appendChild(box);requestAnimationFrame(()=>box.classList.add("on"));
-  const V=[...box.querySelectorAll("video")];let i=0,cur=0;
-  V.forEach(v=>{v.muted=true;v.defaultMuted=true;v.playsInline=true;v.setAttribute("webkit-playsinline","")});
-  const play=k=>{const v=V[cur],c=clips[k%clips.length];
-    v.onloadedmetadata=()=>{try{v.currentTime=Math.min(8,(v.duration||20)*.25)}catch(e){}const pr=v.play();if(pr)pr.catch(()=>{})};
-    v.onerror=()=>{if(c.img){box.style.backgroundImage=`url("${c.img}")`;box.classList.add("still")}};
-    if(c.img)v.poster=c.img;v.src=c.mp4;v.load();
-    v.classList.add("show");V[1-cur].classList.remove("show");cur=1-cur};
-  play(i++);const t=setInterval(()=>play(i++),3600);
-  setTimeout(()=>{clearInterval(t);box.classList.remove("on");setTimeout(()=>{V.forEach(v=>{v.pause();v.removeAttribute("src");v.load()});box.remove()},1800)},16000);
-}
 
 /* The night's highlights in their own player right under the win card. It stays up the whole time the win is
    showing (Sunday night and Monday until you switch to the new week), plays every clip to the end and then the
