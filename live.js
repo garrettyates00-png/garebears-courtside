@@ -12,7 +12,7 @@ const isBench=s=>s==="BE"||s==="IR";
 /* ---------- live data ---------- */
 async function liveTick(){
   clearTimeout(lvTimer);
-  if(typeof normGame!=="function"||!D){lvTimer=setTimeout(liveTick,5000);return}
+  if(typeof normGame!=="function"||!D){lvTimer=setTimeout(liveTick,250);return}   // start as soon as the league data is in
   try{
     const d=TODAY().replace(/-/g,"");
     const sb=await (await fetch(`https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates=${d}&limit=30`,{cache:"no-store"})).json();
@@ -249,6 +249,6 @@ function heroDays(h,a){
       <div class="hdtabs" role="tablist"><button type="button" data-hs="me" aria-selected="${hSide==="me"}">${esc(D.teams[h].name)}</button><button type="button" data-hs="op" aria-selected="${hSide==="op"}">${esc(D.teams[a].name)}</button></div>
       <div class="hdcols"><div class="hdcol ${hSide==="me"?"on":""}">${hdTeam(h,x)}</div><div class="hdcol ${hSide==="op"?"on":""}">${hdTeam(a,x)}</div></div>
     </div></div>`}
-function renderHeroDays(){const el=$("#heroDays");if(!el||!D||!D.opp)return;el.innerHTML=heroDays(D.me,D.opp)}
+function renderHeroDays(){const el=$("#heroDays");if(!el||!D||!D.opp)return;const h=heroDays(D.me,D.opp);if(el.__h===h)return;el.__h=h;el.innerHTML=h}
 document.addEventListener("click",e=>{const b=e.target.closest("[data-hd],[data-hs]");if(!b||!b.closest("#heroDays"))return;
   if(b.dataset.hd)hDay=b.dataset.hd;else hSide=b.dataset.hs;renderHeroDays()});

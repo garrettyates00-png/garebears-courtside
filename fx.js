@@ -11,14 +11,15 @@
   function liveIn(){return !!window.__liveDone}
   function tick(){
     if(done)return;const el=performance.now()-t0;
-    if(ready()&&liveIn()&&el>500)return requestAnimationFrame(()=>requestAnimationFrame(reveal));   // live scores in and drawn
+    if(ready()&&liveIn()&&el>1100)return requestAnimationFrame(()=>requestAnimationFrame(reveal));   // live scores in and drawn
     if(el>10000&&ready())return reveal();
     if(el>9000)return reveal();
     setTimeout(tick,80);
   }
   function reveal(){
     if(done)return;done=true;
-    try{if(typeof renderAll==="function"&&typeof D!=="undefined"&&D)renderAll()}catch(e){}   // draw once more with the newest numbers, so they count up in view
+    // no re-render here (that read as a second load); just replay the count-ups on what's already drawn
+    if(!RM&&typeof countUp==="function")document.querySelectorAll("#hero .big").forEach(el=>{el.textContent="0";countUp(el,+el.dataset.to,0)});
     de.classList.add("colorin","reveal");de.classList.remove("booting");
     const b=document.getElementById("boot");if(b){b.classList.add("out");setTimeout(()=>b.remove(),600)}
     if(!RM)countAll();
@@ -35,6 +36,10 @@
       const s=performance.now(),f=t=>{const k=Math.min(1,(t-s)/1100);node.textContent=fmt(to*(1-Math.pow(1-k,4)));if(k<1)requestAnimationFrame(f)};node.textContent=fmt(0);requestAnimationFrame(f)});
   }
   if(de.classList.contains("booting"))tick();
+  // live refreshes rebuild these with the same content most of the time: skip identical rewrites so nothing replays
+  const desc=Object.getOwnPropertyDescriptor(Element.prototype,"innerHTML");
+  for(const id of ["mood","heroDays","liveBox"]){const el=document.getElementById(id);if(!el)continue;
+    Object.defineProperty(el,"innerHTML",{configurable:true,get(){return desc.get.call(this)},set(v){if(v===this.__h)return;this.__h=v;desc.set.call(this,v)}})}
 
   /* ---------- Fantasy / Arena switch ---------- */
   const seg=document.querySelector(".seg");
