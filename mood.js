@@ -207,6 +207,7 @@ function moodConfetti(el,force){
 /* A win turns the whole app gold: a gold wash sweeps down the screen and the accent colors fade to gold with it. */
 let goldOn=false;
 function goldMode(on){
+  if(on&&typeof C!=="undefined"&&!C.mood)on=false;  // gold win wash only follows results when Match my matchup is on
   const root=document.documentElement,r=root.style;
   if(on===goldOn)return;goldOn=on;
   root.classList.toggle("gold",on);

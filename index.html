@@ -1310,6 +1310,14 @@ html.vswitch .amb{animation:ambx .45s ease}
 .dacts{display:grid;gap:6px;margin-top:6px;padding-top:12px;border-top:1px solid var(--line)}
 .dacts button{all:unset;cursor:pointer;padding:9px 12px;border-radius:10px;font:500 14px var(--sans);color:var(--ink,#fff)}
 .dacts button:hover,.dacts button:focus-visible{background:rgba(255,255,255,.06)}
+
+/* Manual colors: the status card takes your chosen hue, not green/yellow/red by matchup */
+html.usercol .mood{--mc1:hsl(var(--ah) var(--as) 76%);--mc2:hsl(calc(var(--ah) + var(--ao)) var(--as) 70%)}
+html.usercol .mood .up,html.usercol .mood .down,html.usercol .mood em.up,html.usercol .mood em.down,html.usercol .mood.mwin .mchip b.up{color:var(--mc1);text-shadow:none}
+html.usercol .mood .mds.pace{--pt:var(--mc1)}
+html.usercol .mood.mwin .mquip,html.usercol .mood.mwin .meye,html.usercol .mood.mwin .mchip span{color:var(--mc1)}
+html.usercol .mood.mwin .mchip{background:rgba(0,0,0,.28);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+html.usercol .mood.mwin .mword{filter:drop-shadow(0 0 22px color-mix(in srgb,var(--mc1) 45%,transparent)) drop-shadow(0 4px 2px rgba(0,0,0,.4))}
 </style></head><body><div id="boot" aria-label="Loading"><i class="baur"></i><i class="bgrain"></i><div class="bcore"><b class="blogo" data-t="GRINDEX"><span style="--i:0">G</span><span style="--i:1">R</span><span style="--i:2">I</span><span style="--i:3">N</span><span style="--i:4">D</span><span style="--i:5">E</span><span style="--i:6">X</span></b><small class="btag">Fantasy · Arena</small><i class="bline"></i></div></div>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div><div class="btmfade" aria-hidden="true"></div>
 
@@ -1756,7 +1764,9 @@ let flowT=null,flowH=null,moodWp=null;const RM=matchMedia("(prefers-reduced-moti
 /* Matchup colors (optional): the whole app's accent follows your win chance, red when it's awful, through
    amber at a coin flip, to green when it's great. Overrides the hue settings while it's on. */
 function setMoodHue(wp){moodWp=wp;if(C.mood&&!(typeof goldOn!=="undefined"&&goldOn))applyColors()}
-function applyColors(){const r=document.documentElement.style;if(typeof goldOn!=="undefined"&&goldOn)return;  // a win holds the app in gold
+function applyColors(){const r=document.documentElement.style;
+  document.documentElement.classList.toggle("usercol",!C.mood);  // manual colors: nothing follows how the matchup is going
+  if(typeof goldOn!=="undefined"&&goldOn){if(!C.mood){goldMode(false);return}return}  // a win holds the app in gold (only with Match my matchup on)
   if(C.mood&&moodWp!=null){const h=Math.round(Math.max(0,Math.min(1,moodWp))*140);r.setProperty("--ah",h);r.setProperty("--ao",22);r.setProperty("--as","82%");r.setProperty("--glow",C.g);
     document.documentElement.classList.remove("flow");document.documentElement.classList.add("moodc");if(flowT){clearInterval(flowT);flowT=null;flowH=null}document.body.classList.toggle("mycolors",!C.team);try{localStorage.setItem(CK,JSON.stringify(C))}catch(e){}return}
   document.documentElement.classList.remove("moodc");
@@ -1794,7 +1804,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1794895550";
+const BUILD="1794953028";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(()=>{if(!document.hidden)checkBuild()},90000);
 loadLog().then(()=>load(true));setInterval(()=>{if(!document.hidden)loadLog().then(()=>load(false))},120000);
@@ -1845,26 +1855,26 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1794895550"></script>
-<script src="season.js?v=1794895550"></script>
-<script src="bets.js?v=1794895550"></script>
-<script src="trades.js?v=1794895550"></script>
-<script src="tradelab.js?v=1794895550"></script>
-<script src="betshub.js?v=1794895550"></script>
-<script src="sim.js?v=1794895550"></script>
-<script src="overunder.js?v=1794895550"></script>
-<script src="profile.js?v=1794895550"></script>
-<script src="ask.js?v=1794895550"></script>
-<script src="timeline.js?v=1794895550"></script>
-<script src="nav.js?v=1794895550"></script>
-<script src="hoops.js?v=1794895550"></script>
-<script src="insights.js?v=1794895550"></script>
-<script src="rostermoves.js?v=1794895550"></script>
-<script src="lineupedit.js?v=1794895550"></script>
-<script src="alerts.js?v=1794895550"></script>
-<script src="myseason.js?v=1794895550"></script>
-<script src="results.js?v=1794895550"></script>
-<script src="mood.js?v=1794895550"></script>
-<script src="live.js?v=1794895550"></script>
-<script src="fx.js?v=1794895550"></script>
+<script src="arena.js?v=1794953028"></script>
+<script src="season.js?v=1794953028"></script>
+<script src="bets.js?v=1794953028"></script>
+<script src="trades.js?v=1794953028"></script>
+<script src="tradelab.js?v=1794953028"></script>
+<script src="betshub.js?v=1794953028"></script>
+<script src="sim.js?v=1794953028"></script>
+<script src="overunder.js?v=1794953028"></script>
+<script src="profile.js?v=1794953028"></script>
+<script src="ask.js?v=1794953028"></script>
+<script src="timeline.js?v=1794953028"></script>
+<script src="nav.js?v=1794953028"></script>
+<script src="hoops.js?v=1794953028"></script>
+<script src="insights.js?v=1794953028"></script>
+<script src="rostermoves.js?v=1794953028"></script>
+<script src="lineupedit.js?v=1794953028"></script>
+<script src="alerts.js?v=1794953028"></script>
+<script src="myseason.js?v=1794953028"></script>
+<script src="results.js?v=1794953028"></script>
+<script src="mood.js?v=1794953028"></script>
+<script src="live.js?v=1794953028"></script>
+<script src="fx.js?v=1794953028"></script>
 </body></html>
