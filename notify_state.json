@@ -49,9 +49,9 @@
   4395723,
   4397014,
   4431679,
-  4431736,
   4431785,
   4432810,
+  4576087,
   4592691,
   4593125,
   4594327,
@@ -115,11 +115,27 @@
   "r|2026-11-16|4|ADD:Derik Queen",
   "r|2026-11-16|5|ADD:Jalen Smith|DROP:Robert Williams III",
   "r|2026-11-16|7|ADD:Nolan Traore|DROP:Aaron Wiggins",
+  "r|2026-11-17|10|ADD:Toumani Camara|DROP:Jordan Goodwin",
+  "r|2026-11-17|1|ADD:Tristan da Silva|DROP:Peyton Watson",
+  "r|2026-11-17|1|ADD:Ziaire Williams|DROP:Naji Marshall",
   "r|2026-11-17|3|ADD:John Collins|DROP:Keegan Murray",
+  "r|2026-11-17|8|ADD:Kevin Huerter",
   "r|2026-11-17|8|ADD:Trey Murphy III|DROP:Rui Hachimura"
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-17T12:30-06:00",
+   "title": "\ud83c\udd93 Just dropped: Peyton Watson",
+   "body": "Peyton Watson (CLE, 29.3 avg) is now available, on waivers until Thu 2 AM. Your weakest healthy player is Darryn Peterson (29.1).",
+   "prio": 3
+  },
+  {
+   "at": "2026-11-17T12:30-06:00",
+   "title": "\ud83d\udc40 Angel Reese made a move",
+   "body": "Your opponent added Kevin Huerter.",
+   "prio": 2
+  },
   {
    "at": "2026-11-17T03:06-06:00",
    "title": "Bam Adebayo: day-to-day",
@@ -397,7 +413,7 @@
    "prio": 3
   }
  ],
- "at": "2026-11-17T03:06-06:00",
+ "at": "2026-11-17T12:30-06:00",
  "on": false,
  "lineup_day": "2026-11-15"
 }
