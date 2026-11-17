@@ -1,6 +1,20 @@
 [
  {
   "date": "2026-11-16",
+  "status": "error",
+  "moved": [
+   "Ryan Rollins: BE to PG",
+   "Ausar Thompson: BE to SF",
+   "Ivica Zubac: BE to C",
+   "Mikal Bridges: BE to SG"
+  ],
+  "error": "Donovan Mitchell's game has started, so he can't move; Bam Adebayo's game has started, so he can't move; Jaylen Brown's game has started, so he can't move; Jarrett Allen's game has started, so he can't move; Julius Randle's game has started, so he can't move; Norman Powell's game has started, so he ",
+  "at": "Nov 16, 11:56 PM CT",
+  "src": "button",
+  "pass": ""
+ },
+ {
+  "date": "2026-11-16",
   "status": "ok",
   "moved": [],
   "note": "Lineup was already optimal.",
@@ -350,17 +364,5 @@
   ],
   "at": "Nov 2, 9:14 AM CT",
   "src": "button"
- },
- {
-  "date": "2026-11-01",
-  "status": "saved",
-  "moved": [
-   "Bam Adebayo: UTIL to BE, slot needed for a player with a game",
-   "Darryn Peterson: UTIL to BE, slot needed for a player with a game",
-   "Quentin Grimes: BE to UTIL, plays today (26.2 proj)",
-   "Payton Pritchard: BE to UTIL, plays today (31.0 proj)"
-  ],
-  "at": "Nov 1, 1:52 PM CT",
-  "src": "schedule"
  }
 ]
