@@ -1294,6 +1294,22 @@ html.vswitch body,html.vswitch .bar,html.vswitch .b,html.vswitch .eyebrow,html.v
 html.vswitch .amb{animation:ambx .45s ease}
 @keyframes ambx{from{opacity:.35}}
 @media (prefers-reduced-motion:reduce){#boot *,#boot>i{animation:none!important}html.reveal *{animation:none!important}}
+
+/* cleanup pass: sentences in the sans font, mono stays for labels and stats */
+.meta,.status,.side .sub,.meter-l,.cfoot,.rmroom,.rmopt small,.lun small,.tab small,.slot .m{font-family:var(--sans);letter-spacing:0;font-variant-numeric:tabular-nums}
+.status{font-size:12px;color:var(--warn);opacity:.9}
+.status:empty{display:none}
+.hdd .pj{opacity:.8;font-style:normal;font-weight:600}
+#refresh[hidden],#lastWk[hidden]{display:none!important}
+@media (max-width:700px){#gear[hidden]{display:none!important}}
+@media (min-width:701px){#gear[hidden]{display:inline-flex}}
+#lastWk{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:9px 14px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.03);font:500 13px var(--sans);color:var(--mute)}
+#lastWk b{font:600 13px var(--mono);font-variant-numeric:tabular-nums}
+#lastWk .w{color:var(--up,#4ade80)}#lastWk .l{color:var(--down,#f87171)}
+#lastWk .x{margin-left:auto;font:500 12px var(--sans);color:var(--faint);text-decoration:none}
+.dacts{display:grid;gap:6px;margin-top:6px;padding-top:12px;border-top:1px solid var(--line)}
+.dacts button{all:unset;cursor:pointer;padding:9px 12px;border-radius:10px;font:500 14px var(--sans);color:var(--ink,#fff)}
+.dacts button:hover,.dacts button:focus-visible{background:rgba(255,255,255,.06)}
 </style></head><body><div id="boot" aria-label="Loading"><i class="baur"></i><i class="bgrain"></i><div class="bcore"><b class="blogo" data-t="GRINDEX"><span style="--i:0">G</span><span style="--i:1">R</span><span style="--i:2">I</span><span style="--i:3">N</span><span style="--i:4">D</span><span style="--i:5">E</span><span style="--i:6">X</span></b><small class="btag">Fantasy · Arena</small><i class="bline"></i></div></div>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div><div class="btmfade" aria-hidden="true"></div>
 
@@ -1304,9 +1320,9 @@ html.vswitch .amb{animation:ambx .45s ease}
     <div class="seg" role="tablist" aria-label="Section"><button type="button" role="tab" data-view="fantasy" aria-selected="true">Fantasy</button><button type="button" role="tab" data-view="arena" aria-selected="false">Arena</button></div>
     <div class="btns">
       <button class="b burger" id="burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="drawer"><i></i><i></i><i></i></button>
-      <button class="b" id="refresh" type="button" title="Reload the newest published data" aria-label="Reload">Reload</button>
-      <button class="b gear" id="gear" type="button" aria-label="Colors" aria-expanded="false" title="Colors"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="13.5" cy="6.5" r="1.5"/><circle cx="17.5" cy="10.5" r="1.5"/><circle cx="8.5" cy="7.5" r="1.5"/><circle cx="6.5" cy="12.5" r="1.5"/><path d="M12 2a10 10 0 1 0 0 20c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h2.3A5.7 5.7 0 0 0 22 11.6C22 6.3 17.5 2 12 2z"/></svg></button>
-      <button class="b primary" id="force" type="button" aria-label="Force update" title="Force update"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg><span>Force update</span></button>
+      <button class="b" id="refresh" hidden type="button" title="Reload the newest published data" aria-label="Reload">Reload</button>
+      <button class="b gear" id="gear" hidden type="button" aria-label="Colors" aria-expanded="false" title="Colors"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="13.5" cy="6.5" r="1.5"/><circle cx="17.5" cy="10.5" r="1.5"/><circle cx="8.5" cy="7.5" r="1.5"/><circle cx="6.5" cy="12.5" r="1.5"/><path d="M12 2a10 10 0 1 0 0 20c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h2.3A5.7 5.7 0 0 0 22 11.6C22 6.3 17.5 2 12 2z"/></svg></button>
+      <button class="b primary" id="force" type="button" aria-label="Update now" title="Pull fresh data from ESPN"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg><span>Update</span></button>
     </div>
     <div class="status" id="status" aria-live="polite" style="flex-basis:100%"></div>
     <nav class="snav" id="snav" aria-label="Page sections"><i class="ink" aria-hidden="true"></i></nav>
@@ -1314,6 +1330,7 @@ html.vswitch .amb{animation:ambx .45s ease}
   <div class="drawer" id="drawer" hidden><div class="dpanel" role="dialog" aria-label="Menu"></div></div>
 
   <div id="fantasyView" class="view">
+  <div id="lastWk" hidden></div>
   <div id="mood" class="mood" aria-live="polite"></div>
   <section class="g pad hero" id="hero" aria-label="Your matchup"></section>
   <section class="g pad" id="secAsk"></section>
@@ -1518,14 +1535,9 @@ function renderHero(){
   const A=analyze(D.me,D.opp),p=A.pA;
   const LIVE=typeof isLiveWeek==="function"&&isLiveWeek(),num=t=>LIVE?liveScore(+Object.keys(T).find(k=>T[k]===t)):t.proj;
   const side=(t,cls,win)=>`<div class="side ${cls}"><div class="tn">${esc(t.name)}</div><div class="ow">${esc(t.owner)} · ${t.w}-${t.l}${LIVE?' · <span class="up">live</span>':""}</div><div class="big num ${win?"":"faint"}" data-to="${num(t)}">0</div><div class="sub">${t.live.toFixed(0)} scored · ${t.rest.toFixed(0)} to come · ${t.starts} starts</div></div>`;
-  const heroHTML=`<div class="row"><span class="eyebrow">Your matchup</span><span class="pill">${A.label}</span></div>
-   <div class="vs">${side(me,"",p>=.5)}<div class="mid">vs</div>${side(op,"r",p<.5)}</div>
-   <div><div class="meter"><span style="width:0%" id="heroMeter"></span></div><div class="meter-l"><span>${pc(p)}% win chance</span><span>${100-pc(p)}%</span></div></div>
-   <div id="liveBox"></div>
+  const heroHTML=`<div id="liveBox"></div>
    <div id="heroDays">${typeof heroDays==="function"?heroDays(D.me,D.opp):""}</div>`;
   if(!setHTML($("#hero"),heroHTML))return;
-  requestAnimationFrame(()=>{$("#heroMeter").style.width=(p*100).toFixed(1)+"%"});
-  document.querySelectorAll("#hero .big").forEach((el,i)=>{const k="hero"+i,from=NUM_LAST[k];NUM_LAST[k]=+el.dataset.to;countUp(el,+el.dataset.to,from)});
   if(LIVE)setTimeout(()=>renderLive(),1300);
 }
 function renderCards(){setTimeout(()=>{if(openCard){const [h,a]=openCard.split("-");openCard=null;toggleCard(+h,+a)}},0);
@@ -1731,8 +1743,8 @@ async function staleNote(age){
   $("#status").textContent=`Last ESPN pull was ${t} ago.`;
   if(Date.now()-staleChecked<10*60000)return;staleChecked=Date.now();
   try{const r=await (await fetch("https://api.github.com/repos/"+REPO+"/actions/workflows/refresh.yml/runs?per_page=1")).json();const run=(r.workflow_runs||[])[0];
-    if(run&&run.conclusion==="failure")$("#status").textContent=`Last ESPN pull was ${t} ago and the most recent refresh failed. Your ESPN cookies may have expired. Tap Force update to retry.`;
-    else $("#status").textContent=`Last ESPN pull was ${t} ago. GitHub sometimes runs the schedule late. Tap Force update for fresh data.`}catch(e){}
+    if(run&&run.conclusion==="failure")$("#status").textContent=`Last refresh failed (${t} ago). ESPN cookies may have expired.`;
+    else $("#status").textContent=`Data is ${t} old. Tap ↻ to update.`}catch(e){}
 }
 
 /* ---- color settings (saved in this browser) ---- */
@@ -1782,7 +1794,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1794894955";
+const BUILD="1794895550";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(()=>{if(!document.hidden)checkBuild()},90000);
 loadLog().then(()=>load(true));setInterval(()=>{if(!document.hidden)loadLog().then(()=>load(false))},120000);
@@ -1833,26 +1845,26 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1794894955"></script>
-<script src="season.js?v=1794894955"></script>
-<script src="bets.js?v=1794894955"></script>
-<script src="trades.js?v=1794894955"></script>
-<script src="tradelab.js?v=1794894955"></script>
-<script src="betshub.js?v=1794894955"></script>
-<script src="sim.js?v=1794894955"></script>
-<script src="overunder.js?v=1794894955"></script>
-<script src="profile.js?v=1794894955"></script>
-<script src="ask.js?v=1794894955"></script>
-<script src="timeline.js?v=1794894955"></script>
-<script src="nav.js?v=1794894955"></script>
-<script src="hoops.js?v=1794894955"></script>
-<script src="insights.js?v=1794894955"></script>
-<script src="rostermoves.js?v=1794894955"></script>
-<script src="lineupedit.js?v=1794894955"></script>
-<script src="alerts.js?v=1794894955"></script>
-<script src="myseason.js?v=1794894955"></script>
-<script src="results.js?v=1794894955"></script>
-<script src="mood.js?v=1794894955"></script>
-<script src="live.js?v=1794894955"></script>
-<script src="fx.js?v=1794894955"></script>
+<script src="arena.js?v=1794895550"></script>
+<script src="season.js?v=1794895550"></script>
+<script src="bets.js?v=1794895550"></script>
+<script src="trades.js?v=1794895550"></script>
+<script src="tradelab.js?v=1794895550"></script>
+<script src="betshub.js?v=1794895550"></script>
+<script src="sim.js?v=1794895550"></script>
+<script src="overunder.js?v=1794895550"></script>
+<script src="profile.js?v=1794895550"></script>
+<script src="ask.js?v=1794895550"></script>
+<script src="timeline.js?v=1794895550"></script>
+<script src="nav.js?v=1794895550"></script>
+<script src="hoops.js?v=1794895550"></script>
+<script src="insights.js?v=1794895550"></script>
+<script src="rostermoves.js?v=1794895550"></script>
+<script src="lineupedit.js?v=1794895550"></script>
+<script src="alerts.js?v=1794895550"></script>
+<script src="myseason.js?v=1794895550"></script>
+<script src="results.js?v=1794895550"></script>
+<script src="mood.js?v=1794895550"></script>
+<script src="live.js?v=1794895550"></script>
+<script src="fx.js?v=1794895550"></script>
 </body></html>

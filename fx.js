@@ -7,7 +7,7 @@
   const de=document.documentElement,t0=performance.now();
   const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
   let done=false;
-  function ready(){return typeof D!=="undefined"&&D&&document.querySelector("#hero .big,#hero .mute")}
+  function ready(){return typeof D!=="undefined"&&D&&document.querySelector("#heroDays,#hero .mute")}
   function liveIn(){return !!window.__liveDone}
   function tick(){
     if(done)return;const el=performance.now()-t0;
@@ -19,7 +19,7 @@
   function reveal(){
     if(done)return;done=true;
     // no re-render here (that read as a second load); just replay the count-ups on what's already drawn
-    if(!RM&&typeof countUp==="function")document.querySelectorAll("#hero .big").forEach(el=>{el.textContent="0";countUp(el,+el.dataset.to,0)});
+    
     de.classList.add("colorin","reveal");de.classList.remove("booting");
     const b=document.getElementById("boot");if(b){b.classList.add("out");setTimeout(()=>b.remove(),600)}
     if(!RM)countAll();

@@ -24,7 +24,7 @@ function navBuild(){
   nav.innerHTML='<i class="ink" aria-hidden="true"></i>'+NAV[g].items.map(([id,l],i)=>`<a href="#${id}" data-id="${id}" data-g="${g}" style="--i:${i}">${l}</a>`).join("");
   nav.classList.remove("in");void nav.offsetWidth;nav.classList.add("in");
   const P=$("#drawer .dpanel");
-  P.innerHTML=Object.entries(NAV).map(([k,G])=>`<div class="dgrp ${k===g?"cur":""}"><div class="eyebrow">${G.label}</div>${G.items.map(([id,l])=>`<a href="#${id}" data-id="${id}" data-g="${k}">${l}</a>`).join("")}</div>`).join("");
+  P.innerHTML=Object.entries(NAV).map(([k,G])=>`<div class="dgrp ${k===g?"cur":""}"><div class="eyebrow">${G.label}</div>${G.items.map(([id,l])=>`<a href="#${id}" data-id="${id}" data-g="${k}">${l}</a>`).join("")}</div>`).join("")+`<div class="dacts"><button type="button" data-act="refresh">Reload published data</button><button type="button" data-act="gear">Colors</button></div>`;
   P.querySelectorAll("a").forEach((a,i)=>a.style.setProperty("--i",i));
   navActive=null;spy();
 }
@@ -52,7 +52,7 @@ function drawer(open){const d=$("#drawer"),b=$("#burger");
   if(open){d.hidden=false;requestAnimationFrame(()=>d.classList.add("open"));b.setAttribute("aria-expanded","true");b.classList.add("x");const f=d.querySelector("a.on")||d.querySelector("a");f&&f.focus({preventScroll:true})}
   else{d.classList.remove("open");b.setAttribute("aria-expanded","false");b.classList.remove("x");setTimeout(()=>{if(!d.classList.contains("open"))d.hidden=true},320)}}
 $("#burger").addEventListener("click",e=>{e.stopPropagation();drawer($("#drawer").hidden)});
-$("#drawer").addEventListener("click",e=>{const a=e.target.closest("a");if(a){e.preventDefault();drawer(false);goSection(a.dataset.g,a.dataset.id);return}if(e.target.id==="drawer")drawer(false)});
+$("#drawer").addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(b){e.stopPropagation();drawer(false);const t=document.getElementById(b.dataset.act);if(t)t.click();return}const a=e.target.closest("a");if(a){e.preventDefault();drawer(false);goSection(a.dataset.g,a.dataset.id);return}if(e.target.id==="drawer")drawer(false)});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#drawer").hidden){drawer(false);$("#burger").focus()}});
 
 /* rebuild when the view or Arena sub-tab changes */

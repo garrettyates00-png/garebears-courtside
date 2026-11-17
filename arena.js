@@ -16,7 +16,7 @@ function setView(v){
   document.body.dataset.view=v;
   $("#fantasyView").hidden=arena;$("#arenaView").hidden=!arena;
   document.querySelectorAll(".seg [data-view]").forEach(b=>b.setAttribute("aria-selected",b.dataset.view===v));
-  $("#refresh").hidden=arena;$("#force").hidden=arena;
+  $("#force").hidden=arena;
   if(arena&&!A)loadArena();
   if(arena)applyTheme();else{document.documentElement.style.removeProperty("--tc");document.documentElement.style.removeProperty("--tc2");if(typeof D!=="undefined"&&D)$("#pulled").textContent="Updated "+D.pulled}
   if(location.hash!=="#"+v)history.replaceState(null,"","#"+v);

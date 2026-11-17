@@ -14,7 +14,13 @@ function renderMood(){
   const wp=winProb(me,op),oname=esc(T[op].name);
   // Monday (first day of a new week): keep last week's result up until you switch to the new week
   if(typeof resWeek==="function"){const R=resWeek();let hid=false;try{hid=R&&localStorage.getItem("grindex-res-hide-"+R.w)==="1"}catch(e){}
-    if(R&&!R.live&&!hid){const H=(D.week_hist||{})[R.w]||{},g=((D.sim&&D.sim.sched)||[]).find(m=>m[0]===R.w&&(m[1]==me||m[2]==me));
+    const lw=$("#lastWk");if(lw)lw.hidden=true;
+    if(R&&!R.live&&!hid&&live&&liveScore(me)+liveScore(op)>0){const H=(D.week_hist||{})[R.w]||{},g=((D.sim&&D.sim.sched)||[]).find(m=>m[0]===R.w&&(m[1]==me||m[2]==me));
+      if(g&&H.act&&lw){const o=g[1]==me?g[2]:g[1],a=Math.round(H.act[me]||0),b=Math.round(H.act[o]||0),w=a>b,t=a===b;
+        const h=`<span>Week ${R.w} final vs ${esc(T[o].name)}</span><b class="${t?"":w?"w":"l"}">${t?"T":w?"W":"L"} ${a}–${b}</b><a class="x" href="#secResults">Results</a>`;
+        if(lw.__h!==h){lw.__h=h;lw.innerHTML=h}lw.hidden=false;
+        const x=lw.querySelector(".x");if(x&&!$("#secResults"))x.remove()}}
+    else if(R&&!R.live&&!hid){const H=(D.week_hist||{})[R.w]||{},g=((D.sim&&D.sim.sched)||[]).find(m=>m[0]===R.w&&(m[1]==me||m[2]==me));
       if(g&&H.act){const o=g[1]==me?g[2]:g[1];return moodFinal(el,H.act[me]||0,H.act[o]||0,esc(T[o].name),R.w,o)}}}
   if(typeof goldOn!=="undefined"&&goldOn)goldMode(false);
   reelOff();
