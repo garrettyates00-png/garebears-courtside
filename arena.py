@@ -612,6 +612,94 @@ def reel_file():
     json.dump(dict(at=dt.datetime.now(TZ).isoformat(), clips=clips), open("arena/reel.json", "w"), separators=(",", ":"))
     print(f"reel: {len(clips)} clips, {len(mine_c)} from my teams")
 
+# ---------- league standings: overall / conference, strength of schedule, record vs .500+ ----------
+def season_games():
+    """Every regular-season game this season (finals and scheduled), from the scoreboard in two-week chunks.
+    Chunks that are fully in the past and fully final are cached."""
+    y = NOW.year if NOW.month >= 8 else NOW.year - 1
+    d, end = dt.date(y, 10, 1), dt.date(y + 1, 4, 30)
+    today = NOW.date()
+    games = {}
+    while d <= end:
+        e = min(end, d + dt.timedelta(days=13))
+        path = f"arena/cache/sched_{d:%Y%m%d}.json"
+        evs = None
+        if e < today - dt.timedelta(days=2) and os.path.exists(path):
+            try:
+                evs = json.load(open(path))
+            except Exception:
+                evs = None
+        if evs is None:
+            try:
+                j = get(f"{B}/scoreboard", dates=f"{d:%Y%m%d}-{e:%Y%m%d}", limit=1000)
+            except Exception as ex:
+                print("schedule chunk", d, ex); d = e + dt.timedelta(days=1); continue
+            evs = []
+            for ev in j.get("events", []):
+                if (ev.get("season") or {}).get("type") != 2:
+                    continue
+                c = (ev.get("competitions") or [{}])[0]
+                cs = c.get("competitors") or []
+                if len(cs) != 2:
+                    continue
+                done = bool(((ev.get("status") or {}).get("type") or {}).get("completed"))
+                h = next((x for x in cs if x.get("homeAway") == "home"), cs[0]); a = next((x for x in cs if x is not h), cs[1])
+                evs.append(dict(id=ev.get("id"), h=h["team"]["id"], a=a["team"]["id"], done=done,
+                                hw=bool(h.get("winner")) if done else None))
+            if e < today - dt.timedelta(days=2) and evs and all(x["done"] for x in evs):
+                json.dump(evs, open(path, "w"), separators=(",", ":"))
+        for x in evs:
+            games[x["id"]] = x
+        d = e + dt.timedelta(days=1)
+    return list(games.values())
+
+
+def standings_file():
+    j = get("https://site.api.espn.com/apis/v2/sports/basketball/nba/standings")
+    T = {}
+    for conf in j.get("children", []):
+        cname = conf.get("abbreviation") or conf.get("name", "")
+        cname = "West" if "west" in cname.lower() else "East" if "east" in cname.lower() else cname
+        for e in conf.get("standings", {}).get("entries", []):
+            t = e["team"]; v, dv = {}, {}
+            for st in e.get("stats", []):
+                for k in (st.get("name"), st.get("type"), st.get("abbreviation")):
+                    if k:
+                        v[k.lower()] = st.get("value"); dv[k.lower()] = st.get("displayValue")
+            l10 = next((dv[k] for k in dv if "lastten" in k.replace(" ", "") or k == "l10"), None)
+            T[t["id"]] = dict(id=t["id"], abbr=t.get("abbreviation", "").lower(), name=t.get("displayName", ""),
+                              short=t.get("shortDisplayName") or t.get("name", ""), conf=cname,
+                              logo=((t.get("logos") or [{}])[0] or {}).get("href", ""),
+                              w=int(v.get("wins") or 0), l=int(v.get("losses") or 0), seed=v.get("playoffseed"),
+                              strk=dv.get("streak") or "", l10=l10 or "", home=dv.get("home") or "", away=dv.get("road") or dv.get("away") or "")
+    games = season_games()
+    pct = {k: (r["w"] / (r["w"] + r["l"]) if r["w"] + r["l"] else 0.5) for k, r in T.items()}
+    for r in T.values():
+        r.update(_p=[], _r=[], v5=[0, 0])
+    for g in games:
+        for me, op, won in ((g["h"], g["a"], g["hw"]), (g["a"], g["h"], None if g["hw"] is None else not g["hw"])):
+            if me not in T or op not in T:
+                continue
+            r = T[me]
+            if g["done"]:
+                r["_p"].append(pct[op])
+                if pct[op] >= 0.5:
+                    r["v5"][0 if won else 1] += 1
+            else:
+                r["_r"].append(pct[op])
+    for r in T.values():
+        r["sos"] = round(sum(r["_p"]) / len(r["_p"]), 3) if r["_p"] else None
+        r["rem"] = round(sum(r["_r"]) / len(r["_r"]), 3) if r["_r"] else None
+        r["remN"] = len(r.pop("_r")); r.pop("_p")
+    for k in ("sos", "rem"):  # 1 = toughest
+        order = sorted([r for r in T.values() if r[k] is not None], key=lambda r: -r[k])
+        for i, r in enumerate(order):
+            r[k + "Rk"] = i + 1
+    json.dump(dict(pulled=dt.datetime.now(TZ).strftime("%b %-d, %-I:%M %p CT"), games=len(games),
+                   teams=sorted(T.values(), key=lambda r: -pct[r["id"]])), open("arena/standings.json", "w"), separators=(",", ":"))
+    print("standings:", len(T), "teams,", len(games), "games")
+
+
 if __name__ == "__main__":
     # config: "fav" teams refresh every run with full YouTube; every other NBA team rotates
     # (missing first, then the oldest few), so each one refreshes every couple of hours.
@@ -640,6 +728,10 @@ if __name__ == "__main__":
         scoreboard_file()
     except Exception as e:
         print("scoreboard failed:", e)
+    try:
+        standings_file()
+    except Exception as e:
+        print("standings failed:", e)
     try:
         reel_file()
     except Exception as e:
