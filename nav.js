@@ -3,7 +3,7 @@
 const NAV={
   fantasy:{label:"Fantasy",items:[["hero","Matchup"],["secAsk","Ask"],["secMatchups","Matchups"],["secMySched","My schedule"],["secLineup","Lineup"],["secPower","Rankings"],["secOU","Over/under"],["secInsights","Insights"],["secMoves","Moves"],["secTrades","Trades"],["how","How it works"],["secTL","Timeline"],["secSim","Simulator"],["aHoops","Mini hoop"],["newsroom","News"]]},
   team:{label:"Arena · Team",items:[["aHero","Team"],["aNext","Next game"],["aGames","Games"],["aShots","Shot chart"],["aImpact","Impact"],["aTeam","Team stats"],["aMedia","Highlights"],["aNews","News"],["aSched","Schedule"]]},
-  season:{label:"Arena · Season",items:[["sMine","Your players"],["sBoard","Scoreboard"],["sAvg","Averages"]]},
+  season:{label:"Arena · Season",items:[["sMine","Your players"],["sBoard","Scoreboard"],["sStand","Standings"],["sAvg","Averages"]]},
   bets:{label:"Arena · Bets",items:[["bSum","Overview"],["sBets","My bets"],["bTeams","By team"]]}
 };
 const curGroup=()=>document.body.dataset.view!=="arena"?"fantasy":($("#aSeasonPane")&&!$("#aSeasonPane").hidden?"season":$("#aBetsPane")&&!$("#aBetsPane").hidden?"bets":"team");
