@@ -34,7 +34,6 @@
   2530530,
   2583632,
   2991070,
-  2991350,
   3032979,
   3062679,
   3064482,
@@ -50,6 +49,7 @@
   4397014,
   4431679,
   4431785,
+  4432582,
   4432810,
   4576087,
   4592691,
@@ -119,11 +119,19 @@
   "r|2026-11-17|1|ADD:Tristan da Silva|DROP:Peyton Watson",
   "r|2026-11-17|1|ADD:Ziaire Williams|DROP:Naji Marshall",
   "r|2026-11-17|3|ADD:John Collins|DROP:Keegan Murray",
+  "r|2026-11-17|4|ADD:Ja'Kobe Walter",
+  "r|2026-11-17|8|ADD:Alex Caruso|DROP:Kevin Huerter",
   "r|2026-11-17|8|ADD:Kevin Huerter",
   "r|2026-11-17|8|ADD:Trey Murphy III|DROP:Rui Hachimura"
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-17T22:38-06:00",
+   "title": "\ud83d\udc40 Angel Reese made a move",
+   "body": "Your opponent added Alex Caruso.",
+   "prio": 2
+  },
   {
    "at": "2026-11-17T19:16-06:00",
    "title": "Jaylen Brown: OUT",
@@ -425,7 +433,7 @@
    "prio": 3
   }
  ],
- "at": "2026-11-17T19:16-06:00",
+ "at": "2026-11-17T22:38-06:00",
  "on": false,
  "lineup_day": "2026-11-15"
 }
