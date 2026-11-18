@@ -3,12 +3,12 @@
   "4594268": "OUT",
   "3908809": "",
   "4066261": "DAY_TO_DAY",
-  "3917376": "DAY_TO_DAY",
+  "3917376": "OUT",
   "4066328": "",
   "3064514": "",
   "4279888": "OUT",
   "2595516": "",
-  "4591725": "DAY_TO_DAY",
+  "4591725": "",
   "4684742": "",
   "5041955": "",
   "5160992": "",
@@ -124,6 +124,18 @@
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-17T19:16-06:00",
+   "title": "Jaylen Brown: OUT",
+   "body": "Jaylen Brown is OUT.\nBrown is out for Wednesday's game against the Magic with a left hamstring strain.",
+   "prio": 3
+  },
+  {
+   "at": "2026-11-17T19:16-06:00",
+   "title": "Ryan Rollins: back to full health",
+   "body": "Ryan Rollins is back to full health.",
+   "prio": 3
+  },
   {
    "at": "2026-11-17T12:30-06:00",
    "title": "\ud83c\udd93 Just dropped: Peyton Watson",
@@ -413,7 +425,7 @@
    "prio": 3
   }
  ],
- "at": "2026-11-17T12:30-06:00",
+ "at": "2026-11-17T19:16-06:00",
  "on": false,
  "lineup_day": "2026-11-15"
 }
