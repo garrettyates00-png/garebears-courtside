@@ -38,6 +38,7 @@
   3062679,
   3064482,
   3102530,
+  3135045,
   3138196,
   4066262,
   4066648,
@@ -46,7 +47,6 @@
   4351852,
   4395626,
   4395723,
-  4397014,
   4431679,
   4431785,
   4432582,
@@ -122,7 +122,8 @@
   "r|2026-11-17|4|ADD:Ja'Kobe Walter",
   "r|2026-11-17|8|ADD:Alex Caruso|DROP:Kevin Huerter",
   "r|2026-11-17|8|ADD:Kevin Huerter",
-  "r|2026-11-17|8|ADD:Trey Murphy III|DROP:Rui Hachimura"
+  "r|2026-11-17|8|ADD:Trey Murphy III|DROP:Rui Hachimura",
+  "r|2026-11-18|10|ADD:Quentin Grimes|DROP:Grayson Allen"
  ],
  "seeded": true,
  "log": [
@@ -433,7 +434,7 @@
    "prio": 3
   }
  ],
- "at": "2026-11-18T03:03-06:00",
+ "at": "2026-11-18T11:58-06:00",
  "on": false,
  "lineup_day": "2026-11-15"
 }
