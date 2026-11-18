@@ -613,44 +613,32 @@ def reel_file():
     print(f"reel: {len(clips)} clips, {len(mine_c)} from my teams")
 
 # ---------- league standings: overall / conference, strength of schedule, record vs .500+ ----------
-def season_games():
-    """Every regular-season game this season (finals and scheduled), from the scoreboard in two-week chunks.
-    Chunks that are fully in the past and fully final are cached."""
-    y = NOW.year if NOW.month >= 8 else NOW.year - 1
-    d, end = dt.date(y, 10, 1), dt.date(y + 1, 4, 30)
-    today = NOW.date()
+def season_games(team_ids):
+    """Every regular-season game this season (finals and scheduled), from each team's ESPN schedule."""
+    def one(tid):
+        try:
+            return get(f"{B}/teams/{tid}/schedule", seasontype=2).get("events", [])
+        except Exception as ex:
+            print("schedule", tid, ex); return []
     games = {}
-    while d <= end:
-        e = min(end, d + dt.timedelta(days=13))
-        path = f"arena/cache/sched_{d:%Y%m%d}.json"
-        evs = None
-        if e < today - dt.timedelta(days=2) and os.path.exists(path):
-            try:
-                evs = json.load(open(path))
-            except Exception:
-                evs = None
-        if evs is None:
-            try:
-                j = get(f"{B}/scoreboard", dates=f"{d:%Y%m%d}-{e:%Y%m%d}", limit=1000)
-            except Exception as ex:
-                print("schedule chunk", d, ex); d = e + dt.timedelta(days=1); continue
-            evs = []
-            for ev in j.get("events", []):
-                if (ev.get("season") or {}).get("type") != 2:
-                    continue
+    with ThreadPoolExecutor(8) as ex:
+        for evs in ex.map(one, team_ids):
+            for ev in evs:
                 c = (ev.get("competitions") or [{}])[0]
                 cs = c.get("competitors") or []
-                if len(cs) != 2:
+                if len(cs) != 2 or ev.get("id") in games:
                     continue
-                done = bool(((ev.get("status") or {}).get("type") or {}).get("completed"))
+                st = ((c.get("status") or ev.get("status") or {}).get("type") or {})
+                done = bool(st.get("completed"))
                 h = next((x for x in cs if x.get("homeAway") == "home"), cs[0]); a = next((x for x in cs if x is not h), cs[1])
-                evs.append(dict(id=ev.get("id"), h=h["team"]["id"], a=a["team"]["id"], done=done,
-                                hw=bool(h.get("winner")) if done else None))
-            if e < today - dt.timedelta(days=2) and evs and all(x["done"] for x in evs):
-                json.dump(evs, open(path, "w"), separators=(",", ":"))
-        for x in evs:
-            games[x["id"]] = x
-        d = e + dt.timedelta(days=1)
+                hw = None
+                if done:
+                    if "winner" in h:
+                        hw = bool(h.get("winner"))
+                    else:
+                        sc = lambda x: num((x.get("score") or {}).get("value") if isinstance(x.get("score"), dict) else x.get("score"))
+                        hw = sc(h) > sc(a)
+                games[ev["id"]] = dict(h=str(h["team"]["id"]), a=str(a["team"]["id"]), done=done, hw=hw)
     return list(games.values())
 
 
@@ -667,12 +655,12 @@ def standings_file():
                     if k:
                         v[k.lower()] = st.get("value"); dv[k.lower()] = st.get("displayValue")
             l10 = next((dv[k] for k in dv if "lastten" in k.replace(" ", "") or k == "l10"), None)
-            T[t["id"]] = dict(id=t["id"], abbr=t.get("abbreviation", "").lower(), name=t.get("displayName", ""),
+            T[str(t["id"])] = dict(id=str(t["id"]), abbr=t.get("abbreviation", "").lower(), name=t.get("displayName", ""),
                               short=t.get("shortDisplayName") or t.get("name", ""), conf=cname,
                               logo=((t.get("logos") or [{}])[0] or {}).get("href", ""),
                               w=int(v.get("wins") or 0), l=int(v.get("losses") or 0), seed=v.get("playoffseed"),
                               strk=dv.get("streak") or "", l10=l10 or "", home=dv.get("home") or "", away=dv.get("road") or dv.get("away") or "")
-    games = season_games()
+    games = season_games(list(T))
     pct = {k: (r["w"] / (r["w"] + r["l"]) if r["w"] + r["l"] else 0.5) for k, r in T.items()}
     for r in T.values():
         r.update(_p=[], _r=[], v5=[0, 0])
