@@ -1,6 +1,15 @@
 [
  {
   "date": "2026-11-19",
+  "status": "ok",
+  "moved": [],
+  "note": "Lineup was already optimal.",
+  "at": "Nov 19, 10:47 AM CT",
+  "src": "schedule",
+  "pass": "late"
+ },
+ {
+  "date": "2026-11-19",
   "status": "saved",
   "moved": [
    "Darryn Peterson: SG to BE, slot needed for a player with a game",
@@ -357,13 +366,5 @@
   ],
   "at": "Nov 5, 5:01 PM CT",
   "src": "button"
- },
- {
-  "date": "2026-11-05",
-  "status": "ok",
-  "moved": [],
-  "note": "Lineup was already optimal.",
-  "at": "Nov 5, 3:31 PM CT",
-  "src": "schedule"
  }
 ]
