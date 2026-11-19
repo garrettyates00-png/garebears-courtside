@@ -34,8 +34,8 @@
   2530530,
   2583632,
   2991070,
+  2991350,
   3032979,
-  3062679,
   3064482,
   3102530,
   3135045,
@@ -51,6 +51,7 @@
   4432582,
   4432810,
   4576087,
+  4591725,
   4592691,
   4593125,
   4594327,
@@ -64,7 +65,6 @@
   4873153,
   4896372,
   5101761,
-  5105550,
   5107173,
   5254165
  ],
@@ -124,10 +124,30 @@
   "r|2026-11-17|8|ADD:Kevin Huerter",
   "r|2026-11-17|8|ADD:Trey Murphy III|DROP:Rui Hachimura",
   "r|2026-11-18|10|ADD:Quentin Grimes|DROP:Grayson Allen",
-  "r|2026-11-18|7|ADD:Precious Achiuwa|DROP:Tari Eason"
+  "r|2026-11-18|3|ADD:Josh Hart|DROP:Ryan Rollins",
+  "r|2026-11-18|7|ADD:Precious Achiuwa|DROP:Tari Eason",
+  "r|2026-11-18|8|ADD:Kyle Kuzma|DROP:Alex Caruso"
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-19T01:51-06:00",
+   "title": "Lineup check",
+   "body": "Donovan Mitchell doesn't play today but is in your lineup. Mikal Bridges is on your bench and plays today. (11 starters aren't playing, 1 bench players are.)",
+   "prio": 4
+  },
+  {
+   "at": "2026-11-19T01:51-06:00",
+   "title": "\u2705 Your move went through",
+   "body": "Added Josh Hart \u00b7 Dropped Ryan Rollins",
+   "prio": 3
+  },
+  {
+   "at": "2026-11-19T01:51-06:00",
+   "title": "\ud83d\udc40 Angel Reese made a move",
+   "body": "Your opponent added Kyle Kuzma.",
+   "prio": 2
+  },
   {
    "at": "2026-11-18T18:15-06:00",
    "title": "Bam Adebayo: back to full health",
@@ -447,7 +467,7 @@
    "prio": 3
   }
  ],
- "at": "2026-11-18T18:15-06:00",
+ "at": "2026-11-19T01:51-06:00",
  "on": false,
- "lineup_day": "2026-11-15"
+ "lineup_day": "2026-11-19"
 }

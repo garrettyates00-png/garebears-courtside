@@ -1,5 +1,19 @@
 [
  {
+  "date": "2026-11-19",
+  "status": "error",
+  "moved": [
+   "Darryn Peterson: SG to BE, slot needed for a player with a game",
+   "Mikal Bridges: BE to UTIL, plays today (25.3 proj)",
+   "John Collins: UTIL to BE, slot needed for a player with a game",
+   "Josh Hart: BE to SG, plays today (29.2 proj)"
+  ],
+  "error": "ESPN said 409: {\"messages\":[\"Transaction type can only be executed in the current scoring period\"],\"details\":[{\"message\":\"Transaction type can only be executed in the current scoring period\",\"shortMessage\":\"Transaction type can only be executed in the current scoring period\",\"resolution\":null,\"type\":\"TRAN_INVALID_",
+  "at": "Nov 19, 1:51 AM CT",
+  "src": "schedule",
+  "pass": "early"
+ },
+ {
   "date": "2026-11-18",
   "status": "ok",
   "moved": [],
@@ -356,13 +370,5 @@
   "custom": true,
   "at": "Nov 5, 8:53 AM CT",
   "src": "button"
- },
- {
-  "date": "2026-11-04",
-  "status": "ok",
-  "moved": [],
-  "note": "Lineup was already optimal.",
-  "at": "Nov 4, 3:26 PM CT",
-  "src": "schedule"
  }
 ]
