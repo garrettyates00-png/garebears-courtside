@@ -8,7 +8,6 @@
   "3064514": "",
   "4279888": "OUT",
   "2595516": "",
-  "4591725": "OUT",
   "4684742": "",
   "5041955": "",
   "5160992": "",
@@ -16,11 +15,13 @@
   "3059319": "",
   "4017837": "",
   "3147657": "",
-  "3908845": ""
+  "3908845": "",
+  "3062679": ""
  },
  "upgrade": {
   "3908845": 31.8,
-  "3062679": 33.0
+  "3062679": 33.0,
+  "4591725": 31.9
  },
  "stream": {
   "5|3062679|4594327": "2026-11-16",
@@ -46,7 +47,6 @@
   4278129,
   4351852,
   4395626,
-  4395723,
   4431785,
   4432582,
   4432810,
@@ -64,6 +64,7 @@
   4845374,
   4873153,
   4896372,
+  5093267,
   5101761,
   5107173,
   5254165
@@ -126,10 +127,19 @@
   "r|2026-11-18|10|ADD:Quentin Grimes|DROP:Grayson Allen",
   "r|2026-11-18|3|ADD:Josh Hart|DROP:Ryan Rollins",
   "r|2026-11-18|7|ADD:Precious Achiuwa|DROP:Tari Eason",
-  "r|2026-11-18|8|ADD:Kyle Kuzma|DROP:Alex Caruso"
+  "r|2026-11-18|8|ADD:Kyle Kuzma|DROP:Alex Caruso",
+  "r|2026-11-19|10|ADD:Aaron Wiggins|DROP:Collin Murray-Boyles",
+  "r|2026-11-19|10|ADD:Keldon Johnson|DROP:Sandro Mamukelashvili",
+  "r|2026-11-19|1|ADD:Meleek Thomas|DROP:Ziaire Williams"
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-19T11:18-06:00",
+   "title": "\u2b06\ufe0f Upgrade: Ryan Rollins",
+   "body": "Ryan Rollins (MIL, 31.9 avg) is a on waivers, clears Fri 2 AM. Your weakest healthy player is Darryn Peterson (29.1).",
+   "prio": 4
+  },
   {
    "at": "2026-11-19T01:51-06:00",
    "title": "Lineup check",
@@ -467,7 +477,7 @@
    "prio": 3
   }
  ],
- "at": "2026-11-19T01:51-06:00",
+ "at": "2026-11-19T11:18-06:00",
  "on": false,
  "lineup_day": "2026-11-19"
 }
