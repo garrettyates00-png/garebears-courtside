@@ -34,7 +34,6 @@
   2528210,
   2530530,
   2583632,
-  2991070,
   2991350,
   3032979,
   3064482,
@@ -42,11 +41,11 @@
   3135045,
   3138196,
   4066262,
-  4066648,
   4278067,
   4278129,
   4351852,
   4395626,
+  4431679,
   4431785,
   4432582,
   4432810,
@@ -66,6 +65,7 @@
   4896372,
   5093267,
   5101761,
+  5105550,
   5107173,
   5254165
  ],
@@ -130,10 +130,19 @@
   "r|2026-11-18|8|ADD:Kyle Kuzma|DROP:Alex Caruso",
   "r|2026-11-19|10|ADD:Aaron Wiggins|DROP:Collin Murray-Boyles",
   "r|2026-11-19|10|ADD:Keldon Johnson|DROP:Sandro Mamukelashvili",
-  "r|2026-11-19|1|ADD:Meleek Thomas|DROP:Ziaire Williams"
+  "r|2026-11-19|1|ADD:Meleek Thomas|DROP:Ziaire Williams",
+  "r|2026-11-19|1|ADD:Rui Hachimura|DROP:Zaccharie Risacher",
+  "r|2026-11-19|7|ADD:Isaiah Jackson|DROP:Precious Achiuwa",
+  "r|2026-11-19|8|ADD:Jerami Grant"
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-19T17:46-06:00",
+   "title": "\ud83d\udc40 Angel Reese made a move",
+   "body": "Your opponent added Jerami Grant.",
+   "prio": 2
+  },
   {
    "at": "2026-11-19T11:18-06:00",
    "title": "\u2b06\ufe0f Upgrade: Ryan Rollins",
@@ -477,7 +486,7 @@
    "prio": 3
   }
  ],
- "at": "2026-11-19T11:18-06:00",
+ "at": "2026-11-19T17:46-06:00",
  "on": false,
  "lineup_day": "2026-11-19"
 }
