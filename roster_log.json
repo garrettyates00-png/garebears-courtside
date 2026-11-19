@@ -1,5 +1,18 @@
 [
  {
+  "req": "r-mwmwi07j",
+  "add": 3062679,
+  "drop": 4591725,
+  "ir": null,
+  "names": {
+   "add": "Josh Hart",
+   "drop": "Ryan Rollins"
+  },
+  "status": "done",
+  "kind": "FREEAGENT",
+  "at": "Nov 18, 7:58 PM CT"
+ },
+ {
   "req": "r-mwichcm4",
   "add": 3978,
   "drop": 5041955,
