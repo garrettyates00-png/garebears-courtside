@@ -39,7 +39,6 @@
   3032979,
   3064482,
   3102530,
-  3135045,
   3138196,
   4066262,
   4278067,
@@ -66,6 +65,7 @@
   4896372,
   5093267,
   5101761,
+  5105550,
   5107173,
   5254165
  ],
@@ -135,7 +135,8 @@
   "r|2026-11-19|4|ADD:Kasparas Jakucionis|DROP:Derik Queen",
   "r|2026-11-19|7|ADD:Isaiah Jackson|DROP:Precious Achiuwa",
   "r|2026-11-19|8|ADD:Jerami Grant",
-  "r|2026-11-19|8|ADD:Keegan Murray|DROP:Jerami Grant"
+  "r|2026-11-19|8|ADD:Keegan Murray|DROP:Jerami Grant",
+  "r|2026-11-20|1|ADD:Grayson Allen|DROP:Tyrese Proctor"
  ],
  "seeded": true,
  "log": [
@@ -500,7 +501,7 @@
    "prio": 2
   }
  ],
- "at": "2026-11-20T01:00-06:00",
+ "at": "2026-11-20T10:03-06:00",
  "on": false,
  "lineup_day": "2026-11-20"
 }
