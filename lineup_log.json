@@ -1,6 +1,20 @@
 [
  {
   "date": "2026-11-20",
+  "status": "saved",
+  "moved": [
+   "Bam Adebayo: PF to BE",
+   "Darryn Peterson: BE to PG",
+   "Payton Pritchard: PG to BE",
+   "John Collins: BE to PF"
+  ],
+  "custom": true,
+  "at": "Nov 20, 8:25 AM CT",
+  "src": "button",
+  "pass": ""
+ },
+ {
+  "date": "2026-11-20",
   "status": "error",
   "moved": [
    "Darryn Peterson: BE to PG, plays today (30.6 proj)",
@@ -345,23 +359,5 @@
   "note": "Lineup was already optimal.",
   "at": "Nov 6, 2:59 PM CT",
   "src": "schedule"
- },
- {
-  "date": "2026-11-06",
-  "status": "saved",
-  "moved": [
-   "Donovan Mitchell: PG to G",
-   "Jaylen Brown: G to SF",
-   "Julius Randle: PF to BE",
-   "Norman Powell: SG to BE",
-   "Ausar Thompson: SF to BE",
-   "Darryn Peterson: BE to SG",
-   "Quentin Grimes: BE to F",
-   "Alex Sarr: F to PF",
-   "Payton Pritchard: BE to PG"
-  ],
-  "custom": true,
-  "at": "Nov 6, 1:38 PM CT",
-  "src": "button"
  }
 ]
