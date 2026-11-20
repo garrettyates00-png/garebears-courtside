@@ -4,6 +4,15 @@
   "status": "ok",
   "moved": [],
   "note": "Lineup was already optimal.",
+  "at": "Nov 20, 11:13 AM CT",
+  "src": "schedule",
+  "pass": "late"
+ },
+ {
+  "date": "2026-11-20",
+  "status": "ok",
+  "moved": [],
+  "note": "Lineup was already optimal.",
   "at": "Nov 20, 9:40 AM CT",
   "src": "schedule",
   "pass": "early"
@@ -348,17 +357,5 @@
   ],
   "at": "Nov 7, 1:33 PM CT",
   "src": "schedule"
- },
- {
-  "date": "2026-11-07",
-  "status": "saved",
-  "moved": [
-   "Bam Adebayo: C to BE",
-   "Julius Randle: BE to PF",
-   "Alex Sarr: PF to C"
-  ],
-  "custom": true,
-  "at": "Nov 7, 9:18 AM CT",
-  "src": "button"
  }
 ]
