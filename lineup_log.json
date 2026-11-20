@@ -1,5 +1,19 @@
 [
  {
+  "date": "2026-11-20",
+  "status": "error",
+  "moved": [
+   "Darryn Peterson: BE to PG, plays today (30.6 proj)",
+   "Payton Pritchard: PG to BE, slot needed for a player with a game",
+   "Mikal Bridges: UTIL to BE, slot needed for a player with a game",
+   "John Collins: BE to UTIL, plays today (27.7 proj)"
+  ],
+  "error": "ESPN said 409: {\"messages\":[\"Transaction type can only be executed in the current scoring period\"],\"details\":[{\"message\":\"Transaction type can only be executed in the current scoring period\",\"shortMessage\":\"Transaction type can only be executed in the current scoring period\",\"resolution\":null,\"type\":\"TRAN_INVALID_",
+  "at": "Nov 20, 1:00 AM CT",
+  "src": "schedule",
+  "pass": "early"
+ },
+ {
   "date": "2026-11-19",
   "status": "ok",
   "moved": [],
@@ -348,23 +362,6 @@
   ],
   "custom": true,
   "at": "Nov 6, 1:38 PM CT",
-  "src": "button"
- },
- {
-  "date": "2026-11-05",
-  "status": "saved",
-  "moved": [
-   "Donovan Mitchell: BE to PG, no game today, fills an open starting slot",
-   "Jaylen Brown: BE to G, no game today, fills an open starting slot",
-   "Jarrett Allen: BE to UTIL, no game today, fills an open starting slot",
-   "Julius Randle: BE to PF, no game today, fills an open starting slot",
-   "Norman Powell: BE to SG, no game today, fills an open starting slot",
-   "Ryan Rollins: BE to UTIL, no game today, fills an open starting slot",
-   "Ausar Thompson: BE to SF, no game today, fills an open starting slot",
-   "Alex Sarr: BE to F, no game today, fills an open starting slot",
-   "Ivica Zubac: BE to UTIL, no game today, fills an open starting slot"
-  ],
-  "at": "Nov 5, 5:01 PM CT",
   "src": "button"
  }
 ]

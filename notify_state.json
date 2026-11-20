@@ -34,6 +34,7 @@
   2528210,
   2530530,
   2583632,
+  2991070,
   2991350,
   3032979,
   3064482,
@@ -53,7 +54,6 @@
   4591725,
   4592691,
   4593125,
-  4594327,
   4601023,
   4683634,
   4683678,
@@ -61,11 +61,11 @@
   4683766,
   4684793,
   4845374,
+  4869780,
   4873153,
   4896372,
   5093267,
   5101761,
-  5105550,
   5107173,
   5254165
  ],
@@ -132,11 +132,31 @@
   "r|2026-11-19|10|ADD:Keldon Johnson|DROP:Sandro Mamukelashvili",
   "r|2026-11-19|1|ADD:Meleek Thomas|DROP:Ziaire Williams",
   "r|2026-11-19|1|ADD:Rui Hachimura|DROP:Zaccharie Risacher",
+  "r|2026-11-19|4|ADD:Kasparas Jakucionis|DROP:Derik Queen",
   "r|2026-11-19|7|ADD:Isaiah Jackson|DROP:Precious Achiuwa",
-  "r|2026-11-19|8|ADD:Jerami Grant"
+  "r|2026-11-19|8|ADD:Jerami Grant",
+  "r|2026-11-19|8|ADD:Keegan Murray|DROP:Jerami Grant"
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-20T01:00-06:00",
+   "title": "Lineup check",
+   "body": "Bam Adebayo doesn't play today but is in your lineup. John Collins is on your bench and plays today. (4 starters aren't playing, 2 bench players are.)",
+   "prio": 4
+  },
+  {
+   "at": "2026-11-20T01:00-06:00",
+   "title": "\ud83c\udd93 Just dropped: Derik Queen",
+   "body": "Derik Queen (NO, 30.5 avg) is now available, on waivers until Sat 2 AM. Your weakest healthy player is Darryn Peterson (29.1).",
+   "prio": 3
+  },
+  {
+   "at": "2026-11-20T01:00-06:00",
+   "title": "\ud83d\udc40 Angel Reese made a move",
+   "body": "Your opponent added Keegan Murray.",
+   "prio": 2
+  },
   {
    "at": "2026-11-19T17:46-06:00",
    "title": "\ud83d\udc40 Angel Reese made a move",
@@ -478,15 +498,9 @@
    "title": "\ud83d\udc40 Creamy Cropmen made a move",
    "body": "Your opponent added Daniss Jenkins.",
    "prio": 2
-  },
-  {
-   "at": "2026-11-11T21:54-06:00",
-   "title": "Grindex alerts are on",
-   "body": "You'll get pings for injuries, lineup problems, pickups worth making, drops and trades.",
-   "prio": 3
   }
  ],
- "at": "2026-11-19T17:46-06:00",
+ "at": "2026-11-20T01:00-06:00",
  "on": false,
- "lineup_day": "2026-11-19"
+ "lineup_day": "2026-11-20"
 }
