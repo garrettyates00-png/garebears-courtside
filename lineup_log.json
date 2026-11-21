@@ -1,5 +1,17 @@
 [
  {
+  "date": "2026-11-21",
+  "status": "error",
+  "moved": [
+   "Darryn Peterson: PG to BE",
+   "Payton Pritchard: BE to PG"
+  ],
+  "error": "ESPN said 409: {\"messages\":[\"Transaction type can only be executed in the current scoring period\"],\"details\":[{\"message\":\"Transaction type can only be executed in the current scoring period\",\"shortMessage\":\"Transaction type can only be executed in the current scoring period\",\"resolution\":null,\"type\":\"TRAN_INVALID_",
+  "at": "Nov 21, 1:26 AM CT",
+  "src": "button",
+  "pass": ""
+ },
+ {
   "date": "2026-11-20",
   "status": "error",
   "moved": [],
@@ -337,24 +349,5 @@
   ],
   "at": "Nov 8, 1:53 PM CT",
   "src": "schedule"
- },
- {
-  "date": "2026-11-08",
-  "status": "saved",
-  "moved": [
-   "Donovan Mitchell: G to BE",
-   "Bam Adebayo: UTIL to PF",
-   "Jaylen Brown: SF to SG",
-   "Julius Randle: PF to F",
-   "Norman Powell: BE to G",
-   "Ausar Thompson: BE to SF",
-   "Darryn Peterson: SG to UTIL",
-   "Alex Sarr: C to BE",
-   "John Collins: BE to C",
-   "Mikal Bridges: F to BE"
-  ],
-  "custom": true,
-  "at": "Nov 8, 12:13 PM CT",
-  "src": "button"
  }
 ]
