@@ -48,6 +48,7 @@
   4395626,
   4431679,
   4431785,
+  4432241,
   4432582,
   4432810,
   4576087,
@@ -61,7 +62,6 @@
   4683766,
   4684793,
   4845374,
-  4869780,
   4873153,
   4896372,
   5093267,
@@ -137,8 +137,10 @@
   "r|2026-11-19|7|ADD:Isaiah Jackson|DROP:Precious Achiuwa",
   "r|2026-11-19|8|ADD:Jerami Grant",
   "r|2026-11-19|8|ADD:Keegan Murray|DROP:Jerami Grant",
+  "r|2026-11-20|10|ADD:Kyle Kuzma|DROP:Jamal Shead",
   "r|2026-11-20|1|ADD:Grayson Allen|DROP:Tyrese Proctor",
-  "r|2026-11-20|4|ADD:Tari Eason|DROP:Kasparas Jakucionis"
+  "r|2026-11-20|4|ADD:Tari Eason|DROP:Kasparas Jakucionis",
+  "r|2026-11-21|7|ADD:Derik Queen|DROP:Nolan Traore"
  ],
  "seeded": true,
  "log": [
@@ -503,7 +505,7 @@
    "prio": 2
   }
  ],
- "at": "2026-11-20T21:54-06:00",
+ "at": "2026-11-21T06:31-06:00",
  "on": false,
  "lineup_day": "2026-11-20"
 }

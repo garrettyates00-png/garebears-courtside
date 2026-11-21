@@ -1,6 +1,17 @@
 [
  {
   "date": "2026-11-21",
+  "status": "saved",
+  "moved": [
+   "Darryn Peterson: PG to BE, slot needed for a player with a game",
+   "Payton Pritchard: BE to PG, plays today (28.4 proj)"
+  ],
+  "at": "Nov 21, 6:31 AM CT",
+  "src": "schedule",
+  "pass": "early"
+ },
+ {
+  "date": "2026-11-21",
   "status": "error",
   "moved": [
    "Darryn Peterson: PG to BE",
@@ -339,15 +350,5 @@
   "custom": true,
   "at": "Nov 9, 8:19 AM CT",
   "src": "button"
- },
- {
-  "date": "2026-11-08",
-  "status": "saved",
-  "moved": [
-   "Donovan Mitchell: BE to G, no game today, fills an open starting slot",
-   "Norman Powell: G to BE, out"
-  ],
-  "at": "Nov 8, 1:53 PM CT",
-  "src": "schedule"
  }
 ]
