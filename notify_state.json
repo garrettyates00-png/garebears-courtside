@@ -46,13 +46,13 @@
   4278129,
   4351852,
   4395626,
+  4397014,
   4431679,
   4431785,
   4432241,
   4432582,
   4432810,
   4576087,
-  4591725,
   4592691,
   4593125,
   4601023,
@@ -140,10 +140,18 @@
   "r|2026-11-20|10|ADD:Kyle Kuzma|DROP:Jamal Shead",
   "r|2026-11-20|1|ADD:Grayson Allen|DROP:Tyrese Proctor",
   "r|2026-11-20|4|ADD:Tari Eason|DROP:Kasparas Jakucionis",
+  "r|2026-11-21|10|ADD:Ryan Rollins|DROP:Quentin Grimes",
+  "r|2026-11-21|4|ADD:Kasparas Jakucionis|DROP:Tari Eason",
   "r|2026-11-21|7|ADD:Derik Queen|DROP:Nolan Traore"
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-21T13:44-06:00",
+   "title": "\ud83c\udd93 Just dropped: Quentin Grimes",
+   "body": "Quentin Grimes (LAL, 28.1 avg) is now available, on waivers until Mon 2 AM. Your weakest healthy player is Darryn Peterson (29.1).",
+   "prio": 3
+  },
   {
    "at": "2026-11-20T20:45-06:00",
    "title": "\ud83d\udcc8 Pickup: +30 this week",
@@ -497,15 +505,9 @@
    "title": "\ud83c\udd93 Just dropped: Derik Queen",
    "body": "Derik Queen (NO, 30.5 avg) is now available, on waivers until Sat 2 AM. Your weakest healthy player is Darryn Peterson (29.1).",
    "prio": 3
-  },
-  {
-   "at": "2026-11-12T04:55-06:00",
-   "title": "\ud83d\udc40 Creamy Cropmen made a move",
-   "body": "Your opponent added Jordan Goodwin.",
-   "prio": 2
   }
  ],
- "at": "2026-11-21T06:31-06:00",
+ "at": "2026-11-21T13:44-06:00",
  "on": false,
  "lineup_day": "2026-11-20"
 }
