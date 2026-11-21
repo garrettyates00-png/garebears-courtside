@@ -1306,6 +1306,14 @@ html.usercol .mood.mwin .mword{filter:drop-shadow(0 0 22px color-mix(in srgb,var
 .stv5{font-weight:600}
 .stfoot{font-size:12px;margin:12px 0 0}
 @media (max-width:700px){.sttbl td.stteam,.sttbl th.stteam{position:sticky;left:0;z-index:1;background:color-mix(in srgb,var(--bg) 88%,#1a1c22)}.sttbl td.strk,.sttbl th:first-child{display:none}.stnm b{font-size:13px}.stnm small{display:none}.sttbl tr.mine td.stteam{background:color-mix(in srgb,var(--a) 14%,var(--bg))}}
+
+/* day net +/- vs projection */
+.hdscore:has(.hdnets){display:grid;grid-template-columns:auto auto auto;justify-items:center;align-items:baseline;column-gap:8px;row-gap:6px}
+.hdnets{display:contents}
+.hdnets em{font:600 9.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-style:normal}
+.hdnet{font:700 12.5px var(--mono);font-style:normal;font-variant-numeric:tabular-nums;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.06);color:var(--mute)}
+.hdnet.up{color:var(--up,#4ade80);background:color-mix(in srgb,var(--up,#4ade80) 14%,transparent)}
+.hdnet.down{color:var(--down,#f87171);background:color-mix(in srgb,var(--down,#f87171) 14%,transparent)}
 </style></head><body><div id="boot" aria-label="Loading"><i class="baur"></i><i class="bgrain"></i><div class="bcore"><b class="blogo" data-t="GRINDEX"><span style="--i:0">G</span><span style="--i:1">R</span><span style="--i:2">I</span><span style="--i:3">N</span><span style="--i:4">D</span><span style="--i:5">E</span><span style="--i:6">X</span></b><small class="btag">Fantasy · Arena</small><i class="bline"></i></div></div>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div><div class="btmfade" aria-hidden="true"></div>
 
@@ -1785,7 +1793,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
 async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1795011839";
+const BUILD="1795226993";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(()=>{if(!document.hidden)checkBuild()},90000);
 loadLog().then(()=>load(true));setInterval(()=>{if(!document.hidden)loadLog().then(()=>load(false))},120000);
@@ -1836,27 +1844,27 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1795011839"></script>
-<script src="season.js?v=1795011839"></script>
-<script src="standings.js?v=1795011839"></script>
-<script src="bets.js?v=1795011839"></script>
-<script src="trades.js?v=1795011839"></script>
-<script src="tradelab.js?v=1795011839"></script>
-<script src="betshub.js?v=1795011839"></script>
-<script src="sim.js?v=1795011839"></script>
-<script src="overunder.js?v=1795011839"></script>
-<script src="profile.js?v=1795011839"></script>
-<script src="ask.js?v=1795011839"></script>
-<script src="timeline.js?v=1795011839"></script>
-<script src="nav.js?v=1795011839"></script>
-<script src="hoops.js?v=1795011839"></script>
-<script src="insights.js?v=1795011839"></script>
-<script src="rostermoves.js?v=1795011839"></script>
-<script src="lineupedit.js?v=1795011839"></script>
-<script src="alerts.js?v=1795011839"></script>
-<script src="myseason.js?v=1795011839"></script>
-<script src="results.js?v=1795011839"></script>
-<script src="mood.js?v=1795011839"></script>
-<script src="live.js?v=1795011839"></script>
-<script src="fx.js?v=1795011839"></script>
+<script src="arena.js?v=1795226993"></script>
+<script src="season.js?v=1795226993"></script>
+<script src="standings.js?v=1795226993"></script>
+<script src="bets.js?v=1795226993"></script>
+<script src="trades.js?v=1795226993"></script>
+<script src="tradelab.js?v=1795226993"></script>
+<script src="betshub.js?v=1795226993"></script>
+<script src="sim.js?v=1795226993"></script>
+<script src="overunder.js?v=1795226993"></script>
+<script src="profile.js?v=1795226993"></script>
+<script src="ask.js?v=1795226993"></script>
+<script src="timeline.js?v=1795226993"></script>
+<script src="nav.js?v=1795226993"></script>
+<script src="hoops.js?v=1795226993"></script>
+<script src="insights.js?v=1795226993"></script>
+<script src="rostermoves.js?v=1795226993"></script>
+<script src="lineupedit.js?v=1795226993"></script>
+<script src="alerts.js?v=1795226993"></script>
+<script src="myseason.js?v=1795226993"></script>
+<script src="results.js?v=1795226993"></script>
+<script src="mood.js?v=1795226993"></script>
+<script src="live.js?v=1795226993"></script>
+<script src="fx.js?v=1795226993"></script>
 </body></html>

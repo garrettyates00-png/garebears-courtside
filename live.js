@@ -211,6 +211,13 @@ function hdRow(t,r){
     else if(live)chip=`<span class="hdc">live</span>`}
   const st=(r.st||"").replace(/^bench, has a game · /,"").replace("as of last update","");
   return `<div class="hdp ${bn?"bn":""} ${live?"live":""}"><div><span class="n">${esc(r.n)}</span><small>${bn?"Bench · ":""}${esc(st||(r.act==null?"":"Final"))}</small></div><div class="v">${main}${chip}</div></div>`}
+/* net +/- for a team's starters on a day: each player's points vs his projection (live: vs what should be in by now) */
+function hdNet(t,iso){let d=0,n=0;
+  for(const r of dayPlayers(t,iso)){if(isBench(r.slot)||r.act==null)continue;const {b}=hdBase(t,r);if(b==null)continue;
+    const live=r.exp!=null,pl=D.players.find(x=>x.n===r.n),g=pl?gameOf(pl):null,base=live?(g?b*g.f:null):b;if(base==null)continue;d+=r.act-base;n++}
+  return n?{d:Math.round(d),n}:null}
+function hdNetTag(t,iso){const x=hdNet(t,iso);if(!x)return `<i class="hdnet none">–</i>`;const c=Math.abs(x.d)<3?"even":x.d>0?"up":"down";
+  return `<i class="hdnet ${c}" title="${x.n} starter${x.n>1?"s":""} vs ${iso===TODAY()?"projection (live games: what should be in by now)":"projection"}">${c==="even"?"±0":(x.d>0?"+":"−")+Math.abs(x.d)}</i>`}
 function hdTeam(t,iso){const rows=dayPlayers(t,iso);
   if(!rows.length)return `<div class="hdteam"><p class="faint" style="margin:6px 2px">No games this day.</p></div>`;
   const on=rows.filter(r=>!isBench(r.slot)),bn=rows.filter(r=>isBench(r.slot));
@@ -236,7 +243,7 @@ function heroDays(h,a){
     <div class="hdstrip" style="--n:${days.length}">${chips}</div>
     <div class="hdpanel">
       <div class="hdsum"><div><b>${lb}</b><small>${x<today?"Final":x===today?(Object.values(LV.games).some(g=>g.state!=="pre")?"Live":"Tonight"):"Projected"}</small></div>
-        <div class="hdscore"><span class="${mv>=ov?"":"faint"}">${Math.round(mv)}</span><em>${act?"–":"proj"}</em><span class="${ov>mv?"":"faint"}">${Math.round(ov)}</span></div></div>
+        <div class="hdscore"><span class="${mv>=ov?"":"faint"}">${Math.round(mv)}</span><em>${act?"–":"proj"}</em><span class="${ov>mv?"":"faint"}">${Math.round(ov)}</span>${act?`<div class="hdnets">${hdNetTag(h,x)}<em>vs proj</em>${hdNetTag(a,x)}</div>`:""}</div></div>
       <div class="hdtabs" role="tablist"><button type="button" data-hs="me" aria-selected="${hSide==="me"}">${esc(D.teams[h].name)}</button><button type="button" data-hs="op" aria-selected="${hSide==="op"}">${esc(D.teams[a].name)}</button></div>
       <div class="hdcols"><div class="hdcol ${hSide==="me"?"on":""}">${hdTeam(h,x)}</div><div class="hdcol ${hSide==="op"?"on":""}">${hdTeam(a,x)}</div></div>
     </div></div>`}
