@@ -25,7 +25,8 @@
  },
  "stream": {
   "5|3062679|4594327": "2026-11-16",
-  "5|3062679|3908845": "2026-11-17"
+  "5|3062679|3908845": "2026-11-17",
+  "5|4351852|5041955": "2026-11-20"
  },
  "fa_ids": [
   3978,
@@ -136,10 +137,17 @@
   "r|2026-11-19|7|ADD:Isaiah Jackson|DROP:Precious Achiuwa",
   "r|2026-11-19|8|ADD:Jerami Grant",
   "r|2026-11-19|8|ADD:Keegan Murray|DROP:Jerami Grant",
-  "r|2026-11-20|1|ADD:Grayson Allen|DROP:Tyrese Proctor"
+  "r|2026-11-20|1|ADD:Grayson Allen|DROP:Tyrese Proctor",
+  "r|2026-11-20|4|ADD:Tari Eason|DROP:Kasparas Jakucionis"
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-20T20:45-06:00",
+   "title": "\ud83d\udcc8 Pickup: +30 this week",
+   "body": "Add Mitchell Robinson (BOS, 2 games from Sat), drop Darryn Peterson. About +30 points this week.",
+   "prio": 4
+  },
   {
    "at": "2026-11-20T01:00-06:00",
    "title": "Lineup check",
@@ -493,15 +501,9 @@
    "title": "\ud83d\udc40 Creamy Cropmen made a move",
    "body": "Your opponent added Jordan Goodwin.",
    "prio": 2
-  },
-  {
-   "at": "2026-11-12T04:55-06:00",
-   "title": "\ud83d\udc40 Creamy Cropmen made a move",
-   "body": "Your opponent added Daniss Jenkins.",
-   "prio": 2
   }
  ],
- "at": "2026-11-20T16:38-06:00",
+ "at": "2026-11-20T20:45-06:00",
  "on": false,
  "lineup_day": "2026-11-20"
 }
