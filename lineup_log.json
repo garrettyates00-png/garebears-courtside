@@ -1,6 +1,15 @@
 [
  {
   "date": "2026-11-21",
+  "status": "ok",
+  "moved": [],
+  "note": "Lineup was already optimal.",
+  "at": "Nov 21, 11:46 AM CT",
+  "src": "schedule",
+  "pass": "late"
+ },
+ {
+  "date": "2026-11-21",
   "status": "saved",
   "moved": [
    "Darryn Peterson: PG to BE, slot needed for a player with a game",
@@ -336,19 +345,5 @@
   ],
   "at": "Nov 10, 3:24 PM CT",
   "src": "schedule"
- },
- {
-  "date": "2026-11-09",
-  "status": "saved",
-  "moved": [
-   "Bam Adebayo: PF to BE",
-   "Jarrett Allen: BE to C",
-   "Julius Randle: F to BE",
-   "Alex Sarr: BE to F",
-   "John Collins: C to PF"
-  ],
-  "custom": true,
-  "at": "Nov 9, 8:19 AM CT",
-  "src": "button"
  }
 ]
