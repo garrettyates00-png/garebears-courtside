@@ -1,6 +1,15 @@
 [
  {
   "date": "2026-11-20",
+  "status": "error",
+  "moved": [],
+  "error": "That day has already passed.",
+  "at": "Nov 21, 1:24 AM CT",
+  "src": "button",
+  "pass": ""
+ },
+ {
+  "date": "2026-11-20",
   "status": "ok",
   "moved": [],
   "note": "Lineup was already optimal.",
@@ -347,15 +356,5 @@
   "custom": true,
   "at": "Nov 8, 12:13 PM CT",
   "src": "button"
- },
- {
-  "date": "2026-11-07",
-  "status": "saved",
-  "moved": [
-   "Bam Adebayo: BE to UTIL, no game today, fills an open starting slot",
-   "Jarrett Allen: UTIL to BE, out"
-  ],
-  "at": "Nov 7, 1:33 PM CT",
-  "src": "schedule"
  }
 ]
