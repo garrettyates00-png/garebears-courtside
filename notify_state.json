@@ -147,6 +147,12 @@
  "seeded": true,
  "log": [
   {
+   "at": "2026-11-22T01:23-06:00",
+   "title": "Lineup check",
+   "body": "Donovan Mitchell doesn't play today but is in your lineup. Bam Adebayo is on your bench and plays today. (3 starters aren't playing, 3 bench players are.)",
+   "prio": 4
+  },
+  {
    "at": "2026-11-21T18:17-06:00",
    "title": "Norman Powell: day-to-day",
    "body": "Norman Powell is day-to-day.\nPowell tallied 16 points (7-18 FG, 1-5 3Pt, 1-2 FT), three rebounds, two assists and one steal in 33 minutes during Friday's 98-84 loss to Washington.",
@@ -499,15 +505,9 @@
    "title": "Norman Powell: day-to-day",
    "body": "Norman Powell is day-to-day.\nThe fantasy basketball crew gets together to answer the biggest questions from the early part of the season.",
    "prio": 3
-  },
-  {
-   "at": "2026-11-12T04:55-06:00",
-   "title": "Lineup check",
-   "body": "Donovan Mitchell doesn't play today but is in your lineup. Jaylen Brown is on your bench and plays today. (10 starters aren't playing, 3 bench players are.)",
-   "prio": 4
   }
  ],
- "at": "2026-11-21T18:17-06:00",
+ "at": "2026-11-22T01:23-06:00",
  "on": false,
- "lineup_day": "2026-11-20"
+ "lineup_day": "2026-11-22"
 }
