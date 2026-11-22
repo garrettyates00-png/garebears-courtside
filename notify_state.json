@@ -26,7 +26,8 @@
  "stream": {
   "5|3062679|4594327": "2026-11-16",
   "5|3062679|3908845": "2026-11-17",
-  "5|4351852|5041955": "2026-11-20"
+  "5|4351852|5041955": "2026-11-20",
+  "5|6478|3908845": "2026-11-22"
  },
  "fa_ids": [
   3978,
@@ -149,6 +150,12 @@
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-22T15:42-06:00",
+   "title": "\ud83d\udcc8 Pickup: +30 this week",
+   "body": "Add Nikola Vucevic (ORL, 1 games from today), drop John Collins. About +30 points this week, about 22 less after that.",
+   "prio": 4
+  },
   {
    "at": "2026-11-22T09:37-06:00",
    "title": "Jaylen Brown: day-to-day",
@@ -502,15 +509,9 @@
    "title": "\ud83d\udc40 Creamy Cropmen made a move",
    "body": "Your opponent added Isaiah Jackson.",
    "prio": 2
-  },
-  {
-   "at": "2026-11-13T01:11-06:00",
-   "title": "Lineup check",
-   "body": "Jaylen Brown doesn't play today but is in your lineup. Bam Adebayo is on your bench and plays today. (5 starters aren't playing, 3 bench players are.)",
-   "prio": 4
   }
  ],
- "at": "2026-11-22T09:37-06:00",
+ "at": "2026-11-22T15:42-06:00",
  "on": false,
  "lineup_day": "2026-11-22"
 }
