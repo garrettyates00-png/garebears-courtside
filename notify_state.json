@@ -3,11 +3,11 @@
   "4594268": "OUT",
   "3908809": "",
   "4066261": "",
-  "3917376": "OUT",
+  "3917376": "DAY_TO_DAY",
   "4066328": "",
   "3064514": "",
   "4279888": "OUT",
-  "2595516": "DAY_TO_DAY",
+  "2595516": "OUT",
   "4684742": "",
   "5041955": "",
   "5160992": "",
@@ -142,10 +142,25 @@
   "r|2026-11-20|4|ADD:Tari Eason|DROP:Kasparas Jakucionis",
   "r|2026-11-21|10|ADD:Ryan Rollins|DROP:Quentin Grimes",
   "r|2026-11-21|4|ADD:Kasparas Jakucionis|DROP:Tari Eason",
-  "r|2026-11-21|7|ADD:Derik Queen|DROP:Nolan Traore"
+  "r|2026-11-21|7|ADD:Derik Queen|DROP:Nolan Traore",
+  "r|2026-11-22|4|ADD:Jaxson Hayes",
+  "r|2026-11-22|4|ADD:Kevin Huerter|DROP:Kasparas Jakucionis",
+  "r|2026-11-22|7|ADD:Zaccharie Risacher|DROP:Isaiah Jackson"
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-22T09:37-06:00",
+   "title": "Jaylen Brown: day-to-day",
+   "body": "Jaylen Brown is day-to-day.",
+   "prio": 3
+  },
+  {
+   "at": "2026-11-22T09:37-06:00",
+   "title": "\ud83d\udea8 Norman Powell: OUT",
+   "body": "Norman Powell is OUT. He's in your lineup today. Nobody on your bench plays today. Free agent Nic Claxton (CHI, 30 avg) does.\nPowell is questionable for Sunday's game against the Nuggets due to a right hamstring strain.",
+   "prio": 5
+  },
   {
    "at": "2026-11-22T01:23-06:00",
    "title": "Lineup check",
@@ -493,21 +508,9 @@
    "title": "Lineup check",
    "body": "Jaylen Brown doesn't play today but is in your lineup. Bam Adebayo is on your bench and plays today. (5 starters aren't playing, 3 bench players are.)",
    "prio": 4
-  },
-  {
-   "at": "2026-11-12T18:11-06:00",
-   "title": "Ryan Rollins: back to full health",
-   "body": "Ryan Rollins is back to full health.\nRollins (head) exited to the locker room in the fourth quarter of Wednesday's 123-112 loss to the Lakers and did not return, finishing with eight points (3-10 FG, 2-6 3Pt), seven rebounds, four assists and one steal across 24 minutes.",
-   "prio": 3
-  },
-  {
-   "at": "2026-11-12T12:50-06:00",
-   "title": "Norman Powell: day-to-day",
-   "body": "Norman Powell is day-to-day.\nThe fantasy basketball crew gets together to answer the biggest questions from the early part of the season.",
-   "prio": 3
   }
  ],
- "at": "2026-11-22T01:23-06:00",
+ "at": "2026-11-22T09:37-06:00",
  "on": false,
  "lineup_day": "2026-11-22"
 }
