@@ -7,7 +7,7 @@
   "4066328": "",
   "3064514": "",
   "4279888": "OUT",
-  "2595516": "",
+  "2595516": "DAY_TO_DAY",
   "4684742": "",
   "5041955": "",
   "5160992": "",
@@ -146,6 +146,12 @@
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-21T18:17-06:00",
+   "title": "Norman Powell: day-to-day",
+   "body": "Norman Powell is day-to-day.\nPowell tallied 16 points (7-18 FG, 1-5 3Pt, 1-2 FT), three rebounds, two assists and one steal in 33 minutes during Friday's 98-84 loss to Washington.",
+   "prio": 3
+  },
   {
    "at": "2026-11-21T13:44-06:00",
    "title": "\ud83c\udd93 Just dropped: Quentin Grimes",
@@ -499,15 +505,9 @@
    "title": "Lineup check",
    "body": "Donovan Mitchell doesn't play today but is in your lineup. Jaylen Brown is on your bench and plays today. (10 starters aren't playing, 3 bench players are.)",
    "prio": 4
-  },
-  {
-   "at": "2026-11-12T04:55-06:00",
-   "title": "\ud83c\udd93 Just dropped: Derik Queen",
-   "body": "Derik Queen (NO, 30.5 avg) is now available, on waivers until Sat 2 AM. Your weakest healthy player is Darryn Peterson (29.1).",
-   "prio": 3
   }
  ],
- "at": "2026-11-21T13:44-06:00",
+ "at": "2026-11-21T18:17-06:00",
  "on": false,
  "lineup_day": "2026-11-20"
 }
