@@ -3,6 +3,18 @@
   "date": "2026-11-22",
   "status": "saved",
   "moved": [
+   "Donovan Mitchell: BE to UTIL, no game today, fills an open starting slot",
+   "Norman Powell: SF to BE, out",
+   "Ausar Thompson: UTIL to SF, plays today (34.8 proj)"
+  ],
+  "at": "Nov 22, 10:36 AM CT",
+  "src": "schedule",
+  "pass": "late"
+ },
+ {
+  "date": "2026-11-22",
+  "status": "saved",
+  "moved": [
    "Donovan Mitchell: G to BE, slot needed for a player with a game",
    "Bam Adebayo: BE to C, plays today (42.0 proj)",
    "Jarrett Allen: C to BE, slot needed for a player with a game",
@@ -343,13 +355,5 @@
   "custom": true,
   "at": "Nov 12, 10:53 AM CT",
   "src": "button"
- },
- {
-  "date": "2026-11-11",
-  "status": "ok",
-  "moved": [],
-  "note": "Lineup was already optimal.",
-  "at": "Nov 11, 4:09 PM CT",
-  "src": "schedule"
  }
 ]
