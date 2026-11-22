@@ -1,6 +1,21 @@
 [
  {
   "date": "2026-11-22",
+  "status": "saved",
+  "moved": [
+   "Donovan Mitchell: G to BE, slot needed for a player with a game",
+   "Bam Adebayo: BE to C, plays today (42.0 proj)",
+   "Jarrett Allen: C to BE, slot needed for a player with a game",
+   "Julius Randle: UTIL to BE, slot needed for a player with a game",
+   "Darryn Peterson: BE to G, plays today (31.5 proj)",
+   "Andrew Wiggins: BE to UTIL, plays today (25.0 proj)"
+  ],
+  "at": "Nov 22, 8:46 AM CT",
+  "src": "schedule",
+  "pass": "early"
+ },
+ {
+  "date": "2026-11-22",
   "status": "error",
   "moved": [
    "Donovan Mitchell: G to BE, slot needed for a player with a game",
@@ -336,18 +351,5 @@
   "note": "Lineup was already optimal.",
   "at": "Nov 11, 4:09 PM CT",
   "src": "schedule"
- },
- {
-  "date": "2026-11-11",
-  "status": "saved",
-  "moved": [
-   "Bam Adebayo: PF to BE",
-   "Jaylen Brown: SG to BE",
-   "Julius Randle: BE to PF",
-   "Norman Powell: BE to SG"
-  ],
-  "custom": true,
-  "at": "Nov 11, 11:48 AM CT",
-  "src": "button"
  }
 ]
