@@ -28,6 +28,7 @@
   3978,
   6478,
   6589,
+  2490149,
   2528210,
   2530530,
   2583632,
@@ -37,18 +38,17 @@
   3064482,
   3102530,
   3138196,
+  4066211,
   4066262,
   4278067,
   4278129,
   4351852,
   4395626,
-  4397014,
   4431679,
   4431785,
   4432241,
   4432582,
   4432810,
-  4576087,
   4592691,
   4593125,
   4601023,
@@ -141,7 +141,10 @@
   "r|2026-11-21|7|ADD:Derik Queen|DROP:Nolan Traore",
   "r|2026-11-22|4|ADD:Jaxson Hayes",
   "r|2026-11-22|4|ADD:Kevin Huerter|DROP:Kasparas Jakucionis",
-  "r|2026-11-22|7|ADD:Zaccharie Risacher|DROP:Isaiah Jackson"
+  "r|2026-11-22|7|ADD:Zaccharie Risacher|DROP:Isaiah Jackson",
+  "r|2026-11-23|4|ADD:Quentin Grimes|DROP:Kevin Huerter",
+  "r|2026-11-23|7|ADD:Jordan Goodwin|DROP:Zaccharie Risacher",
+  "r|2026-11-23|9|ADD:Peyton Watson|DROP:CJ McCollum"
  ],
  "seeded": true,
  "log": [
@@ -506,7 +509,7 @@
    "prio": 2
   }
  ],
- "at": "2026-11-23T05:13-06:00",
+ "at": "2026-11-23T16:18-06:00",
  "on": false,
  "lineup_day": "2026-11-22"
 }
