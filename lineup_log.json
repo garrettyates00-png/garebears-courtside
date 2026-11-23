@@ -1,6 +1,15 @@
 [
  {
   "date": "2026-11-23",
+  "status": "ok",
+  "moved": [],
+  "note": "Lineup was already optimal.",
+  "at": "Nov 23, 12:34 PM CT",
+  "src": "schedule",
+  "pass": "late"
+ },
+ {
+  "date": "2026-11-23",
   "status": "saved",
   "moved": [
    "Jaylen Brown: BE to UTIL, plays today (33.9 proj)",
@@ -347,13 +356,5 @@
   "custom": true,
   "at": "Nov 13, 10:15 AM CT",
   "src": "button"
- },
- {
-  "date": "2026-11-12",
-  "status": "ok",
-  "moved": [],
-  "note": "Lineup was already optimal.",
-  "at": "Nov 12, 3:53 PM CT",
-  "src": "schedule"
  }
 ]
