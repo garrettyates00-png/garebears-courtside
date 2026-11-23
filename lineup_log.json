@@ -1,5 +1,20 @@
 [
  {
+  "date": "2026-11-23",
+  "status": "saved",
+  "moved": [
+   "Jaylen Brown: BE to UTIL, plays today (33.9 proj)",
+   "Jarrett Allen: BE to UTIL, plays today (35.8 proj)",
+   "Julius Randle: BE to PF, plays today (36.3 proj)",
+   "Andrew Wiggins: UTIL to BE, slot needed for a player with a game",
+   "Mikal Bridges: UTIL to BE, slot needed for a player with a game",
+   "John Collins: PF to BE, slot needed for a player with a game"
+  ],
+  "at": "Nov 23, 5:13 AM CT",
+  "src": "schedule",
+  "pass": "early"
+ },
+ {
   "date": "2026-11-22",
   "status": "saved",
   "moved": [
@@ -340,20 +355,5 @@
   "note": "Lineup was already optimal.",
   "at": "Nov 12, 3:53 PM CT",
   "src": "schedule"
- },
- {
-  "date": "2026-11-12",
-  "status": "saved",
-  "moved": [
-   "Jaylen Brown: BE to SG",
-   "Julius Randle: PF to BE",
-   "Norman Powell: SG to BE",
-   "Ausar Thompson: BE to SF",
-   "John Collins: BE to PF",
-   "Mikal Bridges: SF to BE"
-  ],
-  "custom": true,
-  "at": "Nov 12, 10:53 AM CT",
-  "src": "button"
  }
 ]
