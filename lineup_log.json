@@ -1,6 +1,15 @@
 [
  {
   "date": "2026-11-24",
+  "status": "ok",
+  "moved": [],
+  "note": "Lineup was already optimal.",
+  "at": "Nov 24, 12:02 PM CT",
+  "src": "schedule",
+  "pass": "late"
+ },
+ {
+  "date": "2026-11-24",
   "status": "saved",
   "moved": [
    "Ivica Zubac: UTIL to BE, slot needed for a player with a game",
@@ -342,19 +351,5 @@
   "error": "Bam Adebayo's game has started, so he can't move; Julius Randle's game has started, so he can't move; Norman Powell's game has started, so he can't move; Ausar Thompson's game has started, so he can't move; Andrew Wiggins's game has started, so he can't move; John Collins's game has started, so he c",
   "at": "Nov 14, 11:49 PM CT",
   "src": "button"
- },
- {
-  "date": "2026-11-14",
-  "status": "saved",
-  "moved": [
-   "Julius Randle: BE to UTIL, plays today (34.9 proj)",
-   "Ryan Rollins: UTIL to BE, slot needed for a player with a game",
-   "Ausar Thompson: BE to UTIL, plays today (32.5 proj)",
-   "Darryn Peterson: UTIL to BE, slot needed for a player with a game",
-   "Ivica Zubac: UTIL to BE, slot needed for a player with a game",
-   "John Collins: BE to UTIL, plays today (28.7 proj)"
-  ],
-  "at": "Nov 14, 2:02 PM CT",
-  "src": "schedule"
  }
 ]
