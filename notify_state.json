@@ -27,7 +27,6 @@
   "6|6478|5041955": "2026-11-23"
  },
  "fa_ids": [
-  3978,
   6478,
   6589,
   2490149,
@@ -39,9 +38,9 @@
   3032979,
   3064482,
   3102530,
-  3138196,
   4066211,
   4066262,
+  4277811,
   4278067,
   4278129,
   4351852,
@@ -57,6 +56,7 @@
   4683634,
   4683678,
   4683688,
+  4683747,
   4683766,
   4684793,
   4845374,
@@ -146,10 +146,24 @@
   "r|2026-11-22|7|ADD:Zaccharie Risacher|DROP:Isaiah Jackson",
   "r|2026-11-23|4|ADD:Quentin Grimes|DROP:Kevin Huerter",
   "r|2026-11-23|7|ADD:Jordan Goodwin|DROP:Zaccharie Risacher",
+  "r|2026-11-23|9|ADD:Cameron Johnson",
+  "r|2026-11-23|9|ADD:DeMar DeRozan|DROP:Collin Sexton",
   "r|2026-11-23|9|ADD:Peyton Watson|DROP:CJ McCollum"
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-24T00:55-06:00",
+   "title": "Lineup check",
+   "body": "Donovan Mitchell doesn't play today but is in your lineup. John Collins is on your bench and plays today. (8 starters aren't playing, 1 bench players are.)",
+   "prio": 4
+  },
+  {
+   "at": "2026-11-24T00:55-06:00",
+   "title": "\ud83c\udd93 Just dropped: Collin Sexton",
+   "body": "Collin Sexton (LAL, 28.8 avg) is now available, on waivers until Wed 2 AM. Your weakest healthy player is Darryn Peterson (29.1).",
+   "prio": 3
+  },
   {
    "at": "2026-11-23T21:34-06:00",
    "title": "Jaylen Brown: back to full health",
@@ -497,21 +511,9 @@
    "title": "\ud83d\udea8 Norman Powell: day-to-day",
    "body": "Norman Powell is day-to-day. He's in your lineup today.\nPowell (back) is listed as questionable for Saturday's game against Minnesota.",
    "prio": 4
-  },
-  {
-   "at": "2026-11-14T10:04-06:00",
-   "title": "\ud83d\udc40 Creamy Cropmen made a move",
-   "body": "Your opponent added Derik Queen.",
-   "prio": 2
-  },
-  {
-   "at": "2026-11-14T03:21-06:00",
-   "title": "Lineup check",
-   "body": "Ryan Rollins doesn't play today but is in your lineup. Julius Randle is on your bench and plays today. (6 starters aren't playing, 3 bench players are.)",
-   "prio": 4
   }
  ],
- "at": "2026-11-23T21:34-06:00",
+ "at": "2026-11-24T00:55-06:00",
  "on": false,
- "lineup_day": "2026-11-22"
+ "lineup_day": "2026-11-24"
 }

@@ -1,5 +1,17 @@
 [
  {
+  "date": "2026-11-24",
+  "status": "error",
+  "moved": [
+   "Ivica Zubac: UTIL to BE, slot needed for a player with a game",
+   "John Collins: BE to UTIL, plays today (27.3 proj)"
+  ],
+  "error": "ESPN said 409: {\"messages\":[\"Transaction type can only be executed in the current scoring period\"],\"details\":[{\"message\":\"Transaction type can only be executed in the current scoring period\",\"shortMessage\":\"Transaction type can only be executed in the current scoring period\",\"resolution\":null,\"type\":\"TRAN_INVALID_",
+  "at": "Nov 24, 12:54 AM CT",
+  "src": "schedule",
+  "pass": "early"
+ },
+ {
   "date": "2026-11-23",
   "status": "ok",
   "moved": [],
@@ -341,20 +353,5 @@
   "note": "Lineup was already optimal.",
   "at": "Nov 13, 3:31 PM CT",
   "src": "schedule"
- },
- {
-  "date": "2026-11-13",
-  "status": "saved",
-  "moved": [
-   "Bam Adebayo: BE to PF",
-   "Jaylen Brown: SG to BE",
-   "Norman Powell: BE to SF",
-   "Ausar Thompson: SF to BE",
-   "John Collins: PF to BE",
-   "Mikal Bridges: BE to SG"
-  ],
-  "custom": true,
-  "at": "Nov 13, 10:15 AM CT",
-  "src": "button"
  }
 ]
