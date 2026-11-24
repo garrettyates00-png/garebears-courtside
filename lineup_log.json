@@ -1,6 +1,17 @@
 [
  {
   "date": "2026-11-24",
+  "status": "saved",
+  "moved": [
+   "Ivica Zubac: UTIL to BE, slot needed for a player with a game",
+   "John Collins: BE to UTIL, plays today (27.3 proj)"
+  ],
+  "at": "Nov 24, 11:21 AM CT",
+  "src": "button",
+  "pass": ""
+ },
+ {
+  "date": "2026-11-24",
   "status": "error",
   "moved": [
    "Ivica Zubac: UTIL to BE, slot needed for a player with a game",
@@ -344,14 +355,6 @@
    "John Collins: BE to UTIL, plays today (28.7 proj)"
   ],
   "at": "Nov 14, 2:02 PM CT",
-  "src": "schedule"
- },
- {
-  "date": "2026-11-13",
-  "status": "ok",
-  "moved": [],
-  "note": "Lineup was already optimal.",
-  "at": "Nov 13, 3:31 PM CT",
   "src": "schedule"
  }
 ]
