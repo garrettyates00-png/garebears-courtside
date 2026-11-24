@@ -3,7 +3,7 @@
   "4594268": "OUT",
   "3908809": "",
   "4066261": "",
-  "3917376": "DAY_TO_DAY",
+  "3917376": "",
   "4066328": "",
   "3064514": "",
   "4279888": "OUT",
@@ -23,7 +23,9 @@
   "3062679": 33.0,
   "4591725": 31.9
  },
- "stream": {},
+ "stream": {
+  "6|6478|5041955": "2026-11-23"
+ },
  "fa_ids": [
   3978,
   6478,
@@ -148,6 +150,18 @@
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-23T21:34-06:00",
+   "title": "Jaylen Brown: back to full health",
+   "body": "Jaylen Brown is back to full health.\nJaylen Brown slams it home with authority for Philly",
+   "prio": 3
+  },
+  {
+   "at": "2026-11-23T21:34-06:00",
+   "title": "\ud83d\udcc8 Pickup: +31 this week",
+   "body": "Add Nikola Vucevic (ORL, 3 games from Tue), drop Darryn Peterson. About +31 points this week.",
+   "prio": 4
+  },
   {
    "at": "2026-11-22T15:42-06:00",
    "title": "\ud83d\udcc8 Pickup: +30 this week",
@@ -495,21 +509,9 @@
    "title": "Lineup check",
    "body": "Ryan Rollins doesn't play today but is in your lineup. Julius Randle is on your bench and plays today. (6 starters aren't playing, 3 bench players are.)",
    "prio": 4
-  },
-  {
-   "at": "2026-11-13T20:16-06:00",
-   "title": "Norman Powell: back to full health",
-   "body": "Norman Powell is back to full health.\nPowell (shoulder) is available for Friday's game against the Hawks and will not face a minutes restriction, Joel Lorenzi of The Athletic reports.",
-   "prio": 3
-  },
-  {
-   "at": "2026-11-13T09:39-06:00",
-   "title": "\ud83d\udc40 Creamy Cropmen made a move",
-   "body": "Your opponent added Isaiah Jackson.",
-   "prio": 2
   }
  ],
- "at": "2026-11-23T16:53-06:00",
+ "at": "2026-11-23T21:34-06:00",
  "on": false,
  "lineup_day": "2026-11-22"
 }
