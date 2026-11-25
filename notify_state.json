@@ -16,7 +16,7 @@
   "4017837": "",
   "3147657": "",
   "3908845": "",
-  "3062679": ""
+  "3062679": "DAY_TO_DAY"
  },
  "upgrade": {
   "3908845": 31.8,
@@ -151,10 +151,17 @@
   "r|2026-11-23|9|ADD:Peyton Watson|DROP:CJ McCollum",
   "r|2026-11-24|10|ADD:Naji Marshall|DROP:Keldon Johnson",
   "r|2026-11-24|10|ADD:Zaccharie Risacher|DROP:Toumani Camara",
+  "r|2026-11-24|4|ADD:Isaiah Joe|DROP:Jaxson Hayes",
   "r|2026-11-24|8|ADD:Brayden Burries|DROP:Keegan Murray"
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-24T20:59-06:00",
+   "title": "Josh Hart: day-to-day",
+   "body": "Josh Hart is day-to-day.\nHart (shoulder) is listed as questionable for Wednesday's game against Cleveland.",
+   "prio": 3
+  },
   {
    "at": "2026-11-24T12:50-06:00",
    "title": "\ud83c\udd93 Just dropped: Keegan Murray",
@@ -508,15 +515,9 @@
    "title": "\ud83d\udea8 Donovan Mitchell: day-to-day",
    "body": "Donovan Mitchell is day-to-day. He's in your lineup today.\nMitchell (knee) is listed as questionable for Saturday's game against the Mavericks.",
    "prio": 4
-  },
-  {
-   "at": "2026-11-14T14:39-06:00",
-   "title": "\ud83d\udea8 Jarrett Allen: day-to-day",
-   "body": "Jarrett Allen is day-to-day. He's in your lineup today.\nAllen (knee) is listed as questionable for Saturday's game against Dallas.",
-   "prio": 4
   }
  ],
- "at": "2026-11-24T15:16-06:00",
+ "at": "2026-11-24T20:59-06:00",
  "on": false,
  "lineup_day": "2026-11-24"
 }
