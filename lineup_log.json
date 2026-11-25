@@ -1,5 +1,18 @@
 [
  {
+  "date": "2026-11-25",
+  "status": "saved",
+  "moved": [
+   "Darryn Peterson: G to BE, slot needed for a player with a game",
+   "Andrew Wiggins: BE to UTIL, plays today (24.7 proj)",
+   "Mikal Bridges: BE to G, plays today (24.8 proj)",
+   "John Collins: UTIL to BE, slot needed for a player with a game"
+  ],
+  "at": "Nov 25, 6:39 AM CT",
+  "src": "schedule",
+  "pass": "early"
+ },
+ {
   "date": "2026-11-24",
   "status": "ok",
   "moved": [],
@@ -337,19 +350,6 @@
   ],
   "error": "Jaylen Brown's game has started, so he can't move; Ivica Zubac's game has started, so he can't move",
   "at": "Nov 15, 2:00 PM CT",
-  "src": "button"
- },
- {
-  "date": "2026-11-14",
-  "status": "error",
-  "moved": [
-   "Jaylen Brown: BE to SF",
-   "Ryan Rollins: BE to UTIL",
-   "Darryn Peterson: BE to UTIL",
-   "Ivica Zubac: BE to UTIL"
-  ],
-  "error": "Bam Adebayo's game has started, so he can't move; Julius Randle's game has started, so he can't move; Norman Powell's game has started, so he can't move; Ausar Thompson's game has started, so he can't move; Andrew Wiggins's game has started, so he can't move; John Collins's game has started, so he c",
-  "at": "Nov 14, 11:49 PM CT",
   "src": "button"
  }
 ]

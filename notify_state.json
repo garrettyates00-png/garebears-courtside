@@ -49,7 +49,6 @@
   4431736,
   4431785,
   4432241,
-  4432582,
   4432810,
   4592691,
   4593125,
@@ -61,6 +60,7 @@
   4683766,
   4684793,
   4845374,
+  4869780,
   4873153,
   4896372,
   5093267,
@@ -152,10 +152,18 @@
   "r|2026-11-24|10|ADD:Naji Marshall|DROP:Keldon Johnson",
   "r|2026-11-24|10|ADD:Zaccharie Risacher|DROP:Toumani Camara",
   "r|2026-11-24|4|ADD:Isaiah Joe|DROP:Jaxson Hayes",
-  "r|2026-11-24|8|ADD:Brayden Burries|DROP:Keegan Murray"
+  "r|2026-11-24|8|ADD:Brayden Burries|DROP:Keegan Murray",
+  "r|2026-11-25|4|ADD:Charles Bassey|DROP:Isaiah Joe",
+  "r|2026-11-25|7|ADD:De'Andre Hunter|DROP:Derik Queen"
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-25T06:40-06:00",
+   "title": "\ud83c\udd93 Just dropped: Derik Queen",
+   "body": "Derik Queen (NO, 30.5 avg) is now available, on waivers until Fri 2 AM. Your weakest healthy player is Darryn Peterson (29.1).",
+   "prio": 3
+  },
   {
    "at": "2026-11-24T20:59-06:00",
    "title": "Josh Hart: day-to-day",
@@ -509,15 +517,9 @@
    "title": "\ud83d\udc40 Creamy Cropmen made a move",
    "body": "Your opponent added Myles Turner.",
    "prio": 2
-  },
-  {
-   "at": "2026-11-14T14:39-06:00",
-   "title": "\ud83d\udea8 Donovan Mitchell: day-to-day",
-   "body": "Donovan Mitchell is day-to-day. He's in your lineup today.\nMitchell (knee) is listed as questionable for Saturday's game against the Mavericks.",
-   "prio": 4
   }
  ],
- "at": "2026-11-24T20:59-06:00",
+ "at": "2026-11-25T06:40-06:00",
  "on": false,
  "lineup_day": "2026-11-24"
 }
