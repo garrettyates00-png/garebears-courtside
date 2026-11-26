@@ -3,7 +3,7 @@
   "4594268": "OUT",
   "3908809": "",
   "4066261": "",
-  "3917376": "",
+  "3917376": "DAY_TO_DAY",
   "4066328": "",
   "3064514": "",
   "4279888": "OUT",
@@ -16,7 +16,7 @@
   "4017837": "",
   "3147657": "",
   "3908845": "",
-  "3062679": "DAY_TO_DAY"
+  "3062679": ""
  },
  "upgrade": {
   "3908845": 31.8,
@@ -154,10 +154,23 @@
   "r|2026-11-24|4|ADD:Isaiah Joe|DROP:Jaxson Hayes",
   "r|2026-11-24|8|ADD:Brayden Burries|DROP:Keegan Murray",
   "r|2026-11-25|4|ADD:Charles Bassey|DROP:Isaiah Joe",
-  "r|2026-11-25|7|ADD:De'Andre Hunter|DROP:Derik Queen"
+  "r|2026-11-25|7|ADD:De'Andre Hunter|DROP:Derik Queen",
+  "r|2026-11-25|8|ADD:4397140|DROP:Brayden Burries"
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-25T22:20-06:00",
+   "title": "\ud83d\udea8 Jaylen Brown: day-to-day",
+   "body": "Jaylen Brown is day-to-day. He's in your lineup today.\nBrown (hamstring) will receive imaging, and the Sixers will provide an update Thursday, Ky Carlin of USA Today reports.",
+   "prio": 4
+  },
+  {
+   "at": "2026-11-25T22:20-06:00",
+   "title": "Josh Hart: back to full health",
+   "body": "Josh Hart is back to full health.\nHart compiled 15 points (6-14 FG, 1-5 3Pt, 2-3 FT), seven rebounds, 11 assists, three steals and one block in 36 minutes during Wednesday's 121-102 win over Cleveland.",
+   "prio": 3
+  },
   {
    "at": "2026-11-25T06:40-06:00",
    "title": "\ud83c\udd93 Just dropped: Derik Queen",
@@ -505,21 +518,9 @@
    "title": "Alex Sarr: day-to-day",
    "body": "Alex Sarr is day-to-day.\nSarr (illness) is listed as questionable for Sunday's game against Houston.",
    "prio": 3
-  },
-  {
-   "at": "2026-11-14T18:58-06:00",
-   "title": "\ud83d\udcc8 Pickup: +30 this week",
-   "body": "Add Mitchell Robinson (BOS, 1 games from Sun), drop John Collins. About +30 points this week, about 20 less after that.",
-   "prio": 4
-  },
-  {
-   "at": "2026-11-14T18:58-06:00",
-   "title": "\ud83d\udc40 Creamy Cropmen made a move",
-   "body": "Your opponent added Myles Turner.",
-   "prio": 2
   }
  ],
- "at": "2026-11-25T16:26-06:00",
+ "at": "2026-11-25T22:20-06:00",
  "on": false,
  "lineup_day": "2026-11-24"
 }
