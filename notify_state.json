@@ -3,7 +3,7 @@
   "4594268": "OUT",
   "3908809": "",
   "4066261": "",
-  "3917376": "DAY_TO_DAY",
+  "3917376": "OUT",
   "4066328": "",
   "3064514": "",
   "4279888": "OUT",
@@ -12,7 +12,7 @@
   "5041955": "",
   "5160992": "",
   "4066354": "",
-  "3059319": "",
+  "3059319": "DAY_TO_DAY",
   "4017837": "",
   "3147657": "",
   "3908845": "",
@@ -160,6 +160,18 @@
  ],
  "seeded": true,
  "log": [
+  {
+   "at": "2026-11-26T17:15-06:00",
+   "title": "Jaylen Brown: OUT",
+   "body": "Jaylen Brown is OUT.\nBrown (hamstring) is out for Friday's game against the Pacers.",
+   "prio": 3
+  },
+  {
+   "at": "2026-11-26T17:15-06:00",
+   "title": "Andrew Wiggins: day-to-day",
+   "body": "Andrew Wiggins is day-to-day.\nWiggins is probable for Friday's game against the Knicks due to a right ankle sprain.",
+   "prio": 3
+  },
   {
    "at": "2026-11-25T22:20-06:00",
    "title": "\ud83d\udea8 Jaylen Brown: day-to-day",
@@ -507,21 +519,9 @@
    "title": "\ud83d\udea8 Jarrett Allen: OUT",
    "body": "Jarrett Allen is OUT. He's in your lineup today. Nobody on your bench plays today. Free agent Cameron Johnson (DEN, 26 avg) does.\nAllen (knee) has been ruled out for Saturday's game against the Mavericks.",
    "prio": 5
-  },
-  {
-   "at": "2026-11-14T18:58-06:00",
-   "title": "Norman Powell: back to full health",
-   "body": "Norman Powell is back to full health.\nPowell (back) is available for Saturday's game against the Timberwolves, K.C. Johnson of Chicago Sports Network reports.",
-   "prio": 3
-  },
-  {
-   "at": "2026-11-14T18:58-06:00",
-   "title": "Alex Sarr: day-to-day",
-   "body": "Alex Sarr is day-to-day.\nSarr (illness) is listed as questionable for Sunday's game against Houston.",
-   "prio": 3
   }
  ],
- "at": "2026-11-26T08:20-06:00",
+ "at": "2026-11-26T17:15-06:00",
  "on": false,
  "lineup_day": "2026-11-24"
 }
