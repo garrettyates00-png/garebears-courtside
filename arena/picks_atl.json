@@ -253,5 +253,17 @@
   "result": "W",
   "profit": 90.91,
   "final": "107-97"
+ },
+ {
+  "id": "401909330",
+  "date": "2026-11-28T01:00Z",
+  "opp": "BOS",
+  "home": false,
+  "kind": "total",
+  "side": "under",
+  "line": 220.5,
+  "edge": 2.2,
+  "price": -110,
+  "made": "2026-11-26T14:31:22.452328+00:00"
  }
 ]
