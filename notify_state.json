@@ -49,6 +49,7 @@
   4431736,
   4431785,
   4432241,
+  4432582,
   4432810,
   4592691,
   4593125,
@@ -60,7 +61,6 @@
   4683766,
   4684793,
   4845374,
-  4869780,
   4873153,
   4896372,
   5093267,
@@ -156,7 +156,8 @@
   "r|2026-11-25|4|ADD:Charles Bassey|DROP:Isaiah Joe",
   "r|2026-11-25|7|ADD:De'Andre Hunter|DROP:Derik Queen",
   "r|2026-11-25|8|ADD:4397140|DROP:Brayden Burries",
-  "r|2026-11-25|8|ADD:Kevin Porter Jr.|DROP:Brayden Burries"
+  "r|2026-11-25|8|ADD:Kevin Porter Jr.|DROP:Brayden Burries",
+  "r|2026-11-27|7|ADD:Derik Queen|DROP:Jordan Goodwin"
  ],
  "seeded": true,
  "log": [
@@ -521,7 +522,7 @@
    "prio": 5
   }
  ],
- "at": "2026-11-26T23:18-06:00",
+ "at": "2026-11-27T09:31-06:00",
  "on": false,
  "lineup_day": "2026-11-24"
 }
