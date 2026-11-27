@@ -1,6 +1,15 @@
 [
  {
   "date": "2026-11-27",
+  "status": "ok",
+  "moved": [],
+  "note": "Lineup was already optimal.",
+  "at": "Nov 27, 10:52 AM CT",
+  "src": "schedule",
+  "pass": "late"
+ },
+ {
+  "date": "2026-11-27",
   "status": "saved",
   "moved": [
    "Jaylen Brown: UTIL to BE, out",
@@ -333,19 +342,5 @@
   "at": "Nov 17, 3:05 AM CT",
   "src": "schedule",
   "pass": "early"
- },
- {
-  "date": "2026-11-16",
-  "status": "error",
-  "moved": [
-   "Ryan Rollins: BE to PG",
-   "Ausar Thompson: BE to SF",
-   "Ivica Zubac: BE to C",
-   "Mikal Bridges: BE to SG"
-  ],
-  "error": "Donovan Mitchell's game has started, so he can't move; Bam Adebayo's game has started, so he can't move; Jaylen Brown's game has started, so he can't move; Jarrett Allen's game has started, so he can't move; Julius Randle's game has started, so he can't move; Norman Powell's game has started, so he ",
-  "at": "Nov 16, 11:56 PM CT",
-  "src": "button",
-  "pass": ""
  }
 ]
