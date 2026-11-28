@@ -1,6 +1,15 @@
 [
  {
   "date": "2026-11-28",
+  "status": "ok",
+  "moved": [],
+  "note": "Lineup was already optimal.",
+  "at": "Nov 28, 11:09 AM CT",
+  "src": "schedule",
+  "pass": "late"
+ },
+ {
+  "date": "2026-11-28",
   "status": "saved",
   "moved": [
    "Alex Sarr: BE to UTIL, plays today (32.4 proj)",
@@ -329,19 +338,5 @@
   "at": "Nov 18, 10:43 AM CT",
   "src": "schedule",
   "pass": "late"
- },
- {
-  "date": "2026-11-18",
-  "status": "saved",
-  "moved": [
-   "Jaylen Brown: SG to BE, out",
-   "Darryn Peterson: UTIL to SG, plays today (31.3 proj)",
-   "Alex Sarr: BE to F, plays today (33.4 proj)",
-   "Ivica Zubac: BE to UTIL, plays today (32.6 proj)",
-   "Mikal Bridges: F to BE, slot needed for a player with a game"
-  ],
-  "at": "Nov 18, 3:03 AM CT",
-  "src": "schedule",
-  "pass": "early"
  }
 ]
