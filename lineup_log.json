@@ -1,6 +1,17 @@
 [
  {
   "date": "2026-11-28",
+  "status": "saved",
+  "moved": [
+   "Alex Sarr: BE to UTIL, plays today (32.4 proj)",
+   "Andrew Wiggins: UTIL to BE, slot needed for a player with a game"
+  ],
+  "at": "Nov 28, 9:43 AM CT",
+  "src": "schedule",
+  "pass": "early"
+ },
+ {
+  "date": "2026-11-28",
   "status": "error",
   "moved": [
    "Alex Sarr: BE to UTIL, plays today (32.4 proj)",
@@ -332,14 +343,5 @@
   "at": "Nov 18, 3:03 AM CT",
   "src": "schedule",
   "pass": "early"
- },
- {
-  "date": "2026-11-17",
-  "status": "ok",
-  "moved": [],
-  "note": "Lineup was already optimal.",
-  "at": "Nov 17, 11:04 AM CT",
-  "src": "schedule",
-  "pass": "late"
  }
 ]
