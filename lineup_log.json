@@ -1,5 +1,17 @@
 [
  {
+  "date": "2026-11-28",
+  "status": "error",
+  "moved": [
+   "Alex Sarr: BE to UTIL, plays today (32.4 proj)",
+   "Andrew Wiggins: UTIL to BE, slot needed for a player with a game"
+  ],
+  "error": "ESPN said 409: {\"messages\":[\"Transaction type can only be executed in the current scoring period\"],\"details\":[{\"message\":\"Transaction type can only be executed in the current scoring period\",\"shortMessage\":\"Transaction type can only be executed in the current scoring period\",\"resolution\":null,\"type\":\"TRAN_INVALID_",
+  "at": "Nov 28, 1:35 AM CT",
+  "src": "schedule",
+  "pass": "early"
+ },
+ {
   "date": "2026-11-27",
   "status": "ok",
   "moved": [],
@@ -329,18 +341,5 @@
   "at": "Nov 17, 11:04 AM CT",
   "src": "schedule",
   "pass": "late"
- },
- {
-  "date": "2026-11-17",
-  "status": "saved",
-  "moved": [
-   "Ausar Thompson: BE to UTIL, plays today (33.0 proj)",
-   "Alex Sarr: F to BE, slot needed for a player with a game",
-   "Andrew Wiggins: UTIL to BE, slot needed for a player with a game",
-   "Mikal Bridges: BE to F, plays today (25.6 proj)"
-  ],
-  "at": "Nov 17, 3:05 AM CT",
-  "src": "schedule",
-  "pass": "early"
  }
 ]

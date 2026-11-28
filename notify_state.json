@@ -163,6 +163,12 @@
  "seeded": true,
  "log": [
   {
+   "at": "2026-11-28T01:36-06:00",
+   "title": "Lineup check",
+   "body": "Donovan Mitchell doesn't play today but is in your lineup. Alex Sarr is on your bench and plays today. (9 starters aren't playing, 1 bench players are.)",
+   "prio": 4
+  },
+  {
    "at": "2026-11-27T17:42-06:00",
    "title": "Andrew Wiggins: back to full health",
    "body": "Andrew Wiggins is back to full health.\nWiggins (ankle) is available for Friday's game against the Knicks.",
@@ -515,15 +521,9 @@
    "title": "Lineup check",
    "body": "Donovan Mitchell is out but is in your lineup. Jaylen Brown is on your bench and plays today. (8 starters aren't playing, 4 bench players are.)",
    "prio": 4
-  },
-  {
-   "at": "2026-11-14T18:58-06:00",
-   "title": "\ud83d\udea8 Donovan Mitchell: OUT",
-   "body": "Donovan Mitchell is OUT. He's in your lineup today. Nobody on your bench plays today. Free agent Cameron Johnson (DEN, 26 avg) does.\nMitchell (knee) has been ruled out for Saturday's game against the Mavericks.",
-   "prio": 5
   }
  ],
- "at": "2026-11-27T17:42-06:00",
+ "at": "2026-11-28T01:36-06:00",
  "on": false,
- "lineup_day": "2026-11-24"
+ "lineup_day": "2026-11-28"
 }
