@@ -94,7 +94,7 @@ function tpkVal(t,outIds,inIds){const A=txRoster(t,outIds,inIds),S=D.sim,last=tx
 function tpkGames(p){const S=D.sim;let g=0;for(let w=S.cur+1+txMiss(p);w<=S.reg;w++)g+=((S.gpw[p.tm]||{})[w])||0;return g}
 function tradePackages(){
   if(!D||!D.sim||!D.sim.gpw||typeof txRoster!=="function")return [];
-  const key=D.pulled+"|"+JSON.stringify(txOW());if(TPK.key===key)return TPK.list;TPKR=null;
+  const key=D.pulled+"|"+D.me+"|"+JSON.stringify(txOW());if(TPK.key===key)return TPK.list;TPKR=null;
   const me=D.me,S=D.sim,weeks=Math.max(1,S.reg-S.cur),mine=D.players.filter(p=>p.t==me);
   const base={};const bv=t=>base[t]??(base[t]=tpkVal(t,new Set(),new Set()).v);
   const targets=D.players.filter(p=>p.t&&p.t!=me&&!txIsOut(p)&&txFull(p)>=27).sort((a,b)=>txFull(b)-txFull(a)).slice(0,32);

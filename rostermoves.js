@@ -81,7 +81,9 @@ function rmAdvice(f,ST){
 /* the moves worth making right now, across every available player */
 let RMS={key:null,list:null,busy:false};
 function rmSuggest(done){
-  const key=D.pulled+"|"+rmT()+"|"+Object.values(LV.games||{}).map(g=>g.state).join("");
+  if(D.owner!=null&&D.me!==D.owner)return;  // moves act on the owner's roster only; never compute them for another team
+  const rmKey=()=>D.pulled+"|"+D.me+"|"+rmT()+"|"+Object.values(LV.games||{}).map(g=>g.state).join("");
+  const key=rmKey();
   if(RMS.key===key&&RMS.list)return done(RMS.list);if(RMS.busy)return;RMS.busy=true;
   const ST=rmStakes(),pool=(D.fa||[]).filter(f=>!f.claimed&&!/OUT|RESERVE|SUSP/.test(f.inj||""))
     .sort((a,b)=>(rmUsableToday(b)-rmUsableToday(a))||(b.pa-a.pa)).slice(0,24);
@@ -91,7 +93,7 @@ function rmSuggest(done){
     if(i<pool.length)return setTimeout(step,0);
     out.sort((x,y)=>y.a.score-x.a.score);const used=new Set(),pick=[];
     for(const o of out){if(used.has(o.a.p.id))continue;used.add(o.a.p.id);pick.push(o);if(pick.length===3)break}
-    RMS={key,list:{pick,ST,all:out},busy:false};done(RMS.list)};
+    RMS={key,list:{pick,ST,all:out},busy:false};if(rmKey()!==key)return rmSuggest(done);done(RMS.list)};
   step();
 }
 function rmReason(f,a,ST){const L=x=>esc(last(x));const r=[];
