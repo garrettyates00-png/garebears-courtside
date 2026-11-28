@@ -158,7 +158,8 @@
   "r|2026-11-25|8|ADD:4397140|DROP:Brayden Burries",
   "r|2026-11-25|8|ADD:Kevin Porter Jr.|DROP:Brayden Burries",
   "r|2026-11-27|5|ADD:Ja'Kobe Walter",
-  "r|2026-11-27|7|ADD:Derik Queen|DROP:Jordan Goodwin"
+  "r|2026-11-27|7|ADD:Derik Queen|DROP:Jordan Goodwin",
+  "r|2026-11-28|7|ADD:Dominick Barlow|DROP:De'Andre Hunter"
  ],
  "seeded": true,
  "log": [
@@ -523,7 +524,7 @@
    "prio": 4
   }
  ],
- "at": "2026-11-28T01:36-06:00",
+ "at": "2026-11-28T10:23-06:00",
  "on": false,
  "lineup_day": "2026-11-28"
 }
