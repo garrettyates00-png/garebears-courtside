@@ -1314,6 +1314,25 @@ html.usercol .mood.mwin .mword{filter:drop-shadow(0 0 22px color-mix(in srgb,var
 .hdnet{font:700 12.5px var(--mono);font-style:normal;font-variant-numeric:tabular-nums;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.06);color:var(--mute)}
 .hdnet.up{color:var(--up,#4ade80);background:color-mix(in srgb,var(--up,#4ade80) 14%,transparent)}
 .hdnet.down{color:var(--down,#f87171);background:color-mix(in srgb,var(--down,#f87171) 14%,transparent)}
+
+/* team picker */
+.b.who{display:inline-flex;align-items:center;gap:7px;max-width:190px;padding:0 12px 0 6px}
+.b.who img{width:24px;height:24px;border-radius:50%;object-fit:cover;flex:none}
+.b.who span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:600 13px var(--sans)}
+.b.who svg{flex:none;opacity:.6}
+.b.who .ini,.whol .ini{display:grid;place-items:center;font:700 10px var(--sans);font-style:normal;color:var(--ink,#fff);background:color-mix(in srgb,var(--a) 30%,rgba(255,255,255,.08))}
+.b.who .ini{width:24px;height:24px;border-radius:50%;flex:none}.whol .ini{font-size:12.5px}
+@media (max-width:700px){.b.who span{display:none}.b.who{padding:0 9px 0 5px}}
+.whom .box{max-width:440px}
+.whol{display:grid;gap:6px;max-height:min(62vh,560px);overflow:auto;margin:4px -4px 0;padding:0 4px}
+.whol button{all:unset;cursor:pointer;display:grid;grid-template-columns:36px 1fr auto;align-items:center;gap:12px;padding:9px 12px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.02)}
+.whol button:hover,.whol button:focus-visible{background:rgba(255,255,255,.06)}
+.whol button.on{border-color:color-mix(in srgb,var(--a) 60%,transparent);background:color-mix(in srgb,var(--a) 10%,transparent)}
+.whol img,.whol i{width:36px;height:36px;border-radius:50%;object-fit:cover;background:rgba(255,255,255,.06)}
+.whol b{display:block;font:600 14.5px var(--sans)}.whol small{display:block;font:500 12px var(--sans);color:var(--faint)}
+.whol em{font:600 13px var(--mono);font-style:normal;color:var(--mute)}
+/* other teams: owner-only tools hide (they act on Garebears' ESPN account) */
+html.guest #secMoves,html.guest #secAsk,html.guest #secAlerts,html.guest .luact,html.guest #luGo,html.guest #setRow,html.guest #force,html.guest .snav a[data-id="secMoves"],html.guest .snav a[data-id="secAsk"],html.guest .dpanel a[href="#secMoves"],html.guest .dpanel a[href="#secAsk"],html.guest .guestoff{display:none!important}
 </style></head><body><div id="boot" aria-label="Loading"><i class="baur"></i><i class="bgrain"></i><div class="bcore"><b class="blogo" data-t="GRINDEX"><span style="--i:0">G</span><span style="--i:1">R</span><span style="--i:2">I</span><span style="--i:3">N</span><span style="--i:4">D</span><span style="--i:5">E</span><span style="--i:6">X</span></b><small class="btag">Fantasy · Arena</small><i class="bline"></i></div></div>
 <div class="amb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="grain" aria-hidden="true"></div><div class="frame" aria-hidden="true"></div><div class="btmfade" aria-hidden="true"></div>
 
@@ -1323,6 +1342,7 @@ html.usercol .mood.mwin .mword{filter:drop-shadow(0 0 22px color-mix(in srgb,var
     <div class="mark"><h1>Grindex</h1><span class="meta"><span class="dot" id="dot"></span><span id="pulled">Loading</span></span></div>
     <div class="seg" role="tablist" aria-label="Section"><button type="button" role="tab" data-view="fantasy" aria-selected="true">Fantasy</button><button type="button" role="tab" data-view="arena" aria-selected="false">Arena</button></div>
     <div class="btns">
+      <button class="b who" id="who" type="button" aria-label="Switch team"></button>
       <button class="b burger" id="burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="drawer"><i></i><i></i><i></i></button>
       <button class="b" id="refresh" hidden type="button" title="Reload the newest published data" aria-label="Reload">Reload</button>
       <button class="b gear" id="gear" hidden type="button" aria-label="Colors" aria-expanded="false" title="Colors"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="13.5" cy="6.5" r="1.5"/><circle cx="17.5" cy="10.5" r="1.5"/><circle cx="8.5" cy="7.5" r="1.5"/><circle cx="6.5" cy="12.5" r="1.5"/><path d="M12 2a10 10 0 1 0 0 20c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h2.3A5.7 5.7 0 0 0 22 11.6C22 6.3 17.5 2 12 2z"/></svg></button>
@@ -1792,11 +1812,35 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){const p=document.qu
 /* ---- data + GitHub actions ---- */
 async function loadLog(){try{const r=await fetch("lineup_log.json?t="+Date.now(),{cache:"no-store"});LOG=r.ok?await r.json():[]}catch(e){LOG=[]}}
 let lastPull="";
-async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
-const BUILD="1795226993";
+/* Team picker: anyone with the link can view the site as their own team. The data covers all 10 teams;
+   we just swap whose side "me" is. Owner-only tools (lineup setting, moves, Ask, updates) hide for other teams. */
+const WHO_KEY="grindex-team";
+const whoGet=()=>{try{return localStorage.getItem(WHO_KEY)}catch(e){return null}};
+function applyWho(){if(!D)return;if(D.owner==null){D.owner=D.me;D.ownerOpp=D.opp}D.me=D.owner;D.opp=D.ownerOpp;const w=whoGet();
+  if(w&&D.teams[w]&&+w!==D.owner){D.me=+w;const g=(D.sched||[]).find(m=>m[0]===D.period&&(m[1]==w||m[2]==w));
+    D.opp=g?+(g[1]==w?g[2]:g[1]):+Object.keys(D.teams).find(k=>+k!==D.me)}
+  document.documentElement.classList.toggle("guest",D.me!==D.owner);whoChip()}
+const whoIni=n=>esc(String(n||"?").split(/\s+/).map(w=>w[0]).join("").slice(0,2).toUpperCase());
+const whoImg=(t,c)=>t.logo?`<img src="${esc(t.logo)}" alt="" loading="lazy" onerror="this.outerHTML='<i class=&quot;ini${c||""}&quot;>${whoIni(t.name)}</i>'">`:`<i class="ini${c||""}">${whoIni(t.name)}</i>`;
+function whoChip(){const b=$("#who");if(!b||!D)return;const t=D.teams[D.me];
+  b.innerHTML=`${whoImg(t)}<span>${esc(t.name)}</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>`;
+  b.title="Viewing as "+t.name+". Tap to switch teams."}
+function whoPicker(first){if(!D)return;const m=document.createElement("div");m.className="modal whom";
+  const cur=D.me,rows=Object.entries(D.teams).sort((a,b)=>(b[1].w-a[1].w)||(a[1].name.localeCompare(b[1].name)));
+  m.innerHTML=`<div class="box" role="dialog" aria-label="Pick your team"><h2 style="margin:0">${first?"Which team is yours?":"Switch team"}</h2>
+    <p class="mute" style="margin:0;font-size:14px">The whole site follows the team you pick: your matchup, lineup, schedule and odds. Saved on this device.</p>
+    <div class="whol">${rows.map(([k,t])=>`<button type="button" data-who="${k}" class="${+k===cur?"on":""}">${whoImg(t)}<span><b>${esc(t.name)}</b><small>${esc(t.owner||"")}</small></span><em>${t.w}-${t.l}</em></button>`).join("")}</div>
+    ${first?"":`<div class="btns" style="justify-content:flex-end"><button class="b" type="button" data-whox>Close</button></div>`}</div>`;
+  document.body.appendChild(m);
+  m.addEventListener("click",e=>{const b=e.target.closest("[data-who]");
+    if(b){try{localStorage.setItem(WHO_KEY,b.dataset.who)}catch(x){}m.remove();applyWho();renderAll();window.scrollTo({top:0});return}
+    if(e.target.closest("[data-whox]")||(!first&&e.target===m))m.remove()})}
+document.addEventListener("click",e=>{if(e.target.closest("#who"))whoPicker(false)});
+async function load(force){try{const r=await fetch("data.json?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;const j=await r.json();if(force||j.pulled!==lastPull){D=j;lastPull=j.pulled;applyWho();renderAll();return true}return false}catch(e){$("#pulled").textContent="Couldn't load data yet";return false}}
+const BUILD="1795839360";
 async function checkBuild(){try{const t=await (await fetch("index.html?t="+Date.now(),{cache:"no-store"})).text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD&&!m[1].startsWith("__"))location.reload()}catch(e){}}
 setInterval(()=>{if(!document.hidden)checkBuild()},90000);
-loadLog().then(()=>load(true));setInterval(()=>{if(!document.hidden)loadLog().then(()=>load(false))},120000);
+loadLog().then(()=>load(true)).then(()=>{if(D&&!whoGet()&&!getTok())whoPicker(true)});setInterval(()=>{if(!document.hidden)loadLog().then(()=>load(false))},120000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&D)loadLog().then(()=>load(false))});
 function toast(m){const t=document.createElement("div");t.className="toast";t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),4000)}
 $("#refresh").onclick=async()=>{
@@ -1817,6 +1861,7 @@ function tokenDialog(wf){wf=wf||"refresh.yml";const m=document.createElement("di
   document.body.appendChild(m);$("#tokGo").focus();return new Promise(res=>{$("#tokGo").onclick=()=>{setTimeout(()=>{m.remove();res(false);toast("Run it on GitHub. This page will pick up the new data on its own.")},300)};$("#tokCancel").onclick=()=>{m.remove();res(false)};$("#tokSave").onclick=()=>{const v=$("#tokIn").value.trim();if(!v)return;setTok(v);m.remove();res(true)}})}
 const gh=(path,opt={})=>fetch("https://api.github.com/repos/"+REPO+path,{...opt,headers:{"Accept":"application/vnd.github+json","Authorization":"Bearer "+getTok(),...(opt.headers||{})}});
 async function dispatch(wf,inputs,label,isDone){
+  if(D&&D.owner!=null&&D.me!==D.owner&&/^(lineup|roster|notify|ask)\.yml$/.test(wf)){toast("That acts on the Garebears ESPN account, so it only works when viewing as Garebears.");return null}
   if(forcing)return null;if(!getTok()&&!(await tokenDialog(wf)))return null;
   forcing=true;const btn=$("#force"),st=$("#status"),T0=Date.now();let phase=label;btn.classList.add("busy");
   const tick=setInterval(()=>{st.textContent=phase+" · "+Math.round((Date.now()-T0)/1000)+"s"},1000);st.textContent=phase;
@@ -1844,27 +1889,27 @@ async function runLineup(){const before=LOG[0]?LOG[0].at:"";$("#setRow").innerHT
   else if(ok===false)toast("Still publishing. Check back in a few minutes.");
   renderLineupAct()}
 </script>
-<script src="arena.js?v=1795226993"></script>
-<script src="season.js?v=1795226993"></script>
-<script src="standings.js?v=1795226993"></script>
-<script src="bets.js?v=1795226993"></script>
-<script src="trades.js?v=1795226993"></script>
-<script src="tradelab.js?v=1795226993"></script>
-<script src="betshub.js?v=1795226993"></script>
-<script src="sim.js?v=1795226993"></script>
-<script src="overunder.js?v=1795226993"></script>
-<script src="profile.js?v=1795226993"></script>
-<script src="ask.js?v=1795226993"></script>
-<script src="timeline.js?v=1795226993"></script>
-<script src="nav.js?v=1795226993"></script>
-<script src="hoops.js?v=1795226993"></script>
-<script src="insights.js?v=1795226993"></script>
-<script src="rostermoves.js?v=1795226993"></script>
-<script src="lineupedit.js?v=1795226993"></script>
-<script src="alerts.js?v=1795226993"></script>
-<script src="myseason.js?v=1795226993"></script>
-<script src="results.js?v=1795226993"></script>
-<script src="mood.js?v=1795226993"></script>
-<script src="live.js?v=1795226993"></script>
-<script src="fx.js?v=1795226993"></script>
+<script src="arena.js?v=1795839360"></script>
+<script src="season.js?v=1795839360"></script>
+<script src="standings.js?v=1795839360"></script>
+<script src="bets.js?v=1795839360"></script>
+<script src="trades.js?v=1795839360"></script>
+<script src="tradelab.js?v=1795839360"></script>
+<script src="betshub.js?v=1795839360"></script>
+<script src="sim.js?v=1795839360"></script>
+<script src="overunder.js?v=1795839360"></script>
+<script src="profile.js?v=1795839360"></script>
+<script src="ask.js?v=1795839360"></script>
+<script src="timeline.js?v=1795839360"></script>
+<script src="nav.js?v=1795839360"></script>
+<script src="hoops.js?v=1795839360"></script>
+<script src="insights.js?v=1795839360"></script>
+<script src="rostermoves.js?v=1795839360"></script>
+<script src="lineupedit.js?v=1795839360"></script>
+<script src="alerts.js?v=1795839360"></script>
+<script src="myseason.js?v=1795839360"></script>
+<script src="results.js?v=1795839360"></script>
+<script src="mood.js?v=1795839360"></script>
+<script src="live.js?v=1795839360"></script>
+<script src="fx.js?v=1795839360"></script>
 </body></html>

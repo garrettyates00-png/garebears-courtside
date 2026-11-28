@@ -159,7 +159,7 @@ function dayPlayers(t,iso){
 }
 function lineupNote(t,iso){const L=lineupCheck(t,iso);if(!L||(!L.benched.length&&L.gain<1))return "";
   const mine=t==D.me;
-  if(iso>TODAY())return `<div class="lnote"><b>Not set yet.</b> ${L.benched.length?`In ${mine?"your":"their"} current lineup, ${L.benched.map(b=>esc(b.n)).join(", ")} ${L.benched.length>1?"are":"is"} on the bench for this day. `:""}ESPN carries today's lineup forward, so the projection assumes ${mine?"you start":"they start"} the best players that morning. If ${mine?"you":"they"} don't, it's about ${Math.round(L.gain)} lower.${mine?` <span class="faint">Your auto-lineup sets it at 10:30 AM.</span>`:""}</div>`;
+  if(iso>TODAY())return `<div class="lnote"><b>Not set yet.</b> ${L.benched.length?`In ${mine?"your":"their"} current lineup, ${L.benched.map(b=>esc(b.n)).join(", ")} ${L.benched.length>1?"are":"is"} on the bench for this day. `:""}ESPN carries today's lineup forward, so the projection assumes ${mine?"you start":"they start"} the best players that morning. If ${mine?"you":"they"} don't, it's about ${Math.round(L.gain)} lower.${mine&&D.me===D.owner?` <span class="faint">Your auto-lineup sets it at 10:30 AM.</span>`:""}</div>`;
   return `<div class="lnote ${L.gain>=5?"warn":""}"><b>${L.benched.length} on the bench with a game:</b> ${L.benched.map(b=>`${esc(b.n)} (${r1(b.proj)})`).join(", ")}.
     ${L.gain>=1?` The projection assumes ${mine?"you start":"they start"} the best lineup. As it stands right now, ${mine?"you'd":"they'd"} score about <b>${Math.round(L.gain)} less</b>.`:" They project lower than the starters, so it barely matters."}
     ${mine?` <span class="faint">Your auto-lineup sets this at 10:30 AM on game days; tap Set lineup if it hasn't run.</span>`:""}</div>`}
